@@ -544,7 +544,7 @@ export default function AdminDashboard() {
 }
 
 function UserDetailsModal({ userId, onClose, getImageUrl }: { userId: number; onClose: () => void; getImageUrl: (url: string) => string }) {
-    const { currency, formatPrice } = useCurrencyStore();
+    const { formatPrice } = useCurrencyStore();
     const { data: user, isLoading } = useQuery({
         queryKey: ['users', userId],
         queryFn: async () => (await api.get(`/users/${userId}`)).data,
