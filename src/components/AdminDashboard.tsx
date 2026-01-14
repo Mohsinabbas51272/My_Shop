@@ -22,7 +22,7 @@ import {
 
 export default function AdminDashboard() {
     const queryClient = useQueryClient();
-    const { currency, convertPrice, formatPrice } = useCurrencyStore();
+    const { formatPrice } = useCurrencyStore();
     const [newProduct, setNewProduct] = useState({ name: '', price: '', description: '', image: '' });
     const [uploading, setUploading] = useState(false);
     const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'users' | 'queries'>('products');
