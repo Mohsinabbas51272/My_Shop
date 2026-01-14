@@ -1,0 +1,125 @@
+@import "tailwindcss";
+
+@layer base {
+    :root {
+        /* Midnight (Default) */
+        --primary: #3b82f6;
+        --primary-hover: #2563eb;
+        --bg-main: #0f172a;
+        --bg-card: #1e293b;
+        --bg-input: #020617;
+        --border: #334155;
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+        --accent-glow: rgba(59, 130, 246, 0.1);
+    }
+
+    .theme-emerald {
+        --primary: #10b981;
+        --primary-hover: #059669;
+        --bg-main: #064e3b;
+        --bg-card: #065f46;
+        --bg-input: #022c22;
+        --border: #065f46;
+        --text-main: #ecfdf5;
+        --text-muted: #a7f3d0;
+        --accent-glow: rgba(16, 185, 129, 0.1);
+    }
+
+    .theme-sunset {
+        --primary: #f59e0b;
+        --primary-hover: #d97706;
+        --bg-main: #450a0a;
+        --bg-card: #7f1d1d;
+        --bg-input: #270303;
+        --border: #991b1b;
+        --text-main: #fef2f2;
+        --text-muted: #fecaca;
+        --accent-glow: rgba(245, 158, 11, 0.1);
+    }
+
+    .theme-ocean {
+        --primary: #06b6d4;
+        --primary-hover: #0891b2;
+        --bg-main: #083344;
+        --bg-card: #164e63;
+        --bg-input: #021a24;
+        --border: #155e75;
+        --text-main: #ecfeff;
+        --text-muted: #a5f3fc;
+        --accent-glow: rgba(6, 182, 212, 0.1);
+    }
+
+    .theme-lavender {
+        --primary: #a855f7;
+        --primary-hover: #9333ea;
+        --bg-main: #2e1065;
+        --bg-card: #4c1d95;
+        --bg-input: #1e0a3d;
+        --border: #5b21b6;
+        --text-main: #f5f3ff;
+        --text-muted: #ddd6fe;
+        --accent-glow: rgba(168, 85, 247, 0.1);
+    }
+
+    .theme-rosegold {
+        --primary: #fb7185;
+        --primary-hover: #f43f5e;
+        --bg-main: #4c0519;
+        --bg-card: #881337;
+        --bg-input: #2e0310;
+        --border: #9f1239;
+        --text-main: #fff1f2;
+        --text-muted: #fecdd3;
+        --accent-glow: rgba(251, 113, 133, 0.1);
+    }
+
+    body {
+        @apply transition-colors duration-500;
+        background-color: var(--bg-main);
+        color: var(--text-main);
+    }
+}
+
+/* Splash Screen Animations */
+@keyframes splash-ping {
+    0% {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1.2);
+        opacity: 0;
+    }
+}
+
+@keyframes draw-logo {
+    0% {
+        stroke-dashoffset: 1000;
+        fill: transparent;
+    }
+
+    50% {
+        stroke-dashoffset: 0;
+        fill: transparent;
+    }
+
+    100% {
+        stroke-dashoffset: 0;
+        fill: currentColor;
+    }
+}
+
+.animate-splash-ping {
+    animation: splash-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.animate-draw {
+    stroke-dasharray: 1000;
+    animation: draw-logo 3s ease-in-out forwards;
+}
