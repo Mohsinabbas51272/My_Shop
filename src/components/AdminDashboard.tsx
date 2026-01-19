@@ -132,41 +132,41 @@ export default function AdminDashboard() {
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
                 {/* Navigation Tabs */}
-                <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-2 scrollbar-hide no-scrollbar">
+                <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-4 scrollbar-hide no-scrollbar touch-pan-x">
                     <button
                         onClick={() => setActiveTab('products')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold transition-all ${activeTab === 'products' ? 'bg-[var(--primary)] text-white' : 'bg-[var(--bg-card)] text-[var(--text-muted)] hover:bg-[var(--bg-input)]'}`}
+                        className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap ${activeTab === 'products' ? 'bg-[var(--primary)] text-white shadow-lg shadow-[var(--accent-glow)]' : 'bg-[var(--bg-card)] text-[var(--text-muted)] hover:bg-[var(--bg-input)] border border-[var(--border)]'}`}
                     >
-                        <LayoutDashboard className="w-4 h-4" />
+                        <LayoutDashboard className="w-5 h-5" />
                         Products
                     </button>
                     <button
                         onClick={() => setActiveTab('orders')}
-                        className={`relative flex items-center gap-2 px-4 py-2 rounded-lg font-bold transition-all ${activeTab === 'orders' ? 'bg-[var(--primary)] text-white' : 'bg-[var(--bg-card)] text-[var(--text-muted)] hover:bg-[var(--bg-input)]'}`}
+                        className={`relative flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap ${activeTab === 'orders' ? 'bg-[var(--primary)] text-white shadow-lg shadow-[var(--accent-glow)]' : 'bg-[var(--bg-card)] text-[var(--text-muted)] hover:bg-[var(--bg-input)] border border-[var(--border)]'}`}
                     >
-                        <ShoppingBag className="w-4 h-4" />
+                        <ShoppingBag className="w-5 h-5" />
                         Orders
                         {dashboardCounts?.orders > 0 && (
-                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] min-w-[18px] h-[18px] flex items-center justify-center rounded-full border-2 border-[var(--bg-main)] shadow-sm">
+                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] min-w-[20px] h-[20px] flex items-center justify-center rounded-full border-2 border-[var(--bg-card)] shadow-sm">
                                 {dashboardCounts.orders}
                             </span>
                         )}
                     </button>
                     <button
                         onClick={() => setActiveTab('users')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold transition-all ${activeTab === 'users' ? 'bg-[var(--primary)] text-white' : 'bg-[var(--bg-card)] text-[var(--text-muted)] hover:bg-[var(--bg-input)]'}`}
+                        className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap ${activeTab === 'users' ? 'bg-[var(--primary)] text-white shadow-lg shadow-[var(--accent-glow)]' : 'bg-[var(--bg-card)] text-[var(--text-muted)] hover:bg-[var(--bg-input)] border border-[var(--border)]'}`}
                     >
-                        <Users className="w-4 h-4" />
+                        <Users className="w-5 h-5" />
                         Users
                     </button>
                     <button
                         onClick={() => setActiveTab('queries')}
-                        className={`relative flex items-center gap-2 px-4 py-2 rounded-lg font-bold transition-all ${activeTab === 'queries' ? 'bg-[var(--primary)] text-white' : 'bg-[var(--bg-card)] text-[var(--text-muted)] hover:bg-[var(--bg-input)]'}`}
+                        className={`group relative flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap ${activeTab === 'queries' ? 'bg-[var(--primary)] text-white shadow-lg shadow-[var(--accent-glow)]' : 'bg-[var(--bg-card)] text-[var(--text-muted)] hover:bg-[var(--bg-input)] border border-[var(--border)]'}`}
                     >
-                        <MessageSquare className="w-4 h-4" />
+                        <MessageSquare className="w-5 h-5 text-[var(--primary)]" />
                         Queries
                         {dashboardCounts?.complaints > 0 && (
-                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] min-w-[18px] h-[18px] flex items-center justify-center rounded-full border-2 border-[var(--bg-main)] shadow-sm">
+                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] min-w-[20px] h-[20px] flex items-center justify-center rounded-full border-2 border-[var(--bg-card)] shadow-sm">
                                 {dashboardCounts.complaints}
                             </span>
                         )}
