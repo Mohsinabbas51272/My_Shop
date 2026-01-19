@@ -71,28 +71,31 @@ export default function Dashboard() {
                                 <p className="text-xl font-medium">No products found</p>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                                {products.map((product: any) => (
-                                    <div
-                                        key={product.id}
-                                        onClick={() => setSelectedProduct(product)}
-                                        className="group bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl overflow-hidden hover:border-[var(--primary)]/30 transition-all hover:shadow-2xl hover:shadow-[var(--accent-glow)] hover:-translate-y-1 cursor-pointer"
-                                    >
-                                        <div className="aspect-square relative overflow-hidden">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
+                                {products?.map((product: any) => (
+                                    <div key={product.id} className="group bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl overflow-hidden hover:border-[var(--primary)]/50 transition-all shadow-xl hover:shadow-[var(--accent-glow)] flex flex-col h-full">
+                                        <div className="relative aspect-[4/3] sm:aspect-square overflow-hidden bg-[var(--bg-input)]/50">
                                             <img
                                                 src={getImageUrl(product.image)}
                                                 alt={product.name}
-                                                className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500"
+                                                className="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform duration-500"
                                             />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-main)]/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
+                                                <button
+                                                    onClick={() => setSelectedProduct(product)}
+                                                    className="w-full bg-white/10 backdrop-blur-md text-white border border-white/20 py-2 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-white/20 transition-all"
+                                                >
+                                                    View Details
+                                                </button>
+                                            </div>
                                         </div>
 
-                                        <div className="p-5">
+                                        <div className="p-5 flex flex-col flex-grow">
                                             <div className="flex items-start justify-between mb-2">
                                                 <h3 className="font-bold text-lg text-[var(--text-main)]">{product.name}</h3>
                                                 <span className="text-[var(--primary)] font-bold">{formatPrice(product.price)}</span>
                                             </div>
-                                            <p className="text-[var(--text-muted)] text-sm line-clamp-2 mb-6">
+                                            <p className="text-[var(--text-muted)] text-sm line-clamp-2 mb-6 flex-grow">
                                                 {product.description || 'No description available for this premium item.'}
                                             </p>
 
@@ -159,7 +162,7 @@ export default function Dashboard() {
                                                 <div>
                                                     <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1">Payment</label>
                                                     <div className="flex items-center gap-2">
-                                                        <span className={`px - 2 py - 0.5 rounded - full text - [10px] font - bold uppercase border ${order.paymentStatus === 'Paid'
+                                                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border ${order.paymentStatus === 'Paid'
                                                             ? 'bg-green-500/10 text-green-500 border-green-500/20'
                                                             : 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
                                                             } `}>

@@ -37,7 +37,7 @@ export default function Navbar() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
                     {/* Left Section: Logo & Mobile Menu Toggle */}
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 sm:gap-4">
                         <button
                             onClick={() => setIsMenuOpen(!isMenuOpen)}
                             className="md:hidden p-2 text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-input)] rounded-lg transition-all"
@@ -45,9 +45,9 @@ export default function Navbar() {
                             {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
                         </button>
 
-                        <Link to={user?.role === 'ADMIN' ? "/admin/dashboard" : "/user/dashboard"} className="flex items-center gap-2 text-[var(--primary)] font-bold text-xl hover:opacity-80 transition-opacity">
-                            <Store className="w-6 h-6" />
-                            <span>MyShop</span>
+                        <Link to={user?.role === 'ADMIN' ? "/admin/dashboard" : "/user/dashboard"} className="flex items-center gap-1.5 sm:gap-2 text-[var(--primary)] font-bold text-lg sm:text-xl hover:opacity-80 transition-opacity shrink-0">
+                            <Store className="w-5 h-5 sm:w-6 sm:h-6" />
+                            <span className="truncate max-w-[100px] sm:max-w-none">MyShop</span>
                         </Link>
 
                         {/* Navigation Links - Desktop */}
@@ -85,13 +85,13 @@ export default function Navbar() {
                     </div>
 
                     {/* Right Section: Utilities & User Actions */}
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 sm:gap-4">
                         {/* Utilities Group */}
-                        <div className="flex items-center gap-2 mr-2">
+                        <div className="flex items-center gap-1.5 sm:gap-2">
                             {/* Currency Toggle */}
                             <button
                                 onClick={() => setCurrency(currency === 'PKR' ? 'USD' : 'PKR')}
-                                className="px-3 py-1 rounded-lg bg-[var(--bg-input)] hover:bg-[var(--bg-card)] border border-[var(--border)] text-xs font-bold text-[var(--primary)] transition-all min-w-[50px]"
+                                className="px-2 sm:px-3 py-1 rounded-lg bg-[var(--bg-input)] hover:bg-[var(--bg-card)] border border-[var(--border)] text-[10px] sm:text-xs font-bold text-[var(--primary)] transition-all min-w-[40px] sm:min-w-[50px]"
                                 title="Switch Currency"
                             >
                                 {currency}
@@ -101,10 +101,10 @@ export default function Navbar() {
                             <div className="relative">
                                 <button
                                     onClick={() => setShowThemes(!showThemes)}
-                                    className="p-2 text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors rounded-full hover:bg-[var(--bg-input)]"
+                                    className="p-1.5 sm:p-2 text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors rounded-full hover:bg-[var(--bg-input)]"
                                     title="Switch Theme"
                                 >
-                                    <Palette className="w-5 h-5" />
+                                    <Palette className="w-4 h-4 sm:w-5 h-5" />
                                 </button>
                                 {showThemes && (
                                     <div className="absolute right-0 mt-2 w-48 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl shadow-2xl p-2 z-[110]">
@@ -131,9 +131,9 @@ export default function Navbar() {
                             {user?.role !== 'ADMIN' && (
                                 <Link
                                     to="/cart"
-                                    className="relative p-2 text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-input)] rounded-full transition-all"
+                                    className="relative p-1.5 sm:p-2 text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-input)] rounded-full transition-all"
                                 >
-                                    <ShoppingCart className="w-5 h-5" />
+                                    <ShoppingCart className="w-4 h-4 sm:w-5 h-5" />
                                     {cartCount > 0 && (
                                         <span className="absolute -top-0.5 -right-0.5 bg-[var(--primary)] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full ring-2 ring-[var(--bg-card)]">
                                             {cartCount}
@@ -143,14 +143,14 @@ export default function Navbar() {
                             )}
                         </div>
 
-                        {/* Separator */}
-                        <div className="h-6 w-px bg-[var(--border)] hidden sm:block"></div>
+                        {/* Separator - Hidden on mobile */}
+                        <div className="h-6 w-px bg-[var(--border)] hidden md:block"></div>
 
-                        {/* User Profile */}
-                        <div className="flex items-center gap-3 pl-2">
+                        {/* User Profile & Logout - Desktop Only */}
+                        <div className="hidden md:flex items-center gap-3 pl-2">
                             <Link
                                 to="/profile"
-                                className="hidden sm:flex items-center gap-2 group"
+                                className="flex items-center gap-2 group"
                             >
                                 <div className="w-8 h-8 rounded-full bg-[var(--bg-input)] flex items-center justify-center text-[var(--primary)] border border-[var(--border)] group-hover:border-[var(--primary)] transition-all">
                                     <User className="w-4 h-4" />
