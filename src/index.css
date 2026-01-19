@@ -123,3 +123,15 @@
     stroke-dasharray: 1000;
     animation: draw-logo 3s ease-in-out forwards;
 }
+
+/* Scrollbar Utils */
+@layer utilities {
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+}
