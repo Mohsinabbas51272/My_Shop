@@ -127,7 +127,7 @@ export default function Cart() {
                             {items.map((item) => (
                                 <div
                                     key={item.id}
-                                    className="bg-[var(--bg-card)] border border-[var(--border)] p-6 rounded-2xl flex items-center gap-6"
+                                    className="bg-[var(--bg-card)] border border-[var(--border)] p-4 md:p-6 rounded-2xl flex flex-col sm:flex-row items-center gap-4 md:gap-6"
                                 >
                                     <img
                                         src={getImageUrl(item.image)}
@@ -138,7 +138,7 @@ export default function Cart() {
                                         <h3 className="text-lg font-bold text-[var(--text-main)]">{item.name}</h3>
                                         <p className="text-[var(--primary)] font-bold">{formatPrice(item.price)}</p>
 
-                                        <div className="flex items-center gap-4 mt-4">
+                                        <div className="flex items-center justify-between sm:justify-start gap-4 mt-4">
                                             <div className="flex items-center bg-[var(--bg-input)] border border-[var(--border)] rounded-lg overflow-hidden">
                                                 <button
                                                     onClick={() => updateQuantity(item.id, item.quantity - 1)}
@@ -162,7 +162,7 @@ export default function Cart() {
                                             </button>
                                         </div>
                                     </div>
-                                    <div className="text-right">
+                                    <div className="w-full sm:w-auto text-right border-t sm:border-t-0 border-[var(--border)]/30 pt-4 sm:pt-0">
                                         <p className="font-bold text-lg text-[var(--text-main)]">{formatPrice(item.price * item.quantity)}</p>
                                     </div>
                                 </div>
@@ -170,7 +170,7 @@ export default function Cart() {
                         </div>
 
                         <div className="lg:col-span-5">
-                            <div className="bg-[var(--bg-card)] border border-[var(--border)] p-8 rounded-2xl sticky top-28 shadow-2xl shadow-black/20">
+                            <div className="bg-[var(--bg-card)] border border-[var(--border)] p-6 md:p-8 rounded-2xl md:sticky md:top-28 shadow-2xl shadow-black/20">
                                 <h2 className="text-xl font-bold mb-6 text-[var(--text-main)]">Order Summary</h2>
 
                                 <div className="space-y-4 mb-8">

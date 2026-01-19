@@ -38,10 +38,10 @@ export default function Dashboard() {
         <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-main)]">
             <Navbar />
 
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-6">
                     <div>
-                        <h1 className="text-4xl font-bold tracking-tight text-[var(--text-main)]">
+                        <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-[var(--text-main)]">
                             {activeTab === 'shop' ? 'Our Collection' : 'My Order History'}
                         </h1>
                         <p className="text-[var(--text-muted)] mt-2">
@@ -133,9 +133,9 @@ export default function Dashboard() {
                         ) : (
                             <div className="grid grid-cols-1 gap-6">
                                 {orders.map((order: any) => (
-                                    <div key={order.id} className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-6 hover:border-[var(--primary)]/30 transition-colors">
-                                        <div className="flex flex-wrap items-center justify-between gap-4 mb-6 pb-6 border-b border-[var(--border)]/50">
-                                            <div className="flex items-center gap-6">
+                                    <div key={order.id} className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-4 md:p-6 hover:border-[var(--primary)]/30 transition-colors">
+                                        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6 pb-6 border-b border-[var(--border)]/50">
+                                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:flex md:items-center md:gap-6">
                                                 <div>
                                                     <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1">Order ID</label>
                                                     <p className="font-mono text-[var(--text-main)]">#{order.id}</p>
@@ -184,13 +184,13 @@ export default function Dashboard() {
                                                     <p className="text-sm text-[var(--text-muted)]">{new Date(order.createdAt).toLocaleDateString()}</p>
                                                 </div>
                                             </div>
-                                            <div className="text-right">
+                                            <div className="lg:text-right pt-4 lg:pt-0 border-t lg:border-t-0 border-[var(--border)]/30">
                                                 <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1">Total Paid</label>
-                                                <p className="text-2xl font-bold text-[var(--primary)]">{formatPrice(order.total)}</p>
+                                                <p className="text-xl md:text-2xl font-bold text-[var(--primary)]">{formatPrice(order.total)}</p>
                                             </div>
                                         </div>
 
-                                        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
+                                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 md:gap-4">
                                             {(typeof order.items === 'string' ? JSON.parse(order.items) : order.items).map((item: any, idx: number) => (
                                                 <div key={idx} className="group relative aspect-square rounded-xl overflow-hidden bg-[var(--bg-input)] border border-[var(--border)]">
                                                     <img

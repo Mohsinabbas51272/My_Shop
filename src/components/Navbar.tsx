@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import { useCartStore } from '../store/useCartStore';
-import { ShoppingCart, LogOut, Store, User, Palette } from 'lucide-react';
+import { Store, User, Palette, Menu, X, ShoppingCart, LogOut } from 'lucide-react';
 import { useThemeStore } from '../store/useThemeStore';
 import type { ThemeType } from '../store/useThemeStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
@@ -14,6 +14,7 @@ export default function Navbar() {
     const { currency, setCurrency } = useCurrencyStore();
     const navigate = useNavigate();
     const [showThemes, setShowThemes] = useState(false);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const themes: { id: ThemeType; label: string; color: string }[] = [
         { id: 'midnight', label: 'Midnight', color: '#3b82f6' },
@@ -35,8 +36,15 @@ export default function Navbar() {
         <nav className="bg-[var(--bg-card)] border-b border-[var(--border)] sticky top-0 z-[100] backdrop-blur-md">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
-                    {/* Left Section: Logo & Navigation */}
-                    <div className="flex items-center gap-8">
+                    {/* Left Section: Logo & Mobile Menu Toggle */}
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={() => setIsMenuOpen(!isMenuOpen)}
+                            className="md:hidden p-2 text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-input)] rounded-lg transition-all"
+                        >
+                            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                        </button>
+
                         <Link to={user?.role === 'ADMIN' ? "/admin/dashboard" : "/user/dashboard"} className="flex items-center gap-2 text-[var(--primary)] font-bold text-xl hover:opacity-80 transition-opacity">
                             <Store className="w-6 h-6" />
                             <span>MyShop</span>
@@ -164,6 +172,78 @@ export default function Navbar() {
                     </div>
                 </div>
             </div>
+
+            {/* Mobile Navigation Menu */}
+            {isMenuOpen && (
+                <div className="md:hidden border-t border-[var(--border)] bg-[var(--bg-card)] animate-in slide-in-from-top duration-300">
+                    <div className="px-4 py-6 space-y-6">
+                        {/* Mobile Nav Links */}
+                        <div className="flex flex-col gap-4">
+                            {user?.role === 'ADMIN' ? (
+                                <Link
+                                    to="/admin/dashboard"
+                                    onClick={() => setIsMenuOpen(false)}
+                                    className="text-lg font-bold uppercase tracking-widest text-[var(--primary)]"
+                                >
+                                    Admin Panel
+                                </Link>
+                            ) : (
+                                <>
+                                    <Link
+                                        to="/user/dashboard?tab=shop"
+                                        onClick={() => setIsMenuOpen(false)}
+                                        className="text-lg font-bold uppercase tracking-widest text-[var(--text-main)] hover:text-[var(--primary)] transition-colors"
+                                    >
+                                        Shop
+                                    </Link>
+                                    <Link
+                                        to="/user/dashboard?tab=orders"
+                                        onClick={() => setIsMenuOpen(false)}
+                                        className="text-lg font-bold uppercase tracking-widest text-[var(--text-main)] hover:text-[var(--primary)] transition-colors"
+                                    >
+                                        My Orders
+                                    </Link>
+                                    <Link
+                                        to="/contact"
+                                        onClick={() => setIsMenuOpen(false)}
+                                        className="text-lg font-bold uppercase tracking-widest text-[var(--text-main)] hover:text-[var(--primary)] transition-colors"
+                                    >
+                                        Contact
+                                    </Link>
+                                </>
+                            )}
+                        </div>
+
+                        {/* Mobile User Section */}
+                        <div className="pt-6 border-t border-[var(--border)]">
+                            <Link
+                                to="/profile"
+                                onClick={() => setIsMenuOpen(false)}
+                                className="flex items-center gap-4 p-3 bg-[var(--bg-input)] rounded-xl border border-[var(--border)]"
+                            >
+                                <div className="w-10 h-10 rounded-full bg-[var(--bg-card)] flex items-center justify-center text-[var(--primary)] border border-[var(--border)]">
+                                    <User className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <p className="font-bold text-[var(--text-main)]">{user?.name}</p>
+                                    <p className="text-xs text-[var(--text-muted)] uppercase tracking-wider">View Profile</p>
+                                </div>
+                            </Link>
+
+                            <button
+                                onClick={() => {
+                                    handleLogout();
+                                    setIsMenuOpen(false);
+                                }}
+                                className="w-full mt-4 flex items-center justify-center gap-2 p-3 bg-red-500/10 text-red-500 rounded-xl font-bold uppercase tracking-widest text-xs border border-red-500/20"
+                            >
+                                <LogOut className="w-4 h-4" />
+                                Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </nav>
     );
 }

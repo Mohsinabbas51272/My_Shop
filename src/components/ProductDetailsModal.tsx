@@ -32,8 +32,8 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
     };
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-[var(--bg-main)]/90 backdrop-blur-md">
-            <div className="bg-[var(--bg-card)] border border-[var(--border)] w-full max-w-6xl max-h-[90vh] rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col md:flex-row relative">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-6 bg-[var(--bg-main)]/90 backdrop-blur-md">
+            <div className="bg-[var(--bg-card)] border border-[var(--border)] w-full max-w-6xl max-h-[95vh] md:max-h-[90vh] rounded-3xl md:rounded-[2.5rem] overflow-y-auto md:overflow-hidden shadow-2xl flex flex-col md:flex-row relative">
                 <button
                     onClick={onClose}
                     className="absolute top-6 right-6 z-10 p-2 bg-[var(--bg-main)]/50 hover:bg-red-500 text-[var(--text-main)] hover:text-white rounded-full transition-all backdrop-blur-md border border-[var(--border)]"
@@ -69,19 +69,19 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
                 </div>
 
                 {/* Content Section */}
-                <div className="w-full md:w-2/5 p-8 md:p-12 flex flex-col justify-center bg-[var(--bg-card)]">
+                <div className="w-full md:w-2/5 p-6 md:p-12 flex flex-col justify-center bg-[var(--bg-card)]">
                     <div className="mb-8">
                         <span className="inline-block px-3 py-1 bg-[var(--primary)]/10 text-[var(--primary)] text-[10px] font-bold uppercase tracking-widest rounded-full border border-[var(--primary)]/20 mb-4">
                             Premium Collection
                         </span>
-                        <h2 className="text-4xl font-black text-[var(--text-main)] mb-4 leading-tight">
+                        <h2 className="text-2xl md:text-4xl font-black text-[var(--text-main)] mb-3 md:mb-4 leading-tight">
                             {product.name}
                         </h2>
-                        <div className="flex items-center gap-4 mb-6">
-                            <span className="text-3xl font-bold text-[var(--primary)]">{formatPrice(product.price)}</span>
-                            <span className="text-sm text-[var(--text-muted)] line-through opacity-50">{formatPrice(product.price * 1.5)}</span>
+                        <div className="flex items-center gap-4 mb-4 md:mb-6">
+                            <span className="text-2xl md:text-3xl font-bold text-[var(--primary)]">{formatPrice(product.price)}</span>
+                            <span className="text-xs md:text-sm text-[var(--text-muted)] line-through opacity-50">{formatPrice(product.price * 1.5)}</span>
                         </div>
-                        <p className="text-[var(--text-muted)] leading-relaxed text-lg">
+                        <p className="text-[var(--text-muted)] leading-relaxed text-base md:text-lg">
                             {product.description || "Indulge in the perfect blend of style and substance. This meticulously crafted item represents the pinnacle of our design philosophy, offering both exceptional performance and timeless aesthetic appeal for the modern enthusiast."}
                         </p>
                     </div>
@@ -104,8 +104,8 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
                                 </button>
                             </div>
                             <div className="flex-1">
-                                <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest mb-1">Subtotal</p>
-                                <p className="text-xl font-bold text-[var(--text-main)]">{formatPrice(product.price * quantity)}</p>
+                                <p className="text-[10px] md:text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest mb-0.5 md:mb-1">Subtotal</p>
+                                <p className="text-lg md:text-xl font-bold text-[var(--text-main)]">{formatPrice(product.price * quantity)}</p>
                             </div>
                         </div>
 

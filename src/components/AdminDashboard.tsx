@@ -132,7 +132,7 @@ export default function AdminDashboard() {
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
                 {/* Navigation Tabs */}
-                <div className="flex flex-wrap gap-4 mb-8">
+                <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-2 scrollbar-hide no-scrollbar">
                     <button
                         onClick={() => setActiveTab('products')}
                         className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold transition-all ${activeTab === 'products' ? 'bg-[var(--primary)] text-white' : 'bg-[var(--bg-card)] text-[var(--text-muted)] hover:bg-[var(--bg-input)]'}`}
@@ -179,7 +179,7 @@ export default function AdminDashboard() {
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 w-full">
                         {/* Add Product Form */}
                         <section className="lg:col-span-1">
-                            <div className="bg-[var(--bg-card)] border border-[var(--border)] p-8 rounded-2xl sticky top-28 shadow-xl">
+                            <div className="bg-[var(--bg-card)] border border-[var(--border)] p-4 md:p-8 rounded-2xl md:sticky md:top-28 shadow-xl">
                                 <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-[var(--text-main)]">
                                     <Plus className="w-5 h-5 text-[var(--primary)]" />
                                     Add New Product
@@ -272,8 +272,8 @@ export default function AdminDashboard() {
                                 <Package className="w-5 h-5 text-[var(--primary)]" />
                                 Inventory Management
                             </h2>
-                            <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl overflow-hidden text-sm uppercase font-bold tracking-widest text-[var(--text-muted)] shadow-xl">
-                                <table className="w-full text-left">
+                            <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl overflow-x-auto text-sm uppercase font-bold tracking-widest text-[var(--text-muted)] shadow-xl">
+                                <table className="w-full text-left min-w-[600px]">
                                     <thead className="bg-[var(--bg-input)] text-[var(--text-muted)]">
                                         <tr>
                                             <th className="p-4">Image</th>
@@ -317,8 +317,8 @@ export default function AdminDashboard() {
                             <ShoppingBag className="w-5 h-5 text-[var(--primary)]" />
                             Order Management
                         </h2>
-                        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl overflow-hidden shadow-xl">
-                            <table className="w-full text-left text-sm">
+                        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl overflow-x-auto shadow-xl">
+                            <table className="w-full text-left text-sm min-w-[800px]">
                                 <thead className="bg-[var(--bg-input)] text-[var(--text-muted)] font-bold uppercase tracking-widest">
                                     <tr>
                                         <th className="p-4">Order ID</th>
@@ -432,8 +432,8 @@ export default function AdminDashboard() {
                             <Users className="w-5 h-5 text-[var(--primary)]" />
                             User Registry
                         </h2>
-                        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl overflow-hidden shadow-xl">
-                            <table className="w-full text-left text-sm">
+                        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl overflow-x-auto shadow-xl">
+                            <table className="w-full text-left text-sm min-w-[600px]">
                                 <thead className="bg-[var(--bg-input)] text-[var(--text-muted)] font-bold uppercase tracking-widest">
                                     <tr>
                                         <th className="p-4">User</th>
@@ -473,8 +473,8 @@ export default function AdminDashboard() {
                             <MessageSquare className="w-5 h-5 text-[var(--primary)]" />
                             Customer Queries
                         </h2>
-                        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl overflow-hidden shadow-xl">
-                            <table className="w-full text-left text-sm">
+                        <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl overflow-x-auto shadow-xl">
+                            <table className="w-full text-left text-sm min-w-[800px]">
                                 <thead className="bg-[var(--bg-input)] text-[var(--text-muted)] font-bold uppercase tracking-widest">
                                     <tr>
                                         <th className="p-4">Date</th>
@@ -574,34 +574,34 @@ function UserDetailsModal({ userId, onClose, getImageUrl }: { userId: number; on
                     ) : (
                         <div className="space-y-12">
                             {/* User Info */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                <div className="bg-[var(--bg-input)]/50 p-6 rounded-2xl border border-[var(--border)]/50">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                                <div className="bg-[var(--bg-input)]/50 p-4 md:p-6 rounded-2xl border border-[var(--border)]/50">
                                     <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1">Full Name</label>
-                                    <p className="text-lg font-bold text-[var(--text-main)]">{user.name || 'Anonymous'}</p>
+                                    <p className="text-base md:text-lg font-bold text-[var(--text-main)]">{user.name || 'Anonymous'}</p>
                                 </div>
-                                <div className="bg-[var(--bg-input)]/50 p-6 rounded-2xl border border-[var(--border)]/50">
+                                <div className="bg-[var(--bg-input)]/50 p-4 md:p-6 rounded-2xl border border-[var(--border)]/50">
                                     <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1">Email Address</label>
-                                    <p className="text-lg font-bold text-[var(--text-main)]">{user.email}</p>
+                                    <p className="text-base md:text-lg font-bold text-[var(--text-main)]">{user.email}</p>
                                 </div>
-                                <div className="bg-[var(--bg-input)]/50 p-6 rounded-2xl border border-[var(--border)]/50">
+                                <div className="bg-[var(--bg-input)]/50 p-4 md:p-6 rounded-2xl border border-[var(--border)]/50">
                                     <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1">CNIC Number</label>
-                                    <p className="text-lg font-bold text-[var(--text-main)]">{user.cnic || 'Not Provided'}</p>
+                                    <p className="text-base md:text-lg font-bold text-[var(--text-main)]">{user.cnic || 'Not Provided'}</p>
                                 </div>
-                                <div className="bg-[var(--bg-input)]/50 p-6 rounded-2xl border border-[var(--border)]/50">
+                                <div className="bg-[var(--bg-input)]/50 p-4 md:p-6 rounded-2xl border border-[var(--border)]/50">
                                     <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1">Contact Number</label>
-                                    <p className="text-lg font-bold text-[var(--text-main)]">{user.phone || 'Not Provided'}</p>
+                                    <p className="text-base md:text-lg font-bold text-[var(--text-main)]">{user.phone || 'Not Provided'}</p>
                                 </div>
-                                <div className="bg-[var(--bg-input)]/50 p-6 rounded-2xl border border-[var(--border)]/50">
+                                <div className="bg-[var(--bg-input)]/50 p-4 md:p-6 rounded-2xl border border-[var(--border)]/50">
                                     <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1">Default Payment</label>
-                                    <p className="text-lg font-bold text-[var(--text-main)]">{user.paymentMethod || 'Not Set'}</p>
+                                    <p className="text-base md:text-lg font-bold text-[var(--text-main)]">{user.paymentMethod || 'Not Set'}</p>
                                 </div>
-                                <div className="bg-[var(--bg-input)]/50 p-6 rounded-2xl border border-[var(--border)]/50 lg:col-span-2">
+                                <div className="bg-[var(--bg-input)]/50 p-4 md:p-6 rounded-2xl border border-[var(--border)]/50 lg:col-span-2">
                                     <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1">Home Address</label>
-                                    <p className="text-lg font-bold text-[var(--text-main)]">{user.address || 'No Address Saved'}</p>
+                                    <p className="text-base md:text-lg font-bold text-[var(--text-main)]">{user.address || 'No Address Saved'}</p>
                                 </div>
-                                <div className="bg-[var(--bg-input)]/50 p-6 rounded-2xl border border-[var(--border)]/50">
+                                <div className="bg-[var(--bg-input)]/50 p-4 md:p-6 rounded-2xl border border-[var(--border)]/50">
                                     <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1">Customer Since</label>
-                                    <p className="text-lg font-bold text-[var(--text-main)]">{new Date(user.createdAt).toLocaleDateString()}</p>
+                                    <p className="text-base md:text-lg font-bold text-[var(--text-main)]">{new Date(user.createdAt).toLocaleDateString()}</p>
                                 </div>
                             </div>
 
