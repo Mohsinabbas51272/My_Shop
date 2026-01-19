@@ -37,7 +37,7 @@ export default function Navbar() {
                 <div className="flex items-center justify-between h-16">
                     {/* Left Section: Logo & Navigation */}
                     <div className="flex items-center gap-8">
-                        <Link to={user?.role === 'ADMIN' ? "/admin" : "/dashboard"} className="flex items-center gap-2 text-[var(--primary)] font-bold text-xl hover:opacity-80 transition-opacity">
+                        <Link to={user?.role === 'ADMIN' ? "/admin/dashboard" : "/user/dashboard"} className="flex items-center gap-2 text-[var(--primary)] font-bold text-xl hover:opacity-80 transition-opacity">
                             <Store className="w-6 h-6" />
                             <span>MyShop</span>
                         </Link>
@@ -46,7 +46,7 @@ export default function Navbar() {
                         <div className="hidden md:flex items-center gap-6">
                             {user?.role === 'ADMIN' ? (
                                 <Link
-                                    to="/admin"
+                                    to="/admin/dashboard"
                                     className="text-sm font-bold uppercase tracking-widest text-[var(--primary)] hover:opacity-80 transition-opacity"
                                 >
                                     Admin Panel
@@ -54,13 +54,13 @@ export default function Navbar() {
                             ) : (
                                 <>
                                     <Link
-                                        to="/dashboard?tab=shop"
+                                        to="/user/dashboard?tab=shop"
                                         className="text-sm font-bold uppercase tracking-widest text-[var(--text-main)] hover:text-[var(--primary)] transition-colors"
                                     >
                                         Shop
                                     </Link>
                                     <Link
-                                        to="/dashboard?tab=orders"
+                                        to="/user/dashboard?tab=orders"
                                         className="text-sm font-bold uppercase tracking-widest text-[var(--text-main)] hover:text-[var(--primary)] transition-colors"
                                     >
                                         My Orders

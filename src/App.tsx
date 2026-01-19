@@ -15,10 +15,26 @@ import { useState, useEffect } from 'react';
 import SplashScreen from './components/SplashScreen';
 import { AnimatePresence } from 'framer-motion';
 
-function ProtectedRoute({ children, adminOnly = false }: { children: React.ReactNode; adminOnly?: boolean }) {
-  const { token, user } = useAuthStore();
-  if (!token) return <Navigate to="/login" replace />;
-  if (adminOnly && user?.role !== 'ADMIN') return <Navigate to="/dashboard" replace />;
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+  userRole?: 'USER' | 'ADMIN';
+}
+
+function ProtectedRoute({ children, userRole }: ProtectedRouteProps) {
+  const { token, user, hasHydrated } = useAuthStore();
+
+  if (!hasHydrated) return null;
+
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (userRole && user?.role !== userRole) {
+    // If user tries to access admin route, redirect to user dashboard and vice-versa
+    const target = user?.role === 'ADMIN' ? '/admin/dashboard' : '/user/dashboard';
+    return <Navigate to={target} replace />;
+  }
+
   return <>{children}</>;
 }
 
@@ -34,7 +50,7 @@ function App() {
 
   // Prevent routing decisions before state is loaded from localStorage
   if (!hasHydrated) {
-    return null; // Or a simple loading spinner
+    return null;
   }
 
   return (
@@ -50,9 +66,9 @@ function App() {
           <Route path="/verify-otp" element={<VerifyOtp />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route
-            path="/dashboard"
+            path="/user/dashboard"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute userRole="USER">
                 <Dashboard />
               </ProtectedRoute>
             }
@@ -68,7 +84,7 @@ function App() {
           <Route
             path="/contact"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute userRole="USER">
                 <Contact />
               </ProtectedRoute>
             }
@@ -76,19 +92,21 @@ function App() {
           <Route
             path="/cart"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute userRole="USER">
                 <Cart />
               </ProtectedRoute>
             }
           />
           <Route
-            path="/admin"
+            path="/admin/dashboard"
             element={
-              <ProtectedRoute adminOnly>
+              <ProtectedRoute userRole="ADMIN">
                 <AdminDashboard />
               </ProtectedRoute>
             }
           />
+          <Route path="/dashboard" element={<Navigate to="/user/dashboard" replace />} />
+          <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="/" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>

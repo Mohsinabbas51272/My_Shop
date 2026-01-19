@@ -37,9 +37,9 @@ export default function Login() {
             setAuth(user, response.data.access_token);
 
             if (user.role === 'ADMIN') {
-                navigate('/admin');
+                navigate('/admin/dashboard');
             } else {
-                navigate('/dashboard');
+                navigate('/user/dashboard');
             }
         } catch (err: any) {
             console.error('Login error:', err);

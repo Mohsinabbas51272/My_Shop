@@ -43,7 +43,7 @@ export default function Profile() {
                 <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl shadow-2xl overflow-hidden">
                     <div className="p-8 border-b border-[var(--border)] bg-[var(--bg-input)]/30 relative">
                         <button
-                            onClick={() => navigate(user?.role === 'ADMIN' ? '/admin' : '/dashboard')}
+                            onClick={() => navigate(user?.role === 'ADMIN' ? '/admin/dashboard' : '/user/dashboard')}
                             className="absolute top-6 right-6 p-2 text-[var(--text-muted)] hover:text-red-500 hover:bg-[var(--bg-card)] rounded-full transition-all"
                         >
                             <X className="w-6 h-6" />
