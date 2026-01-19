@@ -44,29 +44,34 @@ export default function Navbar() {
 
                         {/* Navigation Links - Desktop */}
                         <div className="hidden md:flex items-center gap-6">
-                            <Link
-                                to={user?.role === 'ADMIN' ? '/admin' : '/dashboard?tab=shop'}
-                                className="text-sm font-bold uppercase tracking-widest text-[var(--text-main)] hover:text-[var(--primary)] transition-colors"
-                            >
-                                {user?.role === 'ADMIN' ? 'Admin Panel' : 'Shop'}
-                            </Link>
-
-                            {user?.role !== 'ADMIN' && (
+                            {user?.role === 'ADMIN' ? (
                                 <Link
-                                    to="/dashboard?tab=orders"
-                                    className="text-sm font-bold uppercase tracking-widest text-[var(--text-main)] hover:text-[var(--primary)] transition-colors"
+                                    to="/admin"
+                                    className="text-sm font-bold uppercase tracking-widest text-[var(--primary)] hover:opacity-80 transition-opacity"
                                 >
-                                    My Orders
+                                    Admin Panel
                                 </Link>
-                            )}
-
-                            {user?.role !== 'ADMIN' && (
-                                <Link
-                                    to="/contact"
-                                    className="text-sm font-bold uppercase tracking-widest text-[var(--text-main)] hover:text-[var(--primary)] transition-colors"
-                                >
-                                    Contact
-                                </Link>
+                            ) : (
+                                <>
+                                    <Link
+                                        to="/dashboard?tab=shop"
+                                        className="text-sm font-bold uppercase tracking-widest text-[var(--text-main)] hover:text-[var(--primary)] transition-colors"
+                                    >
+                                        Shop
+                                    </Link>
+                                    <Link
+                                        to="/dashboard?tab=orders"
+                                        className="text-sm font-bold uppercase tracking-widest text-[var(--text-main)] hover:text-[var(--primary)] transition-colors"
+                                    >
+                                        My Orders
+                                    </Link>
+                                    <Link
+                                        to="/contact"
+                                        className="text-sm font-bold uppercase tracking-widest text-[var(--text-main)] hover:text-[var(--primary)] transition-colors"
+                                    >
+                                        Contact
+                                    </Link>
+                                </>
                             )}
                         </div>
                     </div>

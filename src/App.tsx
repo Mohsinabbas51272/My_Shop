@@ -24,12 +24,18 @@ function ProtectedRoute({ children, adminOnly = false }: { children: React.React
 
 function App() {
   const { theme } = useThemeStore();
+  const { hasHydrated } = useAuthStore();
   const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
     const timer = setTimeout(() => setShowSplash(false), 3500);
     return () => clearTimeout(timer);
   }, []);
+
+  // Prevent routing decisions before state is loaded from localStorage
+  if (!hasHydrated) {
+    return null; // Or a simple loading spinner
+  }
 
   return (
     <div className={theme === 'midnight' ? '' : `theme-${theme}`}>
