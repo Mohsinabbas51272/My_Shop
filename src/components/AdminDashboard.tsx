@@ -27,6 +27,8 @@ export default function AdminDashboard() {
     const [uploading, setUploading] = useState(false);
     const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'users' | 'queries'>('products');
     const [selectedUser, setSelectedUser] = useState<any>(null);
+    const [selectedComplaint, setSelectedComplaint] = useState<any>(null);
+    const [respondText, setRespondText] = useState('');
 
     const { data: dashboardCounts } = useQuery({
         queryKey: ['dashboard-counts'],
@@ -72,10 +74,7 @@ export default function AdminDashboard() {
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['orders'] }),
     });
 
-    const updatePaymentStatusMutation = useMutation({
-        mutationFn: ({ id, status }: { id: number; status: string }) => api.patch(`/orders/${id}/payment-status`, { status }),
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['orders'] }),
-    });
+    // Removed updatePaymentStatusMutation as only SUPER_ADMIN can confirm payments now
 
     const deleteOrderMutation = useMutation({
         mutationFn: (id: number) => api.delete(`/orders/${id}`),
@@ -96,6 +95,23 @@ export default function AdminDashboard() {
             queryClient.invalidateQueries({ queryKey: ['complaints'] });
             queryClient.invalidateQueries({ queryKey: ['dashboard-counts'] });
         }
+    });
+
+    const respondToComplaintMutation = useMutation({
+        mutationFn: ({ id, response }: { id: number; response: string }) =>
+            api.patch(`/complaints/${id}/respond`, { response }),
+        onSuccess: () => {
+            // Invalidate both admin and user queries
+            queryClient.invalidateQueries({ queryKey: ['complaints'] });
+            // Invalidate all user-specific complaint queries
+            queryClient.invalidateQueries({
+                predicate: (query) => query.queryKey[0] === 'complaints-me'
+            });
+            setSelectedComplaint(null);
+            setRespondText('');
+            alert('Response sent successfully!');
+        },
+        onError: () => alert('Failed to send response'),
     });
 
     const getImageUrl = (url: string) => {
@@ -339,20 +355,20 @@ export default function AdminDashboard() {
                                                 <div className="flex flex-col gap-1">
                                                     <span className="text-sm font-black text-[var(--text-main)] flex items-center gap-1.5">
                                                         <User className="w-3.5 h-3.5 text-[var(--primary)]" />
-                                                        {o.customerName || 'N/A'}
+                                                        {o.customerName || o.user?.name || 'N/A'}
                                                     </span>
                                                     <div className="flex flex-wrap gap-2">
                                                         <span className="px-2 py-0.5 bg-[var(--bg-input)] rounded text-[10px] font-bold text-[var(--text-muted)] border border-[var(--border)] flex items-center gap-1">
                                                             <Phone className="w-2.5 h-2.5" />
-                                                            {o.customerPhone || 'N/A'}
+                                                            {o.customerPhone || o.user?.phone || 'N/A'}
                                                         </span>
                                                         <span className="px-2 py-0.5 bg-[var(--bg-input)] rounded text-[10px] font-bold text-[var(--text-muted)] border border-[var(--border)]">
-                                                            ID: {o.customerCnic || 'N/A'}
+                                                            ID: {o.customerCnic || o.user?.cnic || 'N/A'}
                                                         </span>
                                                     </div>
                                                     <span className="text-[11px] text-[var(--text-muted)] flex items-center gap-1 mt-0.5">
                                                         <MapPin className="w-3 h-3 opacity-50" />
-                                                        {o.customerAddress || 'N/A'}
+                                                        {o.customerAddress || o.user?.address || 'N/A'}
                                                     </span>
                                                 </div>
                                             </td>
@@ -362,17 +378,12 @@ export default function AdminDashboard() {
                                                         {o.paymentMethod || 'N/A'}
                                                     </span>
                                                     <div className="flex items-center gap-2">
-                                                        <button
-                                                            onClick={() => updatePaymentStatusMutation.mutate({ id: o.id, status: o.paymentStatus === 'Paid' ? 'Unpaid' : 'Paid' })}
-                                                            disabled={updatePaymentStatusMutation.isPending}
-                                                            className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border transition-all ${o.paymentStatus === 'Paid'
-                                                                ? 'bg-green-500/10 text-green-500 border-green-500/20 hover:bg-green-500/20'
-                                                                : 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20 hover:bg-yellow-500/20'
-                                                                }`}
-                                                            title="Click to toggle status"
-                                                        >
+                                                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border ${o.paymentStatus === 'Paid'
+                                                            ? 'bg-green-500/10 text-green-500 border-green-500/20'
+                                                            : 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
+                                                            }`}>
                                                             {o.paymentStatus || 'Unpaid'}
-                                                        </button>
+                                                        </span>
                                                         {o.paymentReceipt && (
                                                             <a
                                                                 href={getImageUrl(o.paymentReceipt)}
@@ -397,11 +408,29 @@ export default function AdminDashboard() {
                                             </td>
                                             <td className="p-4 font-bold text-[var(--text-main)]">{formatPrice(o.total)}</td>
                                             <td className="p-4 text-right">
-                                                <div className="flex items-center justify-end gap-2">
-                                                    {o.status === 'Pending' && (
+                                                <div className="flex items-center justify-end gap-2 flex-wrap">
+                                                    {(o.status === 'Pending' || o.status === 'Processing') && (
+                                                        <>
+                                                            <button
+                                                                onClick={() => updateOrderStatusMutation.mutate({ id: o.id, status: 'Ready to Deliver' })}
+                                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600/10 hover:bg-blue-600 text-blue-500 hover:text-white rounded-lg transition-all text-xs border border-blue-500/20 font-bold"
+                                                            >
+                                                                <Package className="w-3.5 h-3.5" />
+                                                                Ready
+                                                            </button>
+                                                            <button
+                                                                onClick={() => updateOrderStatusMutation.mutate({ id: o.id, status: 'Delivered' })}
+                                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-green-600/10 hover:bg-green-600 text-green-500 hover:text-white rounded-lg transition-all text-xs border border-green-500/20 font-bold"
+                                                            >
+                                                                <CheckCircle className="w-3.5 h-3.5" />
+                                                                Deliver
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                    {o.status === 'Ready to Deliver' && (
                                                         <button
                                                             onClick={() => updateOrderStatusMutation.mutate({ id: o.id, status: 'Delivered' })}
-                                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-green-600/10 hover:bg-green-600 text-green-500 hover:text-white rounded-lg transition-all text-xs border border-green-500/20"
+                                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-green-600/10 hover:bg-green-600 text-green-500 hover:text-white rounded-lg transition-all text-xs border border-green-500/20 font-bold"
                                                         >
                                                             <CheckCircle className="w-3.5 h-3.5" />
                                                             Deliver
@@ -514,13 +543,22 @@ export default function AdminDashboard() {
                                                 </button>
                                             </td>
                                             <td className="p-4 text-right">
-                                                <button
-                                                    onClick={() => deleteComplaintMutation.mutate(c.id)}
-                                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-lg transition-all text-xs border border-red-500/20"
-                                                >
-                                                    <Trash2 className="w-3.5 h-3.5" />
-                                                    Delete
-                                                </button>
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <button
+                                                        onClick={() => setSelectedComplaint(c)}
+                                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-500/10 hover:bg-blue-500 text-blue-500 hover:text-white rounded-lg transition-all text-xs border border-blue-500/20 font-bold"
+                                                    >
+                                                        <MessageSquare className="w-3.5 h-3.5" />
+                                                        Respond
+                                                    </button>
+                                                    <button
+                                                        onClick={() => deleteComplaintMutation.mutate(c.id)}
+                                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-lg transition-all text-xs border border-red-500/20"
+                                                    >
+                                                        <Trash2 className="w-3.5 h-3.5" />
+                                                        Delete
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
@@ -539,16 +577,76 @@ export default function AdminDashboard() {
                     getImageUrl={getImageUrl}
                 />
             )}
+
+            {/* Respond to Complaint Modal */}
+            {selectedComplaint && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[var(--bg-main)]/80 backdrop-blur-sm">
+                    <div className="bg-[var(--bg-card)] border border-[var(--border)] w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden">
+                        <div className="p-6 border-b border-[var(--border)] bg-[var(--bg-input)]/50">
+                            <h3 className="text-xl font-bold text-[var(--text-main)]">Respond to Query</h3>
+                            <p className="text-sm text-[var(--text-muted)] mt-1">Order #{selectedComplaint.orderId || 'N/A'}</p>
+                        </div>
+                        <div className="p-6 space-y-4">
+                            <div>
+                                <label className="block text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] mb-2">Customer Message</label>
+                                <p className="bg-[var(--bg-input)]/50 border border-[var(--border)] rounded-lg p-4 text-sm text-[var(--text-main)]">
+                                    {selectedComplaint.message}
+                                </p>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] mb-2">Your Response</label>
+                                <textarea
+                                    value={respondText}
+                                    onChange={(e) => setRespondText(e.target.value)}
+                                    placeholder="Type your response here... We'll notify the customer that their issue is being worked on."
+                                    className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg p-3 text-sm focus:ring-2 focus:ring-[var(--primary)]/50 outline-none h-32 resize-none"
+                                />
+                            </div>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => {
+                                        if (!respondText.trim()) {
+                                            alert('Please enter a response');
+                                            return;
+                                        }
+                                        respondToComplaintMutation.mutate({
+                                            id: selectedComplaint.id,
+                                            response: respondText
+                                        });
+                                    }}
+                                    className="flex-1 px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-bold rounded-lg transition-all"
+                                >
+                                    {respondToComplaintMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin inline mr-2" /> : null}
+                                    Send Response
+                                </button>
+                                <button
+                                    onClick={() => setSelectedComplaint(null)}
+                                    className="flex-1 px-4 py-2 bg-[var(--bg-input)] border border-[var(--border)] text-[var(--text-muted)] font-bold rounded-lg transition-all"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
 
 function UserDetailsModal({ userId, onClose, getImageUrl }: { userId: number; onClose: () => void; getImageUrl: (url: string) => string }) {
     const { formatPrice } = useCurrencyStore();
+    const [orderFilter, setOrderFilter] = useState<'all' | 'pending' | 'delivered'>('all');
     const { data: user, isLoading } = useQuery({
         queryKey: ['users', userId],
         queryFn: async () => (await api.get(`/users/${userId}`)).data,
     });
+
+    const filteredOrders = user?.orders?.filter((order: any) => {
+        if (orderFilter === 'pending') return order.status === 'Pending' || order.status === 'Ready to Deliver';
+        if (orderFilter === 'delivered') return order.status === 'Delivered';
+        return true;
+    }) || [];
 
     if (!user && !isLoading) return null;
 
@@ -607,14 +705,42 @@ function UserDetailsModal({ userId, onClose, getImageUrl }: { userId: number; on
 
                             {/* Order History */}
                             <div>
-                                <h4 className="text-lg font-bold mb-6 flex items-center gap-2 text-[var(--text-main)]">
-                                    <ShoppingBag className="w-5 h-5 text-[var(--primary)]" />
-                                    Order History ({user.orders?.length || 0})
-                                </h4>
+                                <div className="flex items-center justify-between mb-6">
+                                    <h4 className="text-lg font-bold flex items-center gap-2 text-[var(--text-main)]">
+                                        <ShoppingBag className="w-5 h-5 text-[var(--primary)]" />
+                                        Order History ({user.orders?.length || 0})
+                                    </h4>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => setOrderFilter('all')}
+                                            className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${orderFilter === 'all'
+                                                ? 'bg-[var(--primary)] text-white'
+                                                : 'bg-[var(--bg-input)] text-[var(--text-muted)] border border-[var(--border)]'}`}
+                                        >
+                                            All ({user.orders?.length || 0})
+                                        </button>
+                                        <button
+                                            onClick={() => setOrderFilter('pending')}
+                                            className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${orderFilter === 'pending'
+                                                ? 'bg-yellow-600 text-white'
+                                                : 'bg-[var(--bg-input)] text-[var(--text-muted)] border border-[var(--border)]'}`}
+                                        >
+                                            Pending ({user.orders?.filter((o: any) => o.status === 'Pending' || o.status === 'Ready to Deliver').length || 0})
+                                        </button>
+                                        <button
+                                            onClick={() => setOrderFilter('delivered')}
+                                            className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${orderFilter === 'delivered'
+                                                ? 'bg-green-600 text-white'
+                                                : 'bg-[var(--bg-input)] text-[var(--text-muted)] border border-[var(--border)]'}`}
+                                        >
+                                            Delivered ({user.orders?.filter((o: any) => o.status === 'Delivered').length || 0})
+                                        </button>
+                                    </div>
+                                </div>
                                 <div className="space-y-4">
-                                    {!user.orders || user.orders.length === 0 ? (
-                                        <p className="text-[var(--text-muted)] italic text-center py-8 bg-[var(--bg-input)]/30 rounded-2xl border border-dashed border-[var(--border)]">No orders placed yet.</p>
-                                    ) : user.orders.map((order: any) => (
+                                    {!filteredOrders || filteredOrders.length === 0 ? (
+                                        <p className="text-[var(--text-muted)] italic text-center py-8 bg-[var(--bg-input)]/30 rounded-2xl border border-dashed border-[var(--border)]">No orders in this category.</p>
+                                    ) : filteredOrders.map((order: any) => (
                                         <div key={order.id} className="bg-[var(--bg-input)]/50 border border-[var(--border)] rounded-2xl p-6">
                                             <div className="flex flex-wrap items-center justify-between gap-4 mb-4 pb-4 border-b border-[var(--border)]/50">
                                                 <div className="flex items-center gap-4">

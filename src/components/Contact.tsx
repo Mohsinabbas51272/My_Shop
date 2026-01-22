@@ -1,28 +1,40 @@
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import api from '../lib/api';
-import { Mail, Phone, MapPin, Send, Loader2 } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, Loader2, ShoppingBag } from 'lucide-react';
 import Navbar from './Navbar';
 import { motion } from 'framer-motion';
+import { useAuthStore } from '../store/useAuthStore';
 
 export default function Contact() {
+    const { user } = useAuthStore();
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
-        name: '',
-        email: '',
         subject: '',
-        message: ''
+        description: '',
+        orderId: null as number | null
+    });
+
+    const { data: orders } = useQuery({
+        queryKey: ['orders-for-complaint', user?.id],
+        queryFn: async () => (await api.get(`/orders?userId=${user?.id}`)).data,
+        enabled: !!user?.id,
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         try {
-            await api.post('/complaints', formData);
-            alert('Message sent successfully! We will get back to you soon.');
-            setFormData({ name: '', email: '', subject: '', message: '' });
+            await api.post('/complaints', {
+                subject: formData.subject,
+                description: formData.description,
+                orderId: formData.orderId
+            });
+            alert('Query submitted successfully! We will get back to you soon.');
+            setFormData({ subject: '', description: '', orderId: null });
         } catch (error) {
             console.error('Failed to send message', error);
-            alert('Failed to send message. Please try again.');
+            alert('Failed to submit query. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -113,30 +125,23 @@ export default function Contact() {
                     >
                         <h2 className="text-2xl font-bold mb-6">Send us a Message</h2>
                         <form onSubmit={handleSubmit} className="space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {user && (
                                 <div>
-                                    <label className="block text-sm font-bold text-[var(--text-muted)] mb-2 uppercase tracking-wide">Name</label>
-                                    <input
-                                        type="text"
-                                        required
-                                        value={formData.name}
-                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                    <label className="block text-sm font-bold text-[var(--text-muted)] mb-2 uppercase tracking-wide">Related Order (Optional)</label>
+                                    <select
+                                        value={formData.orderId || ''}
+                                        onChange={(e) => setFormData({ ...formData, orderId: e.target.value ? parseInt(e.target.value) : null })}
                                         className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 transition-all"
-                                        placeholder="John Doe"
-                                    />
+                                    >
+                                        <option value="">Select an order (if applicable)</option>
+                                        {orders?.map((order: any) => (
+                                            <option key={order.id} value={order.id}>
+                                                Order #{order.id} - {new Date(order.createdAt).toLocaleDateString()}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-bold text-[var(--text-muted)] mb-2 uppercase tracking-wide">Email</label>
-                                    <input
-                                        type="email"
-                                        required
-                                        value={formData.email}
-                                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 transition-all"
-                                        placeholder="john@example.com"
-                                    />
-                                </div>
-                            </div>
+                            )}
 
                             <div>
                                 <label className="block text-sm font-bold text-[var(--text-muted)] mb-2 uppercase tracking-wide">Subject</label>
@@ -155,8 +160,8 @@ export default function Contact() {
                                 <textarea
                                     required
                                     rows={4}
-                                    value={formData.message}
-                                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                                    value={formData.description}
+                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                     className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 transition-all resize-none"
                                     placeholder="Tell us more about your inquiry..."
                                 />

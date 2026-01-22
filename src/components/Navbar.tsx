@@ -45,14 +45,25 @@ export default function Navbar() {
                             {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
                         </button>
 
-                        <Link to={user?.role === 'ADMIN' ? "/admin/dashboard" : "/user/dashboard"} className="flex items-center gap-1.5 sm:gap-2 text-[var(--primary)] font-bold text-lg sm:text-xl hover:opacity-80 transition-opacity shrink-0">
+                        <Link to={
+                            user?.role === 'SUPER_ADMIN' ? "/super-admin/dashboard" :
+                                user?.role === 'ADMIN' ? "/admin/dashboard" :
+                                    "/user/dashboard"
+                        } className="flex items-center gap-1.5 sm:gap-2 text-[var(--primary)] font-bold text-lg sm:text-xl hover:opacity-80 transition-opacity shrink-0">
                             <Store className="w-5 h-5 sm:w-6 sm:h-6" />
                             <span className="truncate max-w-[100px] sm:max-w-none">MyShop</span>
                         </Link>
 
                         {/* Navigation Links - Desktop */}
                         <div className="hidden md:flex items-center gap-6">
-                            {user?.role === 'ADMIN' ? (
+                            {user?.role === 'SUPER_ADMIN' ? (
+                                <Link
+                                    to="/super-admin/dashboard"
+                                    className="text-sm font-bold uppercase tracking-widest text-[var(--primary)] hover:opacity-80 transition-opacity"
+                                >
+                                    Command Center
+                                </Link>
+                            ) : user?.role === 'ADMIN' ? (
                                 <Link
                                     to="/admin/dashboard"
                                     className="text-sm font-bold uppercase tracking-widest text-[var(--primary)] hover:opacity-80 transition-opacity"
@@ -128,7 +139,7 @@ export default function Navbar() {
                             </div>
 
                             {/* Cart - Only for customers */}
-                            {user?.role !== 'ADMIN' && (
+                            {user?.role !== 'ADMIN' && user?.role !== 'SUPER_ADMIN' && (
                                 <Link
                                     to="/cart"
                                     className="relative p-1.5 sm:p-2 text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-input)] rounded-full transition-all"
@@ -179,7 +190,15 @@ export default function Navbar() {
                     <div className="px-4 py-6 space-y-6">
                         {/* Mobile Nav Links */}
                         <div className="flex flex-col gap-4">
-                            {user?.role === 'ADMIN' ? (
+                            {user?.role === 'SUPER_ADMIN' ? (
+                                <Link
+                                    to="/super-admin/dashboard"
+                                    onClick={() => setIsMenuOpen(false)}
+                                    className="text-lg font-bold uppercase tracking-widest text-[var(--primary)]"
+                                >
+                                    Command Center
+                                </Link>
+                            ) : user?.role === 'ADMIN' ? (
                                 <Link
                                     to="/admin/dashboard"
                                     onClick={() => setIsMenuOpen(false)}

@@ -9,7 +9,10 @@ interface User {
     address?: string;
     phone?: string;
     paymentMethod?: string;
-    role: 'USER' | 'ADMIN';
+    role: 'USER' | 'ADMIN' | 'SUPER_ADMIN';
+    isVerified: boolean;
+    isFrozen: boolean;
+    isBlocked: boolean;
 }
 
 interface AuthState {
@@ -40,8 +43,10 @@ export const useAuthStore = create<AuthState>()(
             },
             logout: () => {
                 set({ user: null, token: null });
+                localStorage.removeItem('token');
                 sessionStorage.removeItem('token');
-                localStorage.removeItem('auth-storage'); // Cleanup legacy storage if any
+                localStorage.removeItem('auth-storage');
+                sessionStorage.removeItem('auth-storage');
             },
             setHasHydrated: (state: boolean) => {
                 set({ hasHydrated: state });
@@ -49,7 +54,7 @@ export const useAuthStore = create<AuthState>()(
         }),
         {
             name: 'auth-storage',
-            storage: createJSONStorage(() => sessionStorage),
+            storage: createJSONStorage(() => sessionStorage), // Changed to sessionStorage for tab isolation
             onRehydrateStorage: () => (state) => {
                 state?.setHasHydrated(true);
             },

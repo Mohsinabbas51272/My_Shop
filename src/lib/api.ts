@@ -11,7 +11,7 @@ const api = axios.create({
 export const IMAGE_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '');
 
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-    const token = sessionStorage.getItem('token');
+    const token = sessionStorage.getItem('token') || localStorage.getItem('token');
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }

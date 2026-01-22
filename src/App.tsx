@@ -5,6 +5,7 @@ import Dashboard from './components/Dashboard';
 import Profile from './components/Profile';
 import Cart from './components/Cart';
 import AdminDashboard from './components/AdminDashboard';
+import SuperAdminDashboard from './components/SuperAdminDashboard';
 import Contact from './components/Contact';
 import ForgotPassword from './components/auth/ForgotPassword';
 import VerifyOtp from './components/auth/VerifyOtp';
@@ -17,7 +18,7 @@ import { AnimatePresence } from 'framer-motion';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  userRole?: 'USER' | 'ADMIN';
+  userRole?: 'USER' | 'ADMIN' | 'SUPER_ADMIN';
 }
 
 function ProtectedRoute({ children, userRole }: ProtectedRouteProps) {
@@ -29,10 +30,27 @@ function ProtectedRoute({ children, userRole }: ProtectedRouteProps) {
     return <Navigate to="/login" replace />;
   }
 
+  // Strict Role Checking
   if (userRole && user?.role !== userRole) {
-    // If user tries to access admin route, redirect to user dashboard and vice-versa
-    const target = user?.role === 'ADMIN' ? '/admin/dashboard' : '/user/dashboard';
-    return <Navigate to={target} replace />;
+    // If Admin tries to access User route -> Global Redirect
+    // If User tries to access Admin route -> Global Redirect
+    if (user?.role === 'SUPER_ADMIN') return <Navigate to="/super-admin/dashboard" replace />;
+    if (user?.role === 'ADMIN') return <Navigate to="/admin/dashboard" replace />;
+    return <Navigate to="/user/dashboard" replace />;
+  }
+
+  return <>{children}</>;
+}
+
+function PublicRoute({ children }: { children: React.ReactNode }) {
+  const { token, user, hasHydrated } = useAuthStore();
+
+  if (!hasHydrated) return null;
+
+  if (token && user) {
+    if (user.role === 'SUPER_ADMIN') return <Navigate to="/super-admin/dashboard" replace />;
+    if (user.role === 'ADMIN') return <Navigate to="/admin/dashboard" replace />;
+    return <Navigate to="/user/dashboard" replace />;
   }
 
   return <>{children}</>;
@@ -48,7 +66,6 @@ function App() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Prevent routing decisions before state is loaded from localStorage
   if (!hasHydrated) {
     return null;
   }
@@ -60,11 +77,14 @@ function App() {
       </AnimatePresence>
       <BrowserRouter>
         <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/verify-otp" element={<VerifyOtp />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
+          {/* Public Routes - Only accessible if NOT logged in */}
+          <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+          <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+          <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
+          <Route path="/verify-otp" element={<PublicRoute><VerifyOtp /></PublicRoute>} />
+          <Route path="/reset-password" element={<PublicRoute><ResetPassword /></PublicRoute>} />
+
+          {/* Protected Routes */}
           <Route
             path="/user/dashboard"
             element={
@@ -105,9 +125,31 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/dashboard" element={<Navigate to="/user/dashboard" replace />} />
+          <Route
+            path="/super-admin/dashboard"
+            element={
+              <ProtectedRoute userRole="SUPER_ADMIN">
+                <SuperAdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Root & Redirects */}
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              {(() => {
+                const { user } = useAuthStore.getState();
+                if (user?.role === 'SUPER_ADMIN') return <Navigate to="/super-admin/dashboard" replace />;
+                if (user?.role === 'ADMIN') return <Navigate to="/admin/dashboard" replace />;
+                return <Navigate to="/user/dashboard" replace />;
+              })()}
+            </ProtectedRoute>
+          } />
+
           <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/super-admin" element={<Navigate to="/super-admin/dashboard" replace />} />
+          <Route path="/" element={<PublicRoute><Login /></PublicRoute>} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </div>

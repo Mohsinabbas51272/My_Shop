@@ -23,6 +23,7 @@ export default function Login() {
     const {
         register,
         handleSubmit,
+        setValue,
         formState: { errors },
     } = useForm<LoginFormValues>({
         resolver: zodResolver(loginSchema),
@@ -36,7 +37,9 @@ export default function Login() {
             const user = response.data.user;
             setAuth(user, response.data.access_token);
 
-            if (user.role === 'ADMIN') {
+            if (user.role === 'SUPER_ADMIN') {
+                navigate('/super-admin/dashboard');
+            } else if (user.role === 'ADMIN') {
                 navigate('/admin/dashboard');
             } else {
                 navigate('/user/dashboard');
@@ -149,6 +152,8 @@ export default function Login() {
                         Create an account
                     </Link>
                 </p>
+
+
             </div>
         </div>
     );

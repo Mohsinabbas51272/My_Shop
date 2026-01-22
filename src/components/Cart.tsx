@@ -1,29 +1,36 @@
 import { useCartStore } from '../store/useCartStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
 import Navbar from './Navbar';
-import { Trash2, Plus, Minus, ArrowLeft, ShoppingBag, CreditCard, Upload } from 'lucide-react';
+import { Trash2, Plus, Minus, ArrowLeft, ShoppingBag, CreditCard, Upload, AlertCircle, ShieldAlert } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import api, { IMAGE_BASE_URL } from '../lib/api';
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/useAuthStore';
+import PolicyModal from './PolicyModal';
 
 export default function Cart() {
-    const { items, removeItem, updateQuantity, total, clearCart } = useCartStore();
+    const { items, removeItem, updateQuantity, total: getSubtotal, clearCart } = useCartStore();
     const { user } = useAuthStore();
     const { formatPrice } = useCurrencyStore();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
+    const [showPolicy, setShowPolicy] = useState(false);
     const [checkoutDetails, setCheckoutDetails] = useState({
         customerName: user?.name || '',
         customerCnic: user?.cnic || '',
         customerAddress: user?.address || '',
         customerPhone: user?.phone || '',
-        paymentMethod: user?.paymentMethod || 'cash_on_shop', // Default to ID
+        paymentMethod: user?.paymentMethod || 'cash_on_shop',
         transactionId: '',
         paymentReceipt: '',
     });
     const [paymentMethods, setPaymentMethods] = useState<any[]>([]);
     const [uploading, setUploading] = useState(false);
+
+    const subtotal = getSubtotal();
+    const userFee = subtotal * 0.02;
+    const shippingFee = 1000;
+    const grandTotal = subtotal + userFee + shippingFee;
 
     useEffect(() => {
         api.get('/orders/payment-methods')
@@ -58,47 +65,48 @@ export default function Cart() {
         }
     };
 
-    const handleCheckout = async () => {
+    const handleCheckoutClick = () => {
         if (items.length === 0) return;
         if (!checkoutDetails.customerName || !checkoutDetails.customerCnic || !checkoutDetails.customerAddress || !checkoutDetails.customerPhone) {
-            alert('Please fill in all delivery details');
+            alert('Please fill in all delivery details in your profile first');
             return;
         }
 
         const selectedMethod = paymentMethods.find(m => m.id === checkoutDetails.paymentMethod);
         if (selectedMethod?.type === 'online') {
-            if (!checkoutDetails.transactionId) {
-                alert('Please enter Transaction ID');
-                return;
-            }
-            if (!checkoutDetails.paymentReceipt) {
-                alert('Please upload payment receipt');
+            if (!checkoutDetails.transactionId || !checkoutDetails.paymentReceipt) {
+                alert('Please provide payment transaction ID and receipt');
                 return;
             }
         }
 
+        setShowPolicy(true);
+    };
+
+    const completeCheckout = async () => {
+        setShowPolicy(false);
         setLoading(true);
         try {
             await api.post('/orders', {
-                items: JSON.stringify(items),
-                total: total(),
+                items: items,
+                total: grandTotal,
                 userId: user?.id,
                 ...checkoutDetails,
                 paymentDetails: checkoutDetails.transactionId ? { transactionId: checkoutDetails.transactionId } : null,
                 paymentReceipt: checkoutDetails.paymentReceipt,
             });
             clearCart();
-            alert('Order placed successfully!');
-            navigate('/dashboard');
-        } catch (err) {
-            alert('Checkout failed');
+            alert('Order placed successfully! Redirecting to orders...');
+            navigate('/dashboard?tab=orders');
+        } catch (err: any) {
+            alert(err.response?.data?.message || 'Checkout failed');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-main)]">
+        <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] font-['Outfit']">
             <Navbar />
 
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -108,6 +116,26 @@ export default function Cart() {
                     </Link>
                     <h1 className="text-3xl font-bold text-[var(--text-main)]">Your Cart</h1>
                 </div>
+
+                {user?.isBlocked && (
+                    <div className="mb-12 bg-red-500/10 border border-red-500/20 p-6 rounded-2xl flex items-center gap-4 text-red-500">
+                        <AlertCircle className="w-8 h-8" />
+                        <div>
+                            <h3 className="font-bold">Account Restricted</h3>
+                            <p className="text-sm">You cannot place orders because your account is blocked.</p>
+                        </div>
+                    </div>
+                )}
+
+                {user?.isFrozen && (
+                    <div className="mb-12 bg-orange-500/10 border border-orange-500/20 p-6 rounded-2xl flex items-center gap-4 text-orange-500">
+                        <ShieldAlert className="w-8 h-8" />
+                        <div>
+                            <h3 className="font-bold">Financial Activities Frozen</h3>
+                            <p className="text-sm">New orders are temporarily disabled for your account.</p>
+                        </div>
+                    </div>
+                )}
 
                 {items.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-24 text-[var(--text-muted)] bg-[var(--bg-card)]/30 border border-dashed border-[var(--border)] rounded-3xl">
@@ -132,7 +160,7 @@ export default function Cart() {
                                     <img
                                         src={getImageUrl(item.image)}
                                         alt={item.name}
-                                        className="w-24 h-24 object-cover rounded-xl bg-[var(--bg-input)]"
+                                        className="w-24 h-24 object-contain rounded-xl bg-[var(--bg-input)] p-2"
                                     />
                                     <div className="flex-1">
                                         <h3 className="text-lg font-bold text-[var(--text-main)]">{item.name}</h3>
@@ -169,53 +197,57 @@ export default function Cart() {
                             ))}
                         </div>
 
-                        <div className="lg:col-span-5">
-                            <div className="bg-[var(--bg-card)] border border-[var(--border)] p-6 md:p-8 rounded-2xl md:sticky md:top-28 shadow-2xl shadow-black/20">
-                                <h2 className="text-xl font-bold mb-6 text-[var(--text-main)]">Order Summary</h2>
+                        <div className="lg:col-span-12 xl:col-span-5">
+                            <div className="bg-[var(--bg-card)] border border-[var(--border)] p-6 md:p-8 rounded-2xl md:sticky md:top-28 shadow-2xl">
+                                <h2 className="text-xl font-bold mb-6 text-[var(--text-main)]">Order Summary & Fees</h2>
 
                                 <div className="space-y-4 mb-8">
-                                    <div>
-                                        <label className="block text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1.5">Full Name</label>
-                                        <input
-                                            value={checkoutDetails.customerName}
-                                            onChange={(e) => setCheckoutDetails({ ...checkoutDetails, customerName: e.target.value })}
-                                            className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-[var(--primary)]/50"
-                                            placeholder="Recipient Name"
-                                        />
+                                    <div className="p-4 bg-[var(--bg-input)]/30 rounded-xl border border-[var(--border)] space-y-3">
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-[var(--text-muted)]">Subtotal</span>
+                                            <span className="font-medium text-[var(--text-main)]">{formatPrice(subtotal)}</span>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-[var(--text-muted)]">Platform Fee (2%)</span>
+                                            <span className="font-medium text-[var(--text-main)]">{formatPrice(userFee)}</span>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-[var(--text-muted)]">Shipping Fee</span>
+                                            <span className="font-medium text-[var(--text-main)]">{formatPrice(shippingFee)}</span>
+                                        </div>
+                                        <div className="pt-3 border-t border-[var(--border)] flex justify-between text-xl font-bold">
+                                            <span className="text-[var(--text-main)]">Grand Total</span>
+                                            <span className="text-[var(--primary)]">{formatPrice(grandTotal)}</span>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <label className="block text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1.5">CNIC Number</label>
-                                        <input
-                                            value={checkoutDetails.customerCnic}
-                                            onChange={(e) => setCheckoutDetails({ ...checkoutDetails, customerCnic: e.target.value })}
-                                            className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-[var(--primary)]/50"
-                                            placeholder="42101-XXXXXXX-X"
-                                        />
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1.5">Full Name</label>
+                                            <input
+                                                value={checkoutDetails.customerName}
+                                                onChange={(e) => setCheckoutDetails({ ...checkoutDetails, customerName: e.target.value })}
+                                                className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-[var(--primary)]/50"
+                                                placeholder="Recipient Name"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1.5">CNIC Number</label>
+                                            <input
+                                                value={checkoutDetails.customerCnic}
+                                                onChange={(e) => setCheckoutDetails({ ...checkoutDetails, customerCnic: e.target.value })}
+                                                className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-[var(--primary)]/50"
+                                                placeholder="42101-XXXXXXX-X"
+                                            />
+                                        </div>
                                     </div>
-                                    <div>
-                                        <label className="block text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1.5">Contact Number</label>
-                                        <input
-                                            value={checkoutDetails.customerPhone}
-                                            onChange={(e) => setCheckoutDetails({ ...checkoutDetails, customerPhone: e.target.value })}
-                                            className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-[var(--primary)]/50"
-                                            placeholder="+92 3XX XXXXXXX"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1.5">Delivery Address</label>
-                                        <textarea
-                                            value={checkoutDetails.customerAddress}
-                                            onChange={(e) => setCheckoutDetails({ ...checkoutDetails, customerAddress: e.target.value })}
-                                            className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-[var(--primary)]/50 h-20"
-                                            placeholder="House #, Street, City"
-                                        />
-                                    </div>
+
                                     <div>
                                         <label className="block text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1.5">Payment Method</label>
                                         <select
                                             value={checkoutDetails.paymentMethod}
                                             onChange={(e) => setCheckoutDetails({ ...checkoutDetails, paymentMethod: e.target.value })}
-                                            className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-[var(--primary)]/50 cursor-pointer"
+                                            className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-[var(--primary)]/50 cursor-pointer"
                                         >
                                             {paymentMethods.map(method => (
                                                 <option key={method.id} value={method.id}>{method.name}</option>
@@ -223,100 +255,59 @@ export default function Cart() {
                                         </select>
                                     </div>
 
-                                    {/* Payment Details Section */}
+                                    {/* Online Payment logic remains same */}
                                     {(() => {
                                         const selectedMethod = paymentMethods.find(m => m.id === checkoutDetails.paymentMethod);
-                                        if (selectedMethod?.type === 'online' && selectedMethod.details) {
+                                        if (selectedMethod?.type === 'online') {
                                             return (
-                                                <div className="bg-[var(--bg-input)]/50 p-4 rounded-lg border border-[var(--border)] space-y-3">
-                                                    <p className="text-sm font-bold text-[var(--primary)]">Send Payment Details:</p>
-                                                    <div className="text-sm space-y-1 text-[var(--text-muted)]">
-                                                        {selectedMethod.details.bankName && (
-                                                            <div className="flex justify-between">
-                                                                <span>Bank:</span>
-                                                                <span className="font-medium text-[var(--text-main)]">{selectedMethod.details.bankName}</span>
-                                                            </div>
-                                                        )}
-                                                        <div className="flex justify-between">
-                                                            <span>Account Title:</span>
-                                                            <span className="font-medium text-[var(--text-main)]">{selectedMethod.details.accountTitle}</span>
-                                                        </div>
-                                                        <div className="flex justify-between">
-                                                            <span>Account No:</span>
-                                                            <span className="font-medium text-[var(--text-main)] font-mono">{selectedMethod.details.accountNumber}</span>
-                                                        </div>
+                                                <div className="bg-gradient-to-br from-[var(--primary)]/5 to-transparent p-4 rounded-xl border border-[var(--primary)]/20 space-y-3">
+                                                    <div className="flex items-center gap-2 mb-2">
+                                                        <CreditCard className="w-4 h-4 text-[var(--primary)]" />
+                                                        <span className="text-xs font-bold uppercase text-[var(--primary)]">Online Payment</span>
                                                     </div>
-
-                                                    <div className="pt-2">
-                                                        <label className="block text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1.5">Transaction ID</label>
-                                                        <input
-                                                            value={checkoutDetails.transactionId}
-                                                            onChange={(e) => setCheckoutDetails({ ...checkoutDetails, transactionId: e.target.value })}
-                                                            className="w-full bg-[var(--bg-card)] border border-[var(--border)] rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-[var(--primary)]/50 placeholder:text-[var(--text-muted)]/50"
-                                                            placeholder="Enter TRX ID from SMS/App"
-                                                        />
+                                                    <div className="text-[10px] space-y-1 text-[var(--text-muted)]">
+                                                        <div className="flex justify-between"><span>Bank:</span><span className="text-[var(--text-main)]">{selectedMethod.details.bankName}</span></div>
+                                                        <div className="flex justify-between"><span>Account No:</span><span className="text-[var(--text-main)] font-mono">{selectedMethod.details.accountNumber}</span></div>
                                                     </div>
-
-                                                    <div className="pt-2">
-                                                        <label className="block text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1.5">Upload Receipt</label>
+                                                    <input
+                                                        value={checkoutDetails.transactionId}
+                                                        onChange={(e) => setCheckoutDetails({ ...checkoutDetails, transactionId: e.target.value })}
+                                                        className="w-full bg-[var(--bg-card)] border border-[var(--border)] rounded-lg p-2 text-xs"
+                                                        placeholder="Transaction ID"
+                                                    />
+                                                    <label className="flex items-center justify-center aspect-video rounded-lg border-2 border-dashed border-[var(--border)] bg-[var(--bg-card)]/50 cursor-pointer overflow-hidden">
                                                         {checkoutDetails.paymentReceipt ? (
-                                                            <div className="relative aspect-video rounded-lg overflow-hidden border border-[var(--border)] bg-[var(--bg-card)] cursor-pointer group" onClick={() => setCheckoutDetails({ ...checkoutDetails, paymentReceipt: '' })}>
-                                                                <img src={getImageUrl(checkoutDetails.paymentReceipt)} alt="Receipt" className="w-full h-full object-cover" />
-                                                                <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                    <Trash2 className="w-6 h-6 text-white" />
-                                                                </div>
-                                                            </div>
+                                                            <img src={getImageUrl(checkoutDetails.paymentReceipt)} alt="Receipt" className="w-full h-full object-cover" />
                                                         ) : (
-                                                            <label className="flex flex-col items-center justify-center aspect-video rounded-lg border-2 border-dashed border-[var(--border)] bg-[var(--bg-card)]/50 hover:bg-[var(--bg-card)] hover:border-[var(--primary)]/50 transition-all cursor-pointer">
-                                                                {uploading ? (
-                                                                    <p className="text-xs font-bold animate-pulse text-[var(--primary)]">Uploading...</p>
-                                                                ) : (
-                                                                    <>
-                                                                        <Upload className="w-6 h-6 text-[var(--text-muted)] mb-2" />
-                                                                        <span className="text-xs text-[var(--text-muted)]">Click to upload screenshot</span>
-                                                                    </>
-                                                                )}
-                                                                <input type="file" className="hidden" accept="image/*" onChange={handleFileUpload} disabled={uploading} />
-                                                            </label>
+                                                            <span className="text-[10px] uppercase font-bold text-[var(--text-muted)]">Upload Receipt</span>
                                                         )}
-                                                    </div>
+                                                        <input type="file" className="hidden" accept="image/*" onChange={handleFileUpload} />
+                                                    </label>
                                                 </div>
                                             );
                                         }
                                     })()}
                                 </div>
 
-                                <div className="space-y-4 mb-8 pt-6 border-t border-[var(--border)]/50">
-                                    <div className="flex justify-between text-[var(--text-muted)]">
-                                        <span>Subtotal</span>
-                                        <span className="text-[var(--text-main)]">{formatPrice(total())}</span>
-                                    </div>
-                                    <div className="flex justify-between text-[var(--text-muted)] text-sm">
-                                        <span>Shipping</span>
-                                        <span className="text-green-500 font-medium">Free</span>
-                                    </div>
-                                    <div className="pt-4 border-t border-[var(--border)] flex justify-between text-xl font-bold">
-                                        <span className="text-[var(--text-main)]">Total</span>
-                                        <span className="text-[var(--primary)]">{formatPrice(total())}</span>
-                                    </div>
-                                </div>
-
                                 <button
-                                    onClick={handleCheckout}
-                                    disabled={loading || uploading}
-                                    className="w-full bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-[var(--accent-glow)] flex items-center justify-center gap-3 disabled:opacity-50"
+                                    onClick={handleCheckoutClick}
+                                    disabled={loading || uploading || user?.isFrozen || user?.isBlocked}
+                                    className="w-full bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-bold py-4 rounded-xl transition-all shadow-lg flex items-center justify-center gap-3 disabled:opacity-50"
                                 >
-                                    <CreditCard className="w-5 h-5" />
-                                    {loading ? 'Processing...' : 'Checkout Now'}
+                                    {loading ? 'Processing...' : 'Verify & Checkout'}
                                 </button>
-                                <p className="text-center text-[10px] text-[var(--text-muted)] mt-6 uppercase tracking-widest font-bold opacity-50">
-                                    Secure Encryption
-                                </p>
                             </div>
                         </div>
                     </div>
                 )}
             </main>
+
+            {showPolicy && (
+                <PolicyModal
+                    onAccepted={completeCheckout}
+                    onClose={() => setShowPolicy(false)}
+                />
+            )}
         </div>
     );
 }

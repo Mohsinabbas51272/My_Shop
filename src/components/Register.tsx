@@ -13,6 +13,7 @@ const registerSchema = z.object({
     cnic: z.string().min(13, 'CNIC must be at least 13 characters'),
     address: z.string().min(5, 'Address must be at least 5 characters'),
     phone: z.string().min(10, 'Phone must be at least 10 characters'),
+    role: z.enum(['USER', 'ADMIN']),
     paymentMethod: z.string().optional(),
 });
 
@@ -26,10 +27,18 @@ export default function Register() {
     const {
         register,
         handleSubmit,
+        setValue,
+        watch,
         formState: { errors },
     } = useForm<RegisterFormValues>({
         resolver: zodResolver(registerSchema),
+        defaultValues: {
+            role: 'USER',
+            paymentMethod: 'Cash on Shop'
+        }
     });
+
+    const selectedRole = watch('role');
 
     const onSubmit = async (data: RegisterFormValues) => {
         setLoading(true);
@@ -62,6 +71,29 @@ export default function Register() {
                         {error}
                     </div>
                 )}
+
+                <div className="flex gap-2 p-1 bg-[var(--bg-input)] rounded-xl mb-8 border border-[var(--border)]">
+                    <button
+                        type="button"
+                        onClick={() => setValue('role', 'USER')}
+                        className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${selectedRole === 'USER'
+                                ? 'bg-[var(--primary)] text-white shadow-lg shadow-[var(--accent-glow)]'
+                                : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'
+                            }`}
+                    >
+                        Customer
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setValue('role', 'ADMIN')}
+                        className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${selectedRole === 'ADMIN'
+                                ? 'bg-[var(--primary)] text-white shadow-lg shadow-[var(--accent-glow)]'
+                                : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'
+                            }`}
+                    >
+                        Seller/Admin
+                    </button>
+                </div>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                     <div>

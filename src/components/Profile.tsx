@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import api from '../lib/api';
 import Navbar from './Navbar';
-import { User, Mail, CreditCard, MapPin, BadgeCheck, Loader2, Save, Phone, X } from 'lucide-react';
+import { User, Mail, CreditCard, MapPin, BadgeCheck, Loader2, Save, Phone, X, ShieldAlert, ShieldCheck, AlertOctagon } from 'lucide-react';
 
 export default function Profile() {
     const navigate = useNavigate();
@@ -36,25 +36,60 @@ export default function Profile() {
     };
 
     return (
-        <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-main)]">
+        <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] font-['Outfit']">
             <Navbar />
 
             <main className="max-w-3xl mx-auto px-4 py-12">
-                <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl shadow-2xl overflow-hidden">
+                {user?.isBlocked && (
+                    <div className="mb-6 bg-red-500/20 border border-red-500/50 p-4 rounded-2xl flex items-center gap-4 text-red-500 animate-pulse">
+                        <AlertOctagon className="w-8 h-8 shrink-0" />
+                        <div>
+                            <h3 className="font-bold">Account Blocked</h3>
+                            <p className="text-sm">Your account has been blocked due to policy violations. Please contact support.</p>
+                        </div>
+                    </div>
+                )}
+
+                {user?.isFrozen && (
+                    <div className="mb-6 bg-orange-500/20 border border-orange-500/50 p-4 rounded-2xl flex items-center gap-4 text-orange-500">
+                        <ShieldAlert className="w-8 h-8 shrink-0" />
+                        <div>
+                            <h3 className="font-bold">Account Frozen</h3>
+                            <p className="text-sm">Your financial activities are temporarily frozen. Withdrawals and new orders are restricted.</p>
+                        </div>
+                    </div>
+                )}
+
+                <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl shadow-2xl overflow-hidden backdrop-blur-xl">
                     <div className="p-8 border-b border-[var(--border)] bg-[var(--bg-input)]/30 relative">
                         <button
-                            onClick={() => navigate(user?.role === 'ADMIN' ? '/admin/dashboard' : '/user/dashboard')}
+                            onClick={() => {
+                                if (user?.role === 'SUPER_ADMIN') navigate('/super-admin/dashboard');
+                                else if (user?.role === 'ADMIN') navigate('/admin/dashboard');
+                                else navigate('/user/dashboard');
+                            }}
                             className="absolute top-6 right-6 p-2 text-[var(--text-muted)] hover:text-red-500 hover:bg-[var(--bg-card)] rounded-full transition-all"
                         >
                             <X className="w-6 h-6" />
                         </button>
                         <div className="flex items-center gap-4">
-                            <div className="w-16 h-16 bg-[var(--primary)] rounded-2xl flex items-center justify-center shadow-lg shadow-[var(--accent-glow)]">
-                                <User className="w-8 h-8 text-white" />
+                            <div className="w-20 h-20 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-hover)] rounded-2xl flex items-center justify-center shadow-lg shadow-[var(--accent-glow)]">
+                                <User className="w-10 h-10 text-white" />
                             </div>
-                            <div>
-                                <h1 className="text-2xl font-bold">Account Settings</h1>
-                                <p className="text-[var(--text-muted)] text-sm">Manage your personal information and preferences.</p>
+                            <div className="flex-1">
+                                <div className="flex items-center gap-3">
+                                    <h1 className="text-2xl font-bold">Account Settings</h1>
+                                    {user?.isVerified ? (
+                                        <span className="flex items-center gap-1 bg-green-500/10 text-green-500 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border border-green-500/20">
+                                            <ShieldCheck className="w-3 h-3" /> Verified
+                                        </span>
+                                    ) : (
+                                        <span className="flex items-center gap-1 bg-yellow-500/10 text-yellow-500 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border border-yellow-500/20">
+                                            <ShieldAlert className="w-3 h-3" /> Pending Verification
+                                        </span>
+                                    )}
+                                </div>
+                                <p className="text-[var(--text-muted)] text-sm mt-1">Manage your identity and preferences to stay verified.</p>
                             </div>
                         </div>
                     </div>
