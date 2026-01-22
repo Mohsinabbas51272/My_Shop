@@ -1,7 +1,7 @@
 import { useCartStore } from '../store/useCartStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
 import Navbar from './Navbar';
-import { Trash2, Plus, Minus, ArrowLeft, ShoppingBag, CreditCard, Upload, AlertCircle, ShieldAlert } from 'lucide-react';
+import { Trash2, Plus, Minus, ArrowLeft, ShoppingBag, CreditCard, AlertCircle, ShieldAlert } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import api, { IMAGE_BASE_URL } from '../lib/api';
 import { useState, useEffect } from 'react';

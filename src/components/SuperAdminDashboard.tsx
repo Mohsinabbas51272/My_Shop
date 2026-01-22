@@ -1,18 +1,14 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import api, { IMAGE_BASE_URL } from '../lib/api';
+import api from '../lib/api';
 import Navbar from './Navbar';
 import { useCurrencyStore } from '../store/useCurrencyStore';
 import {
-    LayoutDashboard,
     ShoppingBag,
     Users,
     Trash2,
     CheckCircle,
     Loader2,
-    Package,
-    Phone,
-    MapPin,
     Receipt,
     ShieldCheck,
     ShieldAlert,
@@ -25,7 +21,7 @@ import {
 
 export default function SuperAdminDashboard() {
     const queryClient = useQueryClient();
-    const { currency, formatPrice } = useCurrencyStore();
+    const { formatPrice } = useCurrencyStore();
     const [activeTab, setActiveTab] = useState<'users' | 'orders' | 'disputes' | 'audit'>('users');
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -100,11 +96,7 @@ export default function SuperAdminDashboard() {
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['audit-logs'] }),
     });
 
-    const getImageUrl = (url: string) => {
-        if (!url) return '';
-        if (url.startsWith('http')) return url;
-        return `${IMAGE_BASE_URL}${url}`;
-    };
+    // deleted getImageUrl function as it was unused
 
     return (
         <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] font-['Outfit']">
@@ -479,22 +471,4 @@ export default function SuperAdminDashboard() {
     );
 }
 
-function Clock(props: any) {
-    return (
-        <svg
-            {...props}
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <circle cx="12" cy="12" r="10" />
-            <polyline points="12 6 12 12 16 14" />
-        </svg>
-    )
-}
+// Clock function removed as it was unused

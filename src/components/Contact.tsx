@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import api from '../lib/api';
-import { Mail, Phone, MapPin, Send, Loader2, ShoppingBag } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, Loader2 } from 'lucide-react';
 import Navbar from './Navbar';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '../store/useAuthStore';
