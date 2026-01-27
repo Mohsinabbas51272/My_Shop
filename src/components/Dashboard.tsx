@@ -5,7 +5,7 @@ import api, { IMAGE_BASE_URL } from '../lib/api';
 import Navbar from './Navbar';
 import ProductDetailsModal from './ProductDetailsModal';
 import { useCartStore } from '../store/useCartStore';
-import { Plus, Loader2, PackageX, ShoppingBag, Clock, CheckCircle2, Receipt, Trash2, Edit2, MessageCircle, AlertCircle, Gavel, ShieldCheck } from 'lucide-react';
+import { Plus, Loader2, PackageX, ShoppingBag, Clock, CheckCircle2, Receipt, Trash2, Edit2, MessageCircle, Gavel, ShieldCheck } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
 import { toast } from '../store/useToastStore';
