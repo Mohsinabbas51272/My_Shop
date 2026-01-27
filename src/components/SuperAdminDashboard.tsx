@@ -123,7 +123,7 @@ export default function SuperAdminDashboard() {
     const getImageUrl = (url: string) => {
         if (!url) return '';
         if (url.startsWith('http')) return url;
-        const baseUrl = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '');
+        const baseUrl = (import.meta.env.VITE_API_URL || 'https://backend-for-shop.vercel.app/api').replace('/api', '');
         return `${baseUrl}${url}`;
     };
 
