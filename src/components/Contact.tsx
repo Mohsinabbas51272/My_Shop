@@ -1,13 +1,16 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import api from '../lib/api';
 import { Mail, Phone, MapPin, Send, Loader2 } from 'lucide-react';
 import Navbar from './Navbar';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '../store/useAuthStore';
+import { toast } from '../store/useToastStore';
 
 export default function Contact() {
     const { user } = useAuthStore();
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         subject: '',
@@ -30,11 +33,12 @@ export default function Contact() {
                 description: formData.description,
                 orderId: formData.orderId
             });
-            alert('Query submitted successfully! We will get back to you soon.');
+            toast.success('Query submitted! We will get back to you soon.');
             setFormData({ subject: '', description: '', orderId: null });
+            navigate('/user/dashboard?tab=shop');
         } catch (error) {
             console.error('Failed to send message', error);
-            alert('Failed to submit query. Please try again.');
+            toast.error('Failed to submit query. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -136,7 +140,7 @@ export default function Contact() {
                                         <option value="">Select an order (if applicable)</option>
                                         {orders?.map((order: any) => (
                                             <option key={order.id} value={order.id}>
-                                                Order #{order.id} - {new Date(order.createdAt).toLocaleDateString()}
+                                                Order #{order.displayId || order.id} - {new Date(order.createdAt).toLocaleDateString()}
                                             </option>
                                         ))}
                                     </select>

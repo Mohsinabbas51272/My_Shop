@@ -4,6 +4,7 @@ import Register from './components/Register';
 import Dashboard from './components/Dashboard';
 import Profile from './components/Profile';
 import Cart from './components/Cart';
+import Checkout from './components/Checkout';
 import AdminDashboard from './components/AdminDashboard';
 import SuperAdminDashboard from './components/SuperAdminDashboard';
 import Contact from './components/Contact';
@@ -114,6 +115,14 @@ function App() {
             element={
               <ProtectedRoute userRole="USER">
                 <Cart />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/checkout"
+            element={
+              <ProtectedRoute userRole="USER">
+                <Checkout />
               </ProtectedRoute>
             }
           />

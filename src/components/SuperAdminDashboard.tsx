@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../lib/api';
 import Navbar from './Navbar';
 import { useCurrencyStore } from '../store/useCurrencyStore';
+import { toast } from '../store/useToastStore';
 import {
     ShoppingBag,
     Users,
@@ -71,9 +72,18 @@ export default function SuperAdminDashboard() {
     const registerFIR = useMutation({
         mutationFn: ({ id, details }: { id: number, details: string }) => api.post(`/users/${id}/register-fir`, { details }),
         onSuccess: () => {
-            alert('Legal action recorded in system audit.');
+            toast.success('Legal action recorded in system audit.');
             queryClient.invalidateQueries({ queryKey: ['super-admin-users'] });
         },
+    });
+
+    const deleteUser = useMutation({
+        mutationFn: (id: number) => api.delete(`/users/${id}`),
+        onSuccess: () => {
+            toast.success('User permanently removed from system.');
+            queryClient.invalidateQueries({ queryKey: ['super-admin-users'] });
+        },
+        onError: (err: any) => toast.error(err.response?.data?.message || 'Failed to delete user'),
     });
 
     const confirmPayment = useMutation({
@@ -87,8 +97,22 @@ export default function SuperAdminDashboard() {
     });
 
     const updateDispute = useMutation({
-        mutationFn: ({ id, status }: { id: number, status: string }) => api.patch(`/disputes/${id}/status`, { status }),
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['super-admin-disputes'] }),
+        mutationFn: ({ id, status, response }: { id: number, status?: string, response?: string }) =>
+            response
+                ? api.patch(`/disputes/${id}/response`, { response })
+                : api.patch(`/disputes/${id}/status`, { status }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['super-admin-disputes'] });
+            toast.success('Dispute updated successfully');
+        },
+    });
+
+    const deleteDispute = useMutation({
+        mutationFn: (id: number) => api.delete(`/disputes/${id}`),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['super-admin-disputes'] });
+            toast.success('Dispute deleted successfully');
+        },
     });
 
     const deleteAllLogs = useMutation({
@@ -96,7 +120,12 @@ export default function SuperAdminDashboard() {
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['audit-logs'] }),
     });
 
-    // deleted getImageUrl function as it was unused
+    const getImageUrl = (url: string) => {
+        if (!url) return '';
+        if (url.startsWith('http')) return url;
+        const baseUrl = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '');
+        return `${baseUrl}${url}`;
+    };
 
     return (
         <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] font-['Outfit']">
@@ -207,6 +236,16 @@ export default function SuperAdminDashboard() {
                                         >
                                             <Gavel className="w-4 h-4" /> Log FIR
                                         </button>
+                                        <button
+                                            onClick={() => {
+                                                if (confirm(`Are you sure you want to PERMANENTLY delete user ${u.name}? This will delete all their orders and related data.`)) {
+                                                    deleteUser.mutate(u.id);
+                                                }
+                                            }}
+                                            className="action-btn danger"
+                                        >
+                                            <Trash2 className="w-4 h-4" /> Delete User
+                                        </button>
                                     </div>
                                 </div>
                             ))}
@@ -242,11 +281,17 @@ export default function SuperAdminDashboard() {
                                             <tr><td colSpan={6} className="p-12 text-center text-[var(--text-muted)]">No orders found</td></tr>
                                         ) : orders.map((o: any) => (
                                             <tr key={o.id} className="hover:bg-[var(--bg-input)]/30 transition-colors">
-                                                <td className="p-4 font-bold text-[var(--primary)]">#{o.id}</td>
+                                                <td className="p-4">
+                                                    <div className="flex flex-col">
+                                                        <span className="font-bold text-[var(--primary)] text-sm">#{o.displayId || 'N/A'}</span>
+                                                        <span className="text-[10px] text-[var(--text-muted)] font-mono opacity-50 uppercase tracking-tighter">Global ID: #{o.id}</span>
+                                                    </div>
+                                                </td>
                                                 <td className="p-4">
                                                     <div className="flex flex-col gap-0.5">
                                                         <span className="font-bold text-[var(--text-main)]">{o.customerName || 'N/A'}</span>
-                                                        <span className="text-xs text-[var(--text-muted)]">{o.user?.email || 'N/A'}</span>
+                                                        <span className="text-xs text-[var(--text-muted)]">{o.customerPhone || 'N/A'}</span>
+                                                        <span className="text-[10px] text-[var(--text-muted)]/70">{o.user?.email || 'N/A'}</span>
                                                     </div>
                                                 </td>
                                                 <td className="p-4">
@@ -269,12 +314,26 @@ export default function SuperAdminDashboard() {
                                                     </span>
                                                 </td>
                                                 <td className="p-4">
-                                                    <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase border ${o.paymentStatus === 'Paid'
-                                                        ? 'bg-green-500/10 text-green-500 border-green-500/20'
-                                                        : 'bg-orange-500/10 text-orange-500 border-orange-500/20'
-                                                        }`}>
-                                                        {o.paymentStatus || 'Pending'}
-                                                    </span>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase border ${o.paymentStatus === 'Paid'
+                                                            ? 'bg-green-500/10 text-green-500 border-green-500/20'
+                                                            : 'bg-orange-500/10 text-orange-500 border-orange-500/20'
+                                                            }`}>
+                                                            {o.paymentStatus || 'Pending'}
+                                                        </span>
+                                                        {o.paymentReceipt && (
+                                                            <a
+                                                                href={getImageUrl(o.paymentReceipt)}
+                                                                target="_blank"
+                                                                rel="noreferrer"
+                                                                className="text-[var(--primary)] hover:underline flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest"
+                                                                title="View Receipt"
+                                                            >
+                                                                <Receipt className="w-3.5 h-3.5" />
+                                                                View
+                                                            </a>
+                                                        )}
+                                                    </div>
                                                 </td>
                                                 <td className="p-4 text-right">
                                                     <div className="flex items-center justify-end gap-2">
@@ -335,8 +394,14 @@ export default function SuperAdminDashboard() {
                                     </div>
                                     <div className="pt-4 border-t border-[var(--border)] flex flex-col gap-3">
                                         <div className="flex items-center justify-between text-[10px] font-bold text-[var(--text-muted)]">
-                                            <span>ORDER ID: #{d.orderId}</span>
-                                            <span>BY: {d.user?.name || 'User'}</span>
+                                            <div className="flex flex-col">
+                                                <span className="text-[var(--primary)]">ORDER: #{d.order?.displayId || 'N/A'}</span>
+                                                <span className="text-[var(--text-muted)] text-[8px] opacity-50">Global ID: #{d.orderId}</span>
+                                            </div>
+                                            <div className="text-right">
+                                                <div>BY: {d.user?.name || 'User'}</div>
+                                                <div className="text-[var(--primary)]">{d.user?.phone || 'No Phone'}</div>
+                                            </div>
                                         </div>
                                         <div className="flex gap-2">
                                             <button
@@ -351,6 +416,48 @@ export default function SuperAdminDashboard() {
                                             >
                                                 Resolve
                                             </button>
+                                        </div>
+                                        <div className="flex flex-col gap-2 pt-2">
+                                            <div className="flex gap-2">
+                                                <input
+                                                    id={`resp-${d.id}`}
+                                                    placeholder="Add command center response..."
+                                                    className="flex-1 bg-[var(--bg-input)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-xs outline-none focus:ring-1 focus:ring-[var(--primary)]"
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter') {
+                                                            const val = (e.target as HTMLInputElement).value;
+                                                            if (val.trim()) {
+                                                                updateDispute.mutate({ id: d.id, response: val });
+                                                                (e.target as HTMLInputElement).value = '';
+                                                            }
+                                                        }
+                                                    }}
+                                                />
+                                                <button
+                                                    onClick={() => {
+                                                        const el = document.getElementById(`resp-${d.id}`) as HTMLInputElement;
+                                                        if (el.value.trim()) {
+                                                            updateDispute.mutate({ id: d.id, response: el.value });
+                                                            el.value = '';
+                                                        }
+                                                    }}
+                                                    className="p-1.5 bg-[var(--primary)] text-white rounded-lg hover:opacity-90"
+                                                >
+                                                    <CheckCircle className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                            {d.status === 'Resolved' && (
+                                                <button
+                                                    onClick={() => {
+                                                        if (confirm('Delete resolved dispute record?')) {
+                                                            deleteDispute.mutate(d.id);
+                                                        }
+                                                    }}
+                                                    className="w-full py-1.5 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white border border-red-500/20 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1"
+                                                >
+                                                    <Trash2 className="w-3" /> Delete Resolved Case
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                 </div>

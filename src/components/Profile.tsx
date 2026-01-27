@@ -1,15 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import api from '../lib/api';
 import Navbar from './Navbar';
 import { User, Mail, CreditCard, MapPin, BadgeCheck, Loader2, Save, Phone, X, ShieldAlert, ShieldCheck, AlertOctagon } from 'lucide-react';
+import { toast } from '../store/useToastStore';
 
 export default function Profile() {
     const navigate = useNavigate();
     const { user, updateUser } = useAuthStore();
     const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
     const [formData, setFormData] = useState({
         name: user?.name || '',
         cnic: user?.cnic || '',
@@ -18,18 +18,37 @@ export default function Profile() {
         paymentMethod: user?.paymentMethod || 'Cash on Shop',
     });
 
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const response = await api.get('/users/profile');
+                const latestUser = response.data;
+                updateUser(latestUser);
+                setFormData({
+                    name: latestUser.name || '',
+                    cnic: latestUser.cnic || '',
+                    address: latestUser.address || '',
+                    phone: latestUser.phone || '',
+                    paymentMethod: latestUser.paymentMethod || 'Cash on Shop',
+                });
+            } catch (err) {
+                console.error('Failed to sync profile:', err);
+            }
+        };
+        fetchProfile();
+    }, []);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!user?.id) return;
 
         setLoading(true);
-        setMessage(null);
         try {
             const response = await api.patch(`/users/${user.id}`, formData);
             updateUser(response.data);
-            setMessage({ type: 'success', text: 'Profile updated successfully!' });
+            toast.success('Profile updated successfully!');
         } catch (err: any) {
-            setMessage({ type: 'error', text: err.response?.data?.message || 'Failed to update profile' });
+            toast.error(err.response?.data?.message || 'Failed to update profile');
         } finally {
             setLoading(false);
         }
@@ -95,15 +114,6 @@ export default function Profile() {
                     </div>
 
                     <form onSubmit={handleSubmit} className="p-8 space-y-6">
-                        {message && (
-                            <div className={`p-4 rounded-xl text-sm font-medium border ${message.type === 'success'
-                                ? 'bg-green-500/10 border-green-500/20 text-green-500'
-                                : 'bg-red-500/10 border-red-500/20 text-red-500'
-                                }`}>
-                                {message.text}
-                            </div>
-                        )}
-
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
                                 <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">

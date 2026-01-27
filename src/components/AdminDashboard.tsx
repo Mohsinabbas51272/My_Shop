@@ -17,13 +17,17 @@ import {
     Phone,
     MapPin,
     Receipt,
-    MessageSquare
+    MessageSquare,
+    Pencil,
+    X
 } from 'lucide-react';
+import { toast } from '../store/useToastStore';
 
 export default function AdminDashboard() {
     const queryClient = useQueryClient();
     const { currency, formatPrice } = useCurrencyStore();
     const [newProduct, setNewProduct] = useState({ name: '', price: '', description: '', image: '' });
+    const [editingProduct, setEditingProduct] = useState<any>(null);
     const [uploading, setUploading] = useState(false);
     const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'users' | 'queries'>('products');
     const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -43,7 +47,7 @@ export default function AdminDashboard() {
 
     const { data: products, isLoading: productsLoading } = useQuery({
         queryKey: ['products'],
-        queryFn: async () => (await api.get('/products')).data,
+        queryFn: async () => (await api.get('/products', { params: { page: 1, limit: 100 } })).data,
     });
 
     const { data: orders, isLoading: ordersLoading } = useQuery({
@@ -61,7 +65,19 @@ export default function AdminDashboard() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['products'] });
             setNewProduct({ name: '', price: '', description: '', image: '' });
+            toast.success('Product created successfully!');
         },
+    });
+
+    const updateProductMutation = useMutation({
+        mutationFn: ({ id, ...data }: any) => api.patch(`/products/${id}`, data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['products'] });
+            setEditingProduct(null);
+            setNewProduct({ name: '', price: '', description: '', image: '' });
+            toast.success('Product updated successfully!');
+        },
+        onError: () => toast.error('Failed to update product'),
     });
 
     const deleteProductMutation = useMutation({
@@ -109,9 +125,9 @@ export default function AdminDashboard() {
             });
             setSelectedComplaint(null);
             setRespondText('');
-            alert('Response sent successfully!');
+            toast.success('Response sent successfully!');
         },
-        onError: () => alert('Failed to send response'),
+        onError: () => toast.error('Failed to send response'),
     });
 
     const getImageUrl = (url: string) => {
@@ -135,7 +151,7 @@ export default function AdminDashboard() {
             setNewProduct({ ...newProduct, image: response.data.url });
         } catch (error) {
             console.error('Upload failed', error);
-            alert('Upload failed. Please try again.');
+            toast.error('Upload failed. Please try again.');
         } finally {
             setUploading(false);
         }
@@ -196,9 +212,22 @@ export default function AdminDashboard() {
                         {/* Add Product Form */}
                         <section className="lg:col-span-1">
                             <div className="bg-[var(--bg-card)] border border-[var(--border)] p-4 md:p-8 rounded-2xl md:sticky md:top-28 shadow-xl">
-                                <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-[var(--text-main)]">
-                                    <Plus className="w-5 h-5 text-[var(--primary)]" />
-                                    Add New Product
+                                <h2 className="text-xl font-bold mb-6 flex items-center justify-between text-[var(--text-main)]">
+                                    <div className="flex items-center gap-2">
+                                        {editingProduct ? <Pencil className="w-5 h-5 text-[var(--primary)]" /> : <Plus className="w-5 h-5 text-[var(--primary)]" />}
+                                        {editingProduct ? 'Edit Product' : 'Add New Product'}
+                                    </div>
+                                    {editingProduct && (
+                                        <button
+                                            onClick={() => {
+                                                setEditingProduct(null);
+                                                setNewProduct({ name: '', price: '', description: '', image: '' });
+                                            }}
+                                            className="p-1 hover:bg-[var(--bg-input)] rounded-full transition-colors"
+                                        >
+                                            <X className="w-5 h-5 text-[var(--text-muted)]" />
+                                        </button>
+                                    )}
                                 </h2>
                                 <div className="space-y-4">
                                     <input
@@ -207,13 +236,20 @@ export default function AdminDashboard() {
                                         value={newProduct.name}
                                         onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
                                     />
-                                    <input
-                                        placeholder="Price (PKR)"
-                                        type="number"
-                                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg p-3 text-sm text-[var(--text-main)] focus:ring-2 focus:ring-[var(--primary)]/50 outline-none"
-                                        value={newProduct.price}
-                                        onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
-                                    />
+                                    <div className="relative">
+                                        <input
+                                            placeholder={`Price (${currency})`}
+                                            type="number"
+                                            step="any"
+                                            min="0"
+                                            className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg p-3 text-sm text-[var(--text-main)] focus:ring-2 focus:ring-[var(--primary)]/50 outline-none pr-12"
+                                            value={newProduct.price}
+                                            onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+                                        />
+                                        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest pointer-events-none">
+                                            {currency}
+                                        </div>
+                                    </div>
                                     <textarea
                                         placeholder="Description"
                                         rows={3}
@@ -272,11 +308,31 @@ export default function AdminDashboard() {
                                     </div>
 
                                     <button
-                                        onClick={() => addProductMutation.mutate({ ...newProduct, price: parseFloat(newProduct.price) })}
-                                        disabled={addProductMutation.isPending || uploading || !newProduct.image}
+                                        onClick={() => {
+                                            let priceVal = parseFloat(newProduct.price);
+                                            // Convert back to PKR if currently in USD
+                                            if (currency === 'USD') {
+                                                const { exchangeRate } = useCurrencyStore.getState();
+                                                priceVal = priceVal * exchangeRate;
+                                            }
+                                            // ROUND to nearest integer to avoid 59999 errors
+                                            const finalPrice = Math.round(priceVal);
+
+                                            const productData = { ...newProduct, price: finalPrice };
+                                            if (editingProduct) {
+                                                updateProductMutation.mutate({ id: editingProduct.id, ...productData });
+                                            } else {
+                                                addProductMutation.mutate(productData);
+                                            }
+                                        }}
+                                        disabled={addProductMutation.isPending || updateProductMutation.isPending || uploading || !newProduct.image}
                                         className="w-full bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-bold py-3 rounded-lg transition-all flex items-center justify-center gap-2 shadow-lg shadow-[var(--accent-glow)] disabled:opacity-50"
                                     >
-                                        {addProductMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Create Product'}
+                                        {(addProductMutation.isPending || updateProductMutation.isPending) ? (
+                                            <Loader2 className="w-5 h-5 animate-spin" />
+                                        ) : (
+                                            editingProduct ? 'Update Product' : 'Create Product'
+                                        )}
                                     </button>
                                 </div>
                             </div>
@@ -301,7 +357,7 @@ export default function AdminDashboard() {
                                     <tbody className="divide-y divide-[var(--border)]">
                                         {productsLoading ? (
                                             <tr><td colSpan={4} className="p-8 text-center uppercase tracking-widest opacity-50">Loading...</td></tr>
-                                        ) : products?.map((p: any) => (
+                                        ) : (products?.items || []).map((p: any) => (
                                             <tr key={p.id} className="hover:bg-[var(--bg-input)]/30 transition-colors">
                                                 <td className="p-4">
                                                     <div className="w-12 h-12 rounded-lg bg-[var(--bg-input)] border border-[var(--border)] overflow-hidden">
@@ -311,12 +367,37 @@ export default function AdminDashboard() {
                                                 <td className="p-4 text-[var(--text-main)] normal-case tracking-normal font-semibold">{p.name}</td>
                                                 <td className="p-4 text-[var(--primary)]">{formatPrice(p.price)}</td>
                                                 <td className="p-4 text-right">
-                                                    <button
-                                                        onClick={() => deleteProductMutation.mutate(p.id)}
-                                                        className="p-2 text-[var(--text-muted)] hover:text-red-500 transition-colors"
-                                                    >
-                                                        <Trash2 className="w-5 h-5" />
-                                                    </button>
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        <button
+                                                            onClick={() => {
+                                                                let displayPrice = p.price;
+                                                                if (currency === 'USD') {
+                                                                    const { exchangeRate } = useCurrencyStore.getState();
+                                                                    displayPrice = parseFloat((p.price / exchangeRate).toFixed(2));
+                                                                }
+
+                                                                setEditingProduct(p);
+                                                                setNewProduct({
+                                                                    name: p.name,
+                                                                    price: displayPrice.toString(),
+                                                                    description: p.description || '',
+                                                                    image: p.image || ''
+                                                                });
+                                                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                                                            }}
+                                                            className="p-2 text-[var(--text-muted)] hover:text-[var(--primary)] transition-colors"
+                                                            title="Edit Product"
+                                                        >
+                                                            <Pencil className="w-5 h-5" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => deleteProductMutation.mutate(p.id)}
+                                                            className="p-2 text-[var(--text-muted)] hover:text-red-500 transition-colors"
+                                                            title="Delete Product"
+                                                        >
+                                                            <Trash2 className="w-5 h-5" />
+                                                        </button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         ))}
@@ -350,7 +431,12 @@ export default function AdminDashboard() {
                                         <tr><td colSpan={6} className="p-8 text-center uppercase tracking-widest opacity-50">Loading...</td></tr>
                                     ) : orders?.map((o: any) => (
                                         <tr key={o.id} className="hover:bg-[var(--bg-input)]/30 transition-colors group">
-                                            <td className="p-4 text-[var(--text-muted)] font-mono">#{o.id}</td>
+                                            <td className="p-4">
+                                                <div className="flex flex-col">
+                                                    <span className="font-bold text-[var(--primary)] text-sm">#{o.displayId || 'N/A'}</span>
+                                                    <span className="text-[10px] text-[var(--text-muted)] font-mono opacity-50">Global: #{o.id}</span>
+                                                </div>
+                                            </td>
                                             <td className="p-4">
                                                 <div className="flex flex-col gap-1">
                                                     <span className="text-sm font-black text-[var(--text-main)] flex items-center gap-1.5">
@@ -528,7 +614,14 @@ export default function AdminDashboard() {
                                                 <p className="text-xs text-[var(--text-muted)]">{c.email}</p>
                                             </td>
                                             <td className="p-4 max-w-sm">
-                                                <p className="font-bold text-[var(--text-main)] truncate">{c.subject}</p>
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <p className="font-bold text-[var(--text-main)] truncate">{c.subject}</p>
+                                                    {c.orderId && (
+                                                        <span className="px-1.5 py-0.5 bg-[var(--primary)]/10 text-[var(--primary)] text-[8px] font-bold rounded border border-[var(--primary)]/20 uppercase tracking-widest">
+                                                            Order #{c.order?.displayId || c.orderId}
+                                                        </span>
+                                                    )}
+                                                </div>
                                                 <p className="text-[var(--text-muted)] line-clamp-2">{c.message}</p>
                                             </td>
                                             <td className="p-4">
@@ -606,7 +699,7 @@ export default function AdminDashboard() {
                                 <button
                                     onClick={() => {
                                         if (!respondText.trim()) {
-                                            alert('Please enter a response');
+                                            toast.error('Please enter a response');
                                             return;
                                         }
                                         respondToComplaintMutation.mutate({
@@ -744,7 +837,10 @@ function UserDetailsModal({ userId, onClose, getImageUrl }: { userId: number; on
                                         <div key={order.id} className="bg-[var(--bg-input)]/50 border border-[var(--border)] rounded-2xl p-6">
                                             <div className="flex flex-wrap items-center justify-between gap-4 mb-4 pb-4 border-b border-[var(--border)]/50">
                                                 <div className="flex items-center gap-4">
-                                                    <span className="text-[var(--text-muted)] font-mono">#{order.id}</span>
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[var(--primary)] font-bold">#{order.displayId || 'N/A'}</span>
+                                                        <span className="text-[10px] text-[var(--text-muted)] font-mono opacity-50">Global: #{order.id}</span>
+                                                    </div>
                                                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border ${order.status === 'Delivered'
                                                         ? 'bg-green-500/10 text-green-500 border-green-500/20'
                                                         : 'bg-[var(--primary)]/10 text-[var(--primary)] border-[var(--primary)]/20'

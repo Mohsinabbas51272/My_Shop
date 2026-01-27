@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../lib/api';
 import { Loader2, ShieldCheck, FileText, CheckCircle } from 'lucide-react';
+import { toast } from '../store/useToastStore';
 
 interface PolicyModalProps {
     onAccepted: () => void;
@@ -29,7 +30,7 @@ export default function PolicyModal({ onAccepted, onClose }: PolicyModalProps) {
             await api.post('/policies/accept');
             onAccepted();
         } catch (err) {
-            alert('Failed to accept policy. Please try again.');
+            toast.error('Failed to accept policy. Please try again.');
         } finally {
             setSubmitting(false);
         }
