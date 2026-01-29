@@ -92,11 +92,11 @@ export default function Cart() {
                                     />
                                     <div className="flex-1">
                                         <h3 className="text-lg font-bold text-[var(--text-main)]">{item.name}</h3>
-                                        {(item.weightTola > 0 || item.weightMasha > 0 || item.weightRati > 0) && (
+                                        {((item.weightTola || 0) > 0 || (item.weightMasha || 0) > 0 || (item.weightRati || 0) > 0) && (
                                             <div className="flex gap-2 text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">
-                                                {item.weightTola > 0 && <span>{item.weightTola} Tola</span>}
-                                                {item.weightMasha > 0 && <span>{item.weightMasha} Masha</span>}
-                                                {item.weightRati > 0 && <span>{item.weightRati} Rati</span>}
+                                                {(item.weightTola || 0) > 0 && <span>{item.weightTola} Tola</span>}
+                                                {(item.weightMasha || 0) > 0 && <span>{item.weightMasha} Masha</span>}
+                                                {(item.weightRati || 0) > 0 && <span>{item.weightRati} Rati</span>}
                                             </div>
                                         )}
                                         <p className="text-[var(--primary)] font-bold">{formatPrice(item.price)}</p>

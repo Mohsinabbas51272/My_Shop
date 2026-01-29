@@ -8,7 +8,7 @@ import ProductDetailsModal from './ProductDetailsModal';
 import GoldCalculator from './GoldCalculator';
 import Policy from './Policy';
 import { useCartStore } from '../store/useCartStore';
-import { Plus, Loader2, PackageX, ShoppingBag, Clock, CheckCircle2, Receipt, Trash2, Edit2, MessageCircle, Gavel, ShieldCheck, Calculator, FileText, File } from 'lucide-react';
+import { Plus, Loader2, PackageX, ShoppingBag, Clock, CheckCircle2, Receipt, Trash2, Edit2, MessageCircle, Gavel, ShieldCheck, Calculator, File } from 'lucide-react';
 import OrderReceipt from './OrderReceipt';
 import { useAuthStore } from '../store/useAuthStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
@@ -872,7 +872,6 @@ export default function Dashboard() {
                         order={viewingReceipt}
                         formatPrice={formatPrice}
                         onClose={() => setViewingReceipt(null)}
-                        getImageUrl={getImageUrl}
                     />
                 )}
             </main>

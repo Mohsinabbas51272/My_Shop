@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { ShieldCheck, RotateCcw, Scale, Info, Truck, CreditCard, HelpCircle } from 'lucide-react';
 
 export default function Policy() {

@@ -4,12 +4,11 @@ interface OrderReceiptProps {
     order: any;
     formatPrice: (price: number) => string;
     onClose: () => void;
-    getImageUrl: (url: string) => string;
     onSendToDashboard?: () => void;
     isAdmin?: boolean;
 }
 
-const OrderReceipt = ({ order: rawOrder, formatPrice, onClose, getImageUrl, onSendToDashboard, isAdmin }: OrderReceiptProps) => {
+const OrderReceipt = ({ order: rawOrder, formatPrice, onClose, onSendToDashboard, isAdmin }: OrderReceiptProps) => {
     const order = {
         ...rawOrder,
         items: typeof rawOrder.items === 'string'

@@ -25,10 +25,7 @@ import {
     X,
     Gavel,
     Calculator,
-    FileText,
-    Printer,
-    Send,
-    Loader
+    FileText
 } from 'lucide-react';
 import { toast } from '../store/useToastStore';
 
@@ -120,6 +117,7 @@ export default function AdminDashboard() {
                 price: '',
                 description: '',
                 image: '',
+                category: 'Gold',
                 weightTola: '0',
                 weightMasha: '0',
                 weightRati: '0'
@@ -967,7 +965,6 @@ export default function AdminDashboard() {
                     order={viewingReceipt}
                     formatPrice={formatPrice}
                     onClose={() => setViewingReceipt(null)}
-                    getImageUrl={getImageUrl}
                     isAdmin={true}
                     onSendToDashboard={() => sendReceiptMutation.mutate(viewingReceipt.id)}
                 />

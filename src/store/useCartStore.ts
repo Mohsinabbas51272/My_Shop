@@ -7,6 +7,10 @@ interface CartItem {
     price: number;
     image: string;
     quantity: number;
+    category?: string;
+    weightTola?: number;
+    weightMasha?: number;
+    weightRati?: number;
 }
 
 interface Product {
@@ -15,6 +19,10 @@ interface Product {
     price: number;
     image: string;
     description?: string;
+    category?: string;
+    weightTola?: number;
+    weightMasha?: number;
+    weightRati?: number;
 }
 
 interface CartState {
