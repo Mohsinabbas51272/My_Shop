@@ -62,6 +62,10 @@ export default function PolicyModal({ onAccepted, onClose }: PolicyModalProps) {
                     </div>
                     <div className="flex gap-3">
                         <div className="mt-1"><CheckCircle className="w-4 h-4 text-green-500" /></div>
+                        <p><span className="font-bold text-[var(--text-main)]">Gold Return Policy:</span> On return (Wapsi), a deduction (Kat) of <span className="text-[var(--primary)] font-black">3 Masha per 1 Tola</span> will be applied based on the current market gold rate.</p>
+                    </div>
+                    <div className="flex gap-3">
+                        <div className="mt-1"><CheckCircle className="w-4 h-4 text-green-500" /></div>
                         <p><span className="font-bold text-[var(--text-main)]">Legal Compliance:</span> By proceeding, you verify that your provided CNIC and identity details are accurate. Fraudulent activity will lead to legal action (FIR).</p>
                     </div>
                     <div className="flex gap-3">

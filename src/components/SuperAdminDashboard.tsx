@@ -123,7 +123,7 @@ export default function SuperAdminDashboard() {
     const getImageUrl = (url: string) => {
         if (!url) return '';
         if (url.startsWith('http')) return url;
-        const baseUrl = (import.meta.env.VITE_API_URL || 'https://backend-for-shop.vercel.app/api').replace('/api', '');
+        const baseUrl = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '');
         return `${baseUrl}${url}`;
     };
 
@@ -268,6 +268,7 @@ export default function SuperAdminDashboard() {
                                         <tr>
                                             <th className="p-4 text-left text-[11px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Order ID</th>
                                             <th className="p-4 text-left text-[11px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Customer</th>
+                                            <th className="p-4 text-left text-[11px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Admin (Jeweller)</th>
                                             <th className="p-4 text-left text-[11px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Total Amount</th>
                                             <th className="p-4 text-left text-[11px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Status</th>
                                             <th className="p-4 text-left text-[11px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Payment Status</th>
@@ -276,9 +277,9 @@ export default function SuperAdminDashboard() {
                                     </thead>
                                     <tbody className="divide-y divide-[var(--border)]">
                                         {ordersLoading ? (
-                                            <tr><td colSpan={6} className="p-8 text-center"><Loader2 className="w-5 h-5 animate-spin inline" /></td></tr>
+                                            <tr><td colSpan={7} className="p-8 text-center"><Loader2 className="w-5 h-5 animate-spin inline" /></td></tr>
                                         ) : !orders || orders.length === 0 ? (
-                                            <tr><td colSpan={6} className="p-12 text-center text-[var(--text-muted)]">No orders found</td></tr>
+                                            <tr><td colSpan={7} className="p-12 text-center text-[var(--text-muted)]">No orders found</td></tr>
                                         ) : orders.map((o: any) => (
                                             <tr key={o.id} className="hover:bg-[var(--bg-input)]/30 transition-colors">
                                                 <td className="p-4">
@@ -293,6 +294,17 @@ export default function SuperAdminDashboard() {
                                                         <span className="text-xs text-[var(--text-muted)]">{o.customerPhone || 'N/A'}</span>
                                                         <span className="text-[10px] text-[var(--text-muted)]/70">{o.user?.email || 'N/A'}</span>
                                                     </div>
+                                                </td>
+                                                <td className="p-4">
+                                                    {o.admin ? (
+                                                        <div className="flex flex-col gap-0.5 bg-blue-500/5 rounded-lg px-2 py-1.5 border border-blue-500/10">
+                                                            <span className="font-bold text-blue-500 text-sm">{o.admin.name || 'Admin'}</span>
+                                                            <span className="text-xs text-[var(--text-muted)]">{o.admin.phone || 'No Phone'}</span>
+                                                            <span className="text-[10px] text-[var(--text-muted)]/70">{o.admin.email}</span>
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-xs text-[var(--text-muted)] italic">Not Assigned</span>
+                                                    )}
                                                 </td>
                                                 <td className="p-4">
                                                     <div className="flex flex-col gap-1">

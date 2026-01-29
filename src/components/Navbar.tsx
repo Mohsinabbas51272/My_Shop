@@ -90,6 +90,12 @@ export default function Navbar() {
                                     >
                                         Contact
                                     </Link>
+                                    <Link
+                                        to="/user/dashboard?tab=policy"
+                                        className="text-sm font-bold uppercase tracking-widest text-[var(--text-main)] hover:text-[var(--primary)] transition-colors"
+                                    >
+                                        Policy
+                                    </Link>
                                 </>
                             )}
                         </div>
@@ -228,6 +234,13 @@ export default function Navbar() {
                                         className="text-lg font-bold uppercase tracking-widest text-[var(--text-main)] hover:text-[var(--primary)] transition-colors"
                                     >
                                         Contact
+                                    </Link>
+                                    <Link
+                                        to="/user/dashboard?tab=policy"
+                                        onClick={() => setIsMenuOpen(false)}
+                                        className="text-lg font-bold uppercase tracking-widest text-[var(--text-main)] hover:text-[var(--primary)] transition-colors"
+                                    >
+                                        Policy
                                     </Link>
                                 </>
                             )}

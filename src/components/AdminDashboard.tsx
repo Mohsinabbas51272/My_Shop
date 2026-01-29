@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api, { IMAGE_BASE_URL } from '../lib/api';
+import { calculateDynamicPrice } from '../lib/pricing';
 import Navbar from './Navbar';
+import GoldCalculator from './GoldCalculator';
+import OrderReceipt from './OrderReceipt';
 import { useCurrencyStore } from '../store/useCurrencyStore';
 import {
     LayoutDashboard,
@@ -19,20 +22,37 @@ import {
     Receipt,
     MessageSquare,
     Pencil,
-    X
+    X,
+    Gavel,
+    Calculator,
+    FileText,
+    Printer,
+    Send,
+    Loader
 } from 'lucide-react';
 import { toast } from '../store/useToastStore';
 
 export default function AdminDashboard() {
     const queryClient = useQueryClient();
     const { currency, formatPrice } = useCurrencyStore();
-    const [newProduct, setNewProduct] = useState({ name: '', price: '', description: '', image: '' });
+    const [newProduct, setNewProduct] = useState({
+        name: '',
+        price: '',
+        description: '',
+        image: '',
+        category: 'Gold',
+        weightTola: '0',
+        weightMasha: '0',
+        weightRati: '0'
+    });
     const [editingProduct, setEditingProduct] = useState<any>(null);
     const [uploading, setUploading] = useState(false);
     const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'users' | 'queries'>('products');
     const [selectedUser, setSelectedUser] = useState<any>(null);
     const [selectedComplaint, setSelectedComplaint] = useState<any>(null);
     const [respondText, setRespondText] = useState('');
+    const [isCalcOpen, setIsCalcOpen] = useState(false);
+    const [viewingReceipt, setViewingReceipt] = useState<any>(null);
 
     const { data: dashboardCounts } = useQuery({
         queryKey: ['dashboard-counts'],
@@ -60,11 +80,32 @@ export default function AdminDashboard() {
         queryFn: async () => (await api.get('/users')).data,
     });
 
+    const { data: goldRate, isLoading: goldLoading } = useQuery({
+        queryKey: ['gold-rate'],
+        queryFn: async () => (await api.get('/commodity/gold-rate')).data,
+        refetchInterval: 3600000, // Refresh every hour
+    });
+
+    const { data: silverRate, isLoading: silverLoading } = useQuery({
+        queryKey: ['silver-rate'],
+        queryFn: async () => (await api.get('/commodity/silver-rate')).data,
+        refetchInterval: 3600000, // Refresh every hour
+    });
+
     const addProductMutation = useMutation({
         mutationFn: (product: any) => api.post('/products', product),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['products'] });
-            setNewProduct({ name: '', price: '', description: '', image: '' });
+            setNewProduct({
+                name: '',
+                price: '',
+                description: '',
+                image: '',
+                category: 'Gold',
+                weightTola: '0',
+                weightMasha: '0',
+                weightRati: '0'
+            });
             toast.success('Product created successfully!');
         },
     });
@@ -74,7 +115,15 @@ export default function AdminDashboard() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['products'] });
             setEditingProduct(null);
-            setNewProduct({ name: '', price: '', description: '', image: '' });
+            setNewProduct({
+                name: '',
+                price: '',
+                description: '',
+                image: '',
+                weightTola: '0',
+                weightMasha: '0',
+                weightRati: '0'
+            });
             toast.success('Product updated successfully!');
         },
         onError: () => toast.error('Failed to update product'),
@@ -98,6 +147,15 @@ export default function AdminDashboard() {
             queryClient.invalidateQueries({ queryKey: ['orders'] });
             queryClient.invalidateQueries({ queryKey: ['dashboard-counts'] });
         }
+    });
+
+    const sendReceiptMutation = useMutation({
+        mutationFn: (id: number) => api.patch(`/admin/orders/${id}/send-receipt`),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['orders'] });
+            toast.success('Final Receipt sent to user dashboard!');
+        },
+        onError: () => toast.error('Failed to send receipt'),
     });
 
     const updateComplaintStatusMutation = useMutation({
@@ -203,6 +261,64 @@ export default function AdminDashboard() {
                             </span>
                         )}
                     </button>
+                    <button
+                        onClick={() => setIsCalcOpen(true)}
+                        className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap bg-[var(--bg-card)] text-yellow-600 hover:bg-yellow-500/10 border border-yellow-500/20"
+                    >
+                        <Calculator className="w-5 h-5" />
+                        Price Calculator
+                    </button>
+                </div>
+
+                {/* Market Rates Banner */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 max-w-4xl mx-auto">
+                    {/* Gold Rate */}
+                    {goldRate && !goldLoading && (
+                        <div className="p-1 bg-gradient-to-r from-yellow-500/20 via-yellow-600/30 to-yellow-500/20 rounded-2xl animate-in fade-in slide-in-from-top-4 duration-700">
+                            <div className="bg-[var(--bg-card)] border border-yellow-500/20 rounded-xl p-4 flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-yellow-500/10 rounded-lg">
+                                        <Gavel className="w-5 h-5 text-yellow-500" />
+                                    </div>
+                                    <div>
+                                        <span className="text-[10px] font-bold uppercase tracking-widest text-yellow-600 block">Gold ({goldRate.purity})</span>
+                                        <p className="text-lg font-black text-yellow-600 leading-none">
+                                            {goldRate.currency} {goldRate.price}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-[8px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">
+                                        Per {goldRate.unit}<br />{new Date(goldRate.updatedAt).toLocaleTimeString()}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Silver Rate */}
+                    {silverRate && !silverLoading && (
+                        <div className="p-1 bg-gradient-to-r from-slate-400/20 via-slate-500/30 to-slate-400/20 rounded-2xl animate-in fade-in slide-in-from-top-4 duration-700">
+                            <div className="bg-[var(--bg-card)] border border-slate-400/20 rounded-xl p-4 flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-slate-500/10 rounded-lg">
+                                        <Gavel className="w-5 h-5 text-slate-500" />
+                                    </div>
+                                    <div>
+                                        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 block">Silver ({silverRate.purity})</span>
+                                        <p className="text-lg font-black text-slate-500 leading-none">
+                                            {silverRate.currency} {silverRate.price}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-[8px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">
+                                        Per {silverRate.unit}<br />{new Date(silverRate.updatedAt).toLocaleTimeString()}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Dashboard Counters Removed - Moved to Badges */}
@@ -221,7 +337,16 @@ export default function AdminDashboard() {
                                         <button
                                             onClick={() => {
                                                 setEditingProduct(null);
-                                                setNewProduct({ name: '', price: '', description: '', image: '' });
+                                                setNewProduct({
+                                                    name: '',
+                                                    price: '',
+                                                    description: '',
+                                                    image: '',
+                                                    category: 'Gold',
+                                                    weightTola: '0',
+                                                    weightMasha: '0',
+                                                    weightRati: '0'
+                                                });
                                             }}
                                             className="p-1 hover:bg-[var(--bg-input)] rounded-full transition-colors"
                                         >
@@ -230,6 +355,20 @@ export default function AdminDashboard() {
                                     )}
                                 </h2>
                                 <div className="space-y-4">
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => setNewProduct({ ...newProduct, category: 'Gold' })}
+                                            className={`flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all border ${newProduct.category === 'Gold' ? 'bg-yellow-600/10 text-yellow-600 border-yellow-500/30 shadow-sm' : 'bg-[var(--bg-input)] text-[var(--text-muted)] border-[var(--border)]'}`}
+                                        >
+                                            Gold
+                                        </button>
+                                        <button
+                                            onClick={() => setNewProduct({ ...newProduct, category: 'Silver' })}
+                                            className={`flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all border ${newProduct.category === 'Silver' ? 'bg-slate-400/10 text-slate-500 border-slate-400/30 shadow-sm' : 'bg-[var(--bg-input)] text-[var(--text-muted)] border-[var(--border)]'}`}
+                                        >
+                                            Silver
+                                        </button>
+                                    </div>
                                     <input
                                         placeholder="Product Name"
                                         className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg p-3 text-sm text-[var(--text-main)] focus:ring-2 focus:ring-[var(--primary)]/50 outline-none"
@@ -238,7 +377,7 @@ export default function AdminDashboard() {
                                     />
                                     <div className="relative">
                                         <input
-                                            placeholder={`Price (${currency})`}
+                                            placeholder={`Making Charges (${currency})`}
                                             type="number"
                                             step="any"
                                             min="0"
@@ -248,6 +387,42 @@ export default function AdminDashboard() {
                                         />
                                         <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest pointer-events-none">
                                             {currency}
+                                        </div>
+                                    </div>
+                                    <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase px-1">
+                                        * Enter making/labor charges only if weight is specified
+                                    </p>
+
+                                    <div className="grid grid-cols-3 gap-2">
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-bold uppercase text-[var(--text-muted)]">Tola</label>
+                                            <input
+                                                type="number"
+                                                step="any"
+                                                className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg p-2 text-sm text-[var(--text-main)] outline-none"
+                                                value={newProduct.weightTola}
+                                                onChange={(e) => setNewProduct({ ...newProduct, weightTola: e.target.value })}
+                                            />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-bold uppercase text-[var(--text-muted)]">Masha</label>
+                                            <input
+                                                type="number"
+                                                step="any"
+                                                className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg p-2 text-sm text-[var(--text-main)] outline-none"
+                                                value={newProduct.weightMasha}
+                                                onChange={(e) => setNewProduct({ ...newProduct, weightMasha: e.target.value })}
+                                            />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-bold uppercase text-[var(--text-muted)]">Rati</label>
+                                            <input
+                                                type="number"
+                                                step="any"
+                                                className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg p-2 text-sm text-[var(--text-main)] outline-none"
+                                                value={newProduct.weightRati}
+                                                onChange={(e) => setNewProduct({ ...newProduct, weightRati: e.target.value })}
+                                            />
                                         </div>
                                     </div>
                                     <textarea
@@ -318,7 +493,13 @@ export default function AdminDashboard() {
                                             // ROUND to nearest integer to avoid 59999 errors
                                             const finalPrice = Math.round(priceVal);
 
-                                            const productData = { ...newProduct, price: finalPrice };
+                                            const productData = {
+                                                ...newProduct,
+                                                price: finalPrice,
+                                                weightTola: parseFloat(newProduct.weightTola || '0'),
+                                                weightMasha: parseFloat(newProduct.weightMasha || '0'),
+                                                weightRati: parseFloat(newProduct.weightRati || '0')
+                                            };
                                             if (editingProduct) {
                                                 updateProductMutation.mutate({ id: editingProduct.id, ...productData });
                                             } else {
@@ -350,13 +531,14 @@ export default function AdminDashboard() {
                                         <tr>
                                             <th className="p-4">Image</th>
                                             <th className="p-4">Product</th>
+                                            <th className="p-4">Weight</th>
                                             <th className="p-4">Price ({currency})</th>
                                             <th className="p-4 text-right">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-[var(--border)]">
                                         {productsLoading ? (
-                                            <tr><td colSpan={4} className="p-8 text-center uppercase tracking-widest opacity-50">Loading...</td></tr>
+                                            <tr><td colSpan={5} className="p-8 text-center uppercase tracking-widest opacity-50">Loading...</td></tr>
                                         ) : (products?.items || []).map((p: any) => (
                                             <tr key={p.id} className="hover:bg-[var(--bg-input)]/30 transition-colors">
                                                 <td className="p-4">
@@ -365,12 +547,25 @@ export default function AdminDashboard() {
                                                     </div>
                                                 </td>
                                                 <td className="p-4 text-[var(--text-main)] normal-case tracking-normal font-semibold">{p.name}</td>
-                                                <td className="p-4 text-[var(--primary)]">{formatPrice(p.price)}</td>
+                                                <td className="p-4 text-[var(--text-muted)] text-[10px] whitespace-nowrap">
+                                                    {p.weightTola > 0 && <span>{p.weightTola}T </span>}
+                                                    {p.weightMasha > 0 && <span>{p.weightMasha}M </span>}
+                                                    {p.weightRati > 0 && <span>{p.weightRati}R</span>}
+                                                    {(!p.weightTola && !p.weightMasha && !p.weightRati) && '-'}
+                                                </td>
+                                                <td className="p-4 text-[var(--primary)] font-black">
+                                                    {formatPrice(calculateDynamicPrice(p, p.category === 'Silver' ? silverRate : goldRate))}
+                                                    {((p.weightTola || 0) + (p.weightMasha || 0) + (p.weightRati || 0) > 0) && (
+                                                        <span className="block text-[8px] text-[var(--text-muted)] uppercase tracking-tighter opacity-70">
+                                                            Market Based
+                                                        </span>
+                                                    )}
+                                                </td>
                                                 <td className="p-4 text-right">
                                                     <div className="flex items-center justify-end gap-2">
                                                         <button
                                                             onClick={() => {
-                                                                let displayPrice = p.price;
+                                                                let displayPrice = Math.round(p.price || 0);
                                                                 if (currency === 'USD') {
                                                                     const { exchangeRate } = useCurrencyStore.getState();
                                                                     displayPrice = parseFloat((p.price / exchangeRate).toFixed(2));
@@ -381,7 +576,11 @@ export default function AdminDashboard() {
                                                                     name: p.name,
                                                                     price: displayPrice.toString(),
                                                                     description: p.description || '',
-                                                                    image: p.image || ''
+                                                                    image: p.image || '',
+                                                                    category: p.category || 'Gold',
+                                                                    weightTola: (p.weightTola || 0).toString(),
+                                                                    weightMasha: (p.weightMasha || 0).toString(),
+                                                                    weightRati: (p.weightRati || 0).toString()
                                                                 });
                                                                 window.scrollTo({ top: 0, behavior: 'smooth' });
                                                             }}
@@ -419,7 +618,8 @@ export default function AdminDashboard() {
                                 <thead className="bg-[var(--bg-input)] text-[var(--text-muted)] font-bold uppercase tracking-widest">
                                     <tr>
                                         <th className="p-4">Order ID</th>
-                                        <th className="p-4">Customer Details</th>
+                                        <th className="p-4">Customer</th>
+                                        <th className="p-4">Products (To Prepare)</th>
                                         <th className="p-4">Payment</th>
                                         <th className="p-4">Status</th>
                                         <th className="p-4">Total ({currency})</th>
@@ -459,6 +659,30 @@ export default function AdminDashboard() {
                                                 </div>
                                             </td>
                                             <td className="p-4">
+                                                <div className="flex flex-col gap-1 min-w-[220px]">
+                                                    {o.items?.map((item: any, idx: number) => (
+                                                        <div key={idx} className="flex bg-[var(--bg-input)]/50 p-2 rounded-lg border border-[var(--border)] gap-3">
+                                                            <div className="w-10 h-10 rounded-md bg-[var(--bg-card)] border border-[var(--border)] overflow-hidden shrink-0 shadow-sm">
+                                                                <img src={getImageUrl(item.image)} alt="" className="w-full h-full object-cover" />
+                                                            </div>
+                                                            <div className="flex-1 flex flex-col gap-0.5">
+                                                                <div className="flex justify-between items-start gap-2">
+                                                                    <span className="text-sm font-bold text-[var(--text-main)] leading-tight">{item.name}</span>
+                                                                    <span className="bg-[var(--primary)] text-white text-[10px] font-bold px-1.5 py-0.5 rounded">x{item.quantity}</span>
+                                                                </div>
+                                                                {(item.weightTola > 0 || item.weightMasha > 0 || item.weightRati > 0) && (
+                                                                    <div className="flex gap-2 text-[10px] font-bold text-[var(--primary)] uppercase tracking-tighter">
+                                                                        {item.weightTola > 0 && <span>{item.weightTola}T</span>}
+                                                                        {item.weightMasha > 0 && <span>{item.weightMasha}M</span>}
+                                                                        {item.weightRati > 0 && <span>{item.weightRati}R</span>}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </td>
+                                            <td className="p-4">
                                                 <div className="flex flex-col gap-2">
                                                     <span className="px-2 py-0.5 bg-[var(--bg-input)] rounded text-[10px] font-bold text-[var(--text-muted)] border border-[var(--border)] uppercase w-fit">
                                                         {o.paymentMethod || 'N/A'}
@@ -485,12 +709,23 @@ export default function AdminDashboard() {
                                                 </div>
                                             </td>
                                             <td className="p-4">
-                                                <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase border ${o.status === 'Delivered'
-                                                    ? 'bg-green-500/10 text-green-500 border-green-500/20'
-                                                    : 'bg-[var(--primary)]/10 text-[var(--primary)] border-[var(--primary)]/20'
-                                                    }`}>
-                                                    {o.status}
-                                                </span>
+                                                <div className="flex flex-col gap-2">
+                                                    <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase border ${o.status === 'Delivered'
+                                                        ? 'bg-green-500/10 text-green-500 border-green-500/20'
+                                                        : 'bg-[var(--primary)]/10 text-[var(--primary)] border-[var(--primary)]/20'
+                                                        }`}>
+                                                        {o.status}
+                                                    </span>
+                                                    {(o.status === 'Ready to Deliver' || o.status === 'Pending' || o.status === 'Processing' || o.status === 'Delivered') && (
+                                                        <button
+                                                            onClick={() => setViewingReceipt(o)}
+                                                            className="flex items-center justify-center gap-1.5 px-2 py-1 bg-[var(--primary)]/5 hover:bg-[var(--primary)]/10 text-[var(--primary)] rounded text-[9px] font-black uppercase tracking-tighter border border-[var(--primary)]/10 transition-all"
+                                                        >
+                                                            <FileText className="w-3 h-3" />
+                                                            View Receipt
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </td>
                                             <td className="p-4 font-bold text-[var(--text-main)]">{formatPrice(o.total)}</td>
                                             <td className="p-4 text-right">
@@ -668,6 +903,7 @@ export default function AdminDashboard() {
                     userId={selectedUser}
                     onClose={() => setSelectedUser(null)}
                     getImageUrl={getImageUrl}
+                    onViewReceipt={(o: any) => setViewingReceipt(o)}
                 />
             )}
 
@@ -723,11 +959,24 @@ export default function AdminDashboard() {
                     </div>
                 </div>
             )}
+
+            <GoldCalculator isOpen={isCalcOpen} onClose={() => setIsCalcOpen(false)} />
+
+            {viewingReceipt && (
+                <OrderReceipt
+                    order={viewingReceipt}
+                    formatPrice={formatPrice}
+                    onClose={() => setViewingReceipt(null)}
+                    getImageUrl={getImageUrl}
+                    isAdmin={true}
+                    onSendToDashboard={() => sendReceiptMutation.mutate(viewingReceipt.id)}
+                />
+            )}
         </div>
     );
 }
 
-function UserDetailsModal({ userId, onClose, getImageUrl }: { userId: number; onClose: () => void; getImageUrl: (url: string) => string }) {
+function UserDetailsModal({ userId, onClose, getImageUrl, onViewReceipt }: { userId: number; onClose: () => void; getImageUrl: (url: string) => string; onViewReceipt: (order: any) => void }) {
     const { formatPrice } = useCurrencyStore();
     const [orderFilter, setOrderFilter] = useState<'all' | 'pending' | 'delivered'>('all');
     const { data: user, isLoading } = useQuery({
@@ -847,6 +1096,15 @@ function UserDetailsModal({ userId, onClose, getImageUrl }: { userId: number; on
                                                         }`}>
                                                         {order.status}
                                                     </span>
+                                                    {(order.status === 'Ready to Deliver' || order.status === 'Pending' || order.status === 'Processing' || order.status === 'Delivered') && (
+                                                        <button
+                                                            onClick={() => onViewReceipt(order)}
+                                                            className="flex items-center gap-1 px-2 py-0.5 bg-[var(--primary)]/5 hover:bg-[var(--primary)]/10 text-[var(--primary)] rounded text-[9px] font-black uppercase tracking-tighter border border-[var(--primary)]/10 transition-all"
+                                                        >
+                                                            <FileText className="w-3 h-3" />
+                                                            Receipt
+                                                        </button>
+                                                    )}
                                                 </div>
                                                 <div className="flex items-center gap-4">
                                                     <span className="text-[var(--text-muted)] text-xs">{new Date(order.createdAt).toLocaleString()}</span>

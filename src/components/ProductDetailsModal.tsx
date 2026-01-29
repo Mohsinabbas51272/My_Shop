@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { X, Plus, Minus, ShoppingCart, ZoomIn, ZoomOut } from 'lucide-react';
+import { X, Plus, Minus, ShoppingCart, ZoomIn, ZoomOut, Info } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import api, { IMAGE_BASE_URL } from '../lib/api';
 import { useCartStore } from '../store/useCartStore';
-import { IMAGE_BASE_URL } from '../lib/api';
 import { useCurrencyStore } from '../store/useCurrencyStore';
+import { getPriceBreakdown } from '../lib/pricing';
 
 interface ProductDetailsModalProps {
     product: any;
@@ -15,6 +17,18 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
     const [zoom, setZoom] = useState(1);
     const [quantity, setQuantity] = useState(1);
 
+    const { data: goldRate } = useQuery({
+        queryKey: ['gold-rate'],
+        queryFn: async () => (await api.get('/commodity/gold-rate')).data,
+    });
+
+    const { data: silverRate } = useQuery({
+        queryKey: ['silver-rate'],
+        queryFn: async () => (await api.get('/commodity/silver-rate')).data,
+    });
+
+    const breakdown = getPriceBreakdown(product, product.category === 'Silver' ? silverRate : goldRate);
+
     const getImageUrl = (url: string) => {
         if (!url) return 'https://via.placeholder.com/800';
         if (url.startsWith('http')) return url;
@@ -26,7 +40,7 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
 
     const handleAddToCart = () => {
         for (let i = 0; i < quantity; i++) {
-            addItem(product);
+            addItem({ ...product, price: breakdown.total });
         }
         onClose();
     };
@@ -77,10 +91,49 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
                         <h2 className="text-2xl md:text-4xl font-black text-[var(--text-main)] mb-3 md:mb-4 leading-tight">
                             {product.name}
                         </h2>
-                        <div className="flex items-center gap-4 mb-4 md:mb-6">
-                            <span className="text-2xl md:text-3xl font-bold text-[var(--primary)]">{formatPrice(product.price)}</span>
-                            <span className="text-xs md:text-sm text-[var(--text-muted)] line-through opacity-50">{formatPrice(product.price * 1.5)}</span>
+                        <div className="flex flex-col gap-2 mb-4 md:mb-6">
+                            <div className="flex items-center gap-4">
+                                <span className="text-2xl md:text-3xl font-bold text-[var(--primary)]">{formatPrice(breakdown.total)}</span>
+                                <span className="text-xs md:text-sm text-[var(--text-muted)] line-through opacity-50">{formatPrice(breakdown.total * 1.5)}</span>
+                            </div>
+                            {breakdown.goldValue > 0 && (
+                                <div className="p-3 bg-[var(--bg-input)] rounded-xl border border-[var(--border)] space-y-2">
+                                    <div className="flex items-center gap-2 text-[10px] font-bold text-[var(--primary)] uppercase tracking-widest">
+                                        <Info className="w-3 h-3" />
+                                        Market Price Breakdown
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <p className="text-[10px] text-[var(--text-muted)] uppercase font-bold">{product.category === 'Silver' ? 'Silver' : 'Gold'} Value</p>
+                                            <p className="text-sm font-bold text-[var(--text-main)]">{formatPrice(breakdown.goldValue)}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] text-[var(--text-muted)] uppercase font-bold">Making Charges</p>
+                                            <p className="text-sm font-bold text-[var(--text-main)]">{formatPrice(breakdown.makingCharges)}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
+                        {(product.weightTola > 0 || product.weightMasha > 0 || product.weightRati > 0) && (
+                            <div className="flex gap-2 mb-6">
+                                {product.weightTola > 0 && (
+                                    <div className="px-3 py-1 bg-[var(--bg-input)] border border-[var(--border)] rounded-lg text-xs font-bold text-[var(--text-main)]">
+                                        {product.weightTola} TOLA
+                                    </div>
+                                )}
+                                {product.weightMasha > 0 && (
+                                    <div className="px-3 py-1 bg-[var(--bg-input)] border border-[var(--border)] rounded-lg text-xs font-bold text-[var(--text-main)]">
+                                        {product.weightMasha} MASHA
+                                    </div>
+                                )}
+                                {product.weightRati > 0 && (
+                                    <div className="px-3 py-1 bg-[var(--bg-input)] border border-[var(--border)] rounded-lg text-xs font-bold text-[var(--text-main)]">
+                                        {product.weightRati} RATI
+                                    </div>
+                                )}
+                            </div>
+                        )}
                         <p className="text-[var(--text-muted)] leading-relaxed text-base md:text-lg">
                             {product.description || "Indulge in the perfect blend of style and substance. This meticulously crafted item represents the pinnacle of our design philosophy, offering both exceptional performance and timeless aesthetic appeal for the modern enthusiast."}
                         </p>
@@ -105,7 +158,7 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
                             </div>
                             <div className="flex-1">
                                 <p className="text-[10px] md:text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest mb-0.5 md:mb-1">Subtotal</p>
-                                <p className="text-lg md:text-xl font-bold text-[var(--text-main)]">{formatPrice(product.price * quantity)}</p>
+                                <p className="text-lg md:text-xl font-bold text-[var(--text-main)]">{formatPrice(breakdown.total * quantity)}</p>
                             </div>
                         </div>
 

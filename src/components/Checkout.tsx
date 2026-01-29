@@ -231,12 +231,16 @@ export default function Checkout() {
                     </div>
                     <div className="text-[11px] space-y-1 text-[var(--text-muted)]">
                       <div className="flex justify-between">
-                        <span>Bank:</span>
-                        <span className="text-[var(--text-main)]">{selectedMethod.details.bankName}</span>
+                        <span>Bank / Wallet:</span>
+                        <span className="text-[var(--text-main)] font-bold">{selectedMethod.details.bankName}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Account Title:</span>
+                        <span className="text-[var(--text-main)] font-bold">{selectedMethod.details.accountTitle}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Account No:</span>
-                        <span className="text-[var(--text-main)] font-mono">{selectedMethod.details.accountNumber}</span>
+                        <span className="text-[var(--text-main)] font-mono font-bold">{selectedMethod.details.accountNumber}</span>
                       </div>
                     </div>
                     <input

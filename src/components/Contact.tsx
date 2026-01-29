@@ -79,8 +79,8 @@ export default function Contact() {
                                     <div>
                                         <h3 className="font-bold mb-1">Our Location</h3>
                                         <p className="text-[var(--text-muted)]">
-                                            123 Commerce Avenue, Tech District<br />
-                                            Lahore, Pakistan 54000
+                                            Phathi Joyianwali, tehsil Piplan<br />
+                                            District Mianwali, Punjab Pakistan
                                         </p>
                                     </div>
                                 </div>
@@ -91,7 +91,7 @@ export default function Contact() {
                                     </div>
                                     <div>
                                         <h3 className="font-bold mb-1">Phone Number</h3>
-                                        <p className="text-[var(--text-muted)]">+92 300 1234567</p>
+                                        <p className="text-[var(--text-muted)]">+923078520514</p>
                                         <p className="text-[var(--text-muted)] text-sm mt-1">Mon-Fri, 9am - 6pm</p>
                                     </div>
                                 </div>
@@ -102,7 +102,7 @@ export default function Contact() {
                                     </div>
                                     <div>
                                         <h3 className="font-bold mb-1">Email Address</h3>
-                                        <p className="text-[var(--text-muted)]">support@myshop.com</p>
+                                        <p className="text-[var(--text-muted)]">testmyshop3@gmail.com</p>
                                         <p className="text-[var(--text-muted)] text-sm mt-1">We reply within 24 hours</p>
                                     </div>
                                 </div>
