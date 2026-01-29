@@ -74,6 +74,12 @@
         --accent-glow: rgba(251, 113, 133, 0.1);
     }
 
+    html,
+    body {
+        overflow-x: hidden;
+        max-width: 100vw;
+    }
+
     body {
         @apply transition-colors duration-500;
         background-color: var(--bg-main);
@@ -136,5 +142,25 @@
     .scrollbar-hide {
         -ms-overflow-style: none;
         scrollbar-width: none;
+    }
+}
+
+/* Responsive & Scroll Utilities */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+@media (max-width: 640px) {
+    :root {
+        --padding-main: 1rem;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
     }
 }

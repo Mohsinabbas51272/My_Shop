@@ -63,15 +63,15 @@ export default function Login() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[var(--bg-main)] text-[var(--text-main)] p-4">
-            <div className="w-full max-w-md bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--border)] p-8 rounded-2xl shadow-2xl">
-                <div className="flex flex-col items-center mb-8">
-                    <div className="w-16 h-16 bg-[var(--primary)] rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-[var(--accent-glow)]">
-                        <LogIn className="w-8 h-8" />
+        <div className="min-h-screen flex items-center justify-center bg-[var(--bg-main)] text-[var(--text-main)] p-4 sm:p-6">
+            <div className="w-full max-w-md bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--border)] p-6 sm:p-10 rounded-3xl shadow-2xl">
+                <div className="flex flex-col items-center mb-6 sm:mb-10">
+                    <div className="w-14 h-14 sm:w-20 sm:h-20 bg-[var(--primary)] rounded-2xl sm:rounded-3xl flex items-center justify-center mb-4 sm:mb-6 shadow-xl shadow-[var(--accent-glow)]">
+                        <LogIn className="w-7 h-7 sm:w-10 sm:h-10" />
                     </div>
-                    <h1 className="text-3xl font-bold tracking-tight text-[var(--text-main)]">Welcome back</h1>
-                    <p className="text-[var(--text-muted)] mt-2 text-center text-sm">
-                        Enter your credentials to access your account
+                    <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-[var(--text-main)] text-center">Masterpiece Awaits</h1>
+                    <p className="text-[var(--text-muted)] mt-2 text-center text-xs sm:text-sm font-medium opacity-70">
+                        Sign in to continue your luxury journey
                     </p>
                 </div>
 

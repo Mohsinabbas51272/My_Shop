@@ -150,17 +150,17 @@ export default function Dashboard() {
                     </div>
 
                     {activeTab === 'shop' && (
-                        <div className="flex bg-[var(--bg-card)] p-1 rounded-2xl border border-[var(--border)] shadow-sm self-start md:self-center">
+                        <div className="flex bg-[var(--bg-card)] p-1 rounded-2xl border border-[var(--border)] shadow-sm self-start md:self-center w-full sm:w-auto">
                             <button
                                 onClick={() => setMetalCategory('Gold')}
-                                className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${metalCategory === 'Gold' ? 'bg-yellow-600 text-white shadow-lg shadow-yellow-600/20' : 'text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-input)]'}`}
+                                className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${metalCategory === 'Gold' ? 'bg-yellow-600 text-white shadow-lg shadow-yellow-600/20' : 'text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-input)]'}`}
                             >
                                 <Gavel className={`w-4 h-4 ${metalCategory === 'Gold' ? 'text-yellow-200' : 'text-yellow-600'}`} />
                                 Gold
                             </button>
                             <button
                                 onClick={() => setMetalCategory('Silver')}
-                                className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${metalCategory === 'Silver' ? 'bg-slate-500 text-white shadow-lg shadow-slate-500/20' : 'text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-input)]'}`}
+                                className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${metalCategory === 'Silver' ? 'bg-slate-500 text-white shadow-lg shadow-slate-500/20' : 'text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-input)]'}`}
                             >
                                 <Gavel className={`w-4 h-4 ${metalCategory === 'Silver' ? 'text-slate-200' : 'text-slate-500'}`} />
                                 Silver
@@ -168,10 +168,10 @@ export default function Dashboard() {
                         </div>
                     )}
 
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2 w-full md:w-auto">
                         <button
                             onClick={() => setSearchParams({ tab: 'shop' })}
-                            className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all ${activeTab === 'shop'
+                            className={`flex-1 md:flex-none px-4 py-2 rounded-lg font-semibold text-sm transition-all text-center ${activeTab === 'shop'
                                 ? 'bg-[var(--primary)] text-white'
                                 : 'bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-main)] hover:border-[var(--primary)]'
                                 }`}
@@ -180,7 +180,7 @@ export default function Dashboard() {
                         </button>
                         <button
                             onClick={() => setSearchParams({ tab: 'orders' })}
-                            className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all flex items-center gap-2 ${activeTab === 'orders'
+                            className={`flex-1 md:flex-none px-4 py-2 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2 ${activeTab === 'orders'
                                 ? 'bg-[var(--primary)] text-white'
                                 : 'bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-main)] hover:border-[var(--primary)]'
                                 }`}
@@ -190,7 +190,7 @@ export default function Dashboard() {
                         </button>
                         <button
                             onClick={() => setSearchParams({ tab: 'complaints' })}
-                            className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all flex items-center gap-2 ${activeTab === 'complaints'
+                            className={`flex-1 md:flex-none px-4 py-2 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2 ${activeTab === 'complaints'
                                 ? 'bg-[var(--primary)] text-white'
                                 : 'bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-main)] hover:border-[var(--primary)]'
                                 }`}
@@ -200,7 +200,7 @@ export default function Dashboard() {
                         </button>
                         <button
                             onClick={() => setIsCalcOpen(true)}
-                            className="bg-yellow-500/10 text-yellow-600 border border-yellow-500/20 px-4 py-2 rounded-lg font-semibold text-sm transition-all flex items-center gap-2 hover:bg-yellow-500/20"
+                            className="w-full md:w-auto bg-yellow-500/10 text-yellow-600 border border-yellow-500/20 px-4 py-2 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2 hover:bg-yellow-500/20"
                         >
                             <Calculator className="w-4 h-4" />
                             Math Calculator
@@ -212,27 +212,27 @@ export default function Dashboard() {
                 {metalCategory === 'Gold' ? (
                     goldRate && !goldLoading && (
                         <div className="mb-8 p-1 bg-gradient-to-r from-yellow-500/20 via-yellow-600/30 to-yellow-500/20 rounded-2xl animate-in fade-in slide-in-from-top-4 duration-700">
-                            <div className="bg-[var(--bg-card)] border border-yellow-500/20 rounded-xl p-4 flex items-center justify-between">
-                                <div className="flex items-center gap-4">
-                                    <div className="p-3 bg-yellow-500/10 rounded-xl">
+                            <div className="bg-[var(--bg-card)] border border-yellow-500/20 rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                                <div className="flex items-center gap-4 w-full sm:w-auto">
+                                    <div className="p-3 bg-yellow-500/10 rounded-xl shrink-0">
                                         <Gavel className="w-6 h-6 text-yellow-500" />
                                     </div>
                                     <div>
                                         <div className="flex items-center gap-2">
-                                            <span className="text-xs font-bold uppercase tracking-widest text-yellow-600">Market Update</span>
+                                            <span className="text-[10px] font-bold uppercase tracking-widest text-yellow-600">Market Update</span>
                                             <span className="w-1 h-1 bg-yellow-500 rounded-full animate-pulse" />
                                         </div>
-                                        <h2 className="text-lg font-bold text-[var(--text-main)]">
+                                        <h2 className="text-sm sm:text-lg font-bold text-[var(--text-main)]">
                                             Current Gold Rate ({goldRate.purity})
                                         </h2>
                                     </div>
                                 </div>
-                                <div className="text-right">
-                                    <p className="text-2xl font-black text-yellow-600">
+                                <div className="text-center sm:text-right w-full sm:w-auto flex sm:flex-col justify-between items-center sm:items-end p-2 bg-yellow-500/5 sm:bg-transparent rounded-lg">
+                                    <p className="text-xl sm:text-2xl font-black text-yellow-600">
                                         {goldRate.currency} {goldRate.price}
                                     </p>
-                                    <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">
-                                        Per {goldRate.unit} • Last updated: {new Date(goldRate.updatedAt).toLocaleTimeString()}
+                                    <p className="text-[9px] sm:text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">
+                                        Per {goldRate.unit} • {new Date(goldRate.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </p>
                                 </div>
                             </div>
@@ -241,27 +241,27 @@ export default function Dashboard() {
                 ) : (
                     silverRate && !silverLoading && (
                         <div className="mb-8 p-1 bg-gradient-to-r from-slate-400/20 via-slate-500/30 to-slate-400/20 rounded-2xl animate-in fade-in slide-in-from-top-4 duration-700">
-                            <div className="bg-[var(--bg-card)] border border-slate-400/20 rounded-xl p-4 flex items-center justify-between">
-                                <div className="flex items-center gap-4">
-                                    <div className="p-3 bg-slate-500/10 rounded-xl">
+                            <div className="bg-[var(--bg-card)] border border-slate-400/20 rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                                <div className="flex items-center gap-4 w-full sm:w-auto">
+                                    <div className="p-3 bg-slate-500/10 rounded-xl shrink-0">
                                         <Gavel className="w-6 h-6 text-slate-500" />
                                     </div>
                                     <div>
                                         <div className="flex items-center gap-2">
-                                            <span className="text-xs font-bold uppercase tracking-widest text-slate-500">Market Update</span>
+                                            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Market Update</span>
                                             <span className="w-1 h-1 bg-slate-500 rounded-full animate-pulse" />
                                         </div>
-                                        <h2 className="text-lg font-bold text-[var(--text-main)]">
+                                        <h2 className="text-sm sm:text-lg font-bold text-[var(--text-main)]">
                                             Current Silver Rate ({silverRate.purity})
                                         </h2>
                                     </div>
                                 </div>
-                                <div className="text-right">
-                                    <p className="text-2xl font-black text-slate-500">
+                                <div className="text-center sm:text-right w-full sm:w-auto flex sm:flex-col justify-between items-center sm:items-end p-2 bg-slate-500/5 sm:bg-transparent rounded-lg">
+                                    <p className="text-xl sm:text-2xl font-black text-slate-500">
                                         {silverRate.currency} {silverRate.price}
                                     </p>
-                                    <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">
-                                        Per {silverRate.unit} • Last updated: {new Date(silverRate.updatedAt).toLocaleTimeString()}
+                                    <p className="text-[9px] sm:text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">
+                                        Per {silverRate.unit} • {new Date(silverRate.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </p>
                                 </div>
                             </div>

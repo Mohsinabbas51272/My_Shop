@@ -50,13 +50,13 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
             <div className="bg-[var(--bg-card)] border border-[var(--border)] w-full max-w-6xl max-h-[95vh] md:max-h-[90vh] rounded-3xl md:rounded-[2.5rem] overflow-y-auto md:overflow-hidden shadow-2xl flex flex-col md:flex-row relative">
                 <button
                     onClick={onClose}
-                    className="absolute top-6 right-6 z-10 p-2 bg-[var(--bg-main)]/50 hover:bg-red-500 text-[var(--text-main)] hover:text-white rounded-full transition-all backdrop-blur-md border border-[var(--border)]"
+                    className="absolute top-4 right-4 md:top-6 md:right-6 z-[110] p-2 bg-[var(--bg-card)]/80 hover:bg-red-500 text-[var(--text-main)] hover:text-white rounded-full transition-all backdrop-blur-md border border-[var(--border)] shadow-lg"
                 >
-                    <X className="w-6 h-6" />
+                    <X className="w-5 h-5 md:w-6 h-6" />
                 </button>
 
                 {/* Image Section */}
-                <div className="w-full md:w-3/5 h-[40vh] md:h-auto bg-[var(--bg-input)]/50 relative overflow-hidden flex items-center justify-center group">
+                <div className="w-full md:w-3/5 h-[35vh] sm:h-[45vh] md:h-auto bg-[var(--bg-input)]/50 relative overflow-hidden flex items-center justify-center group shrink-0">
                     <div
                         className="w-full h-full transition-transform duration-300 ease-out flex items-center justify-center"
                         style={{ transform: `scale(${zoom})` }}
@@ -83,7 +83,7 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
                 </div>
 
                 {/* Content Section */}
-                <div className="w-full md:w-2/5 p-6 md:p-12 flex flex-col justify-center bg-[var(--bg-card)]">
+                <div className="w-full md:w-2/5 p-5 sm:p-8 md:p-12 flex flex-col bg-[var(--bg-card)]">
                     <div className="mb-8">
                         <span className="inline-block px-3 py-1 bg-[var(--primary)]/10 text-[var(--primary)] text-[10px] font-bold uppercase tracking-widest rounded-full border border-[var(--primary)]/20 mb-4">
                             Premium Collection

@@ -523,7 +523,9 @@ export default function AdminDashboard() {
                                 <Package className="w-5 h-5 text-[var(--primary)]" />
                                 Inventory Management
                             </h2>
-                            <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl overflow-x-auto text-sm uppercase font-bold tracking-widest text-[var(--text-muted)] shadow-xl">
+
+                            {/* Desktop View */}
+                            <div className="hidden md:block bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl overflow-x-auto text-sm uppercase font-bold tracking-widest text-[var(--text-muted)] shadow-xl">
                                 <table className="w-full text-left min-w-[600px]">
                                     <thead className="bg-[var(--bg-input)] text-[var(--text-muted)]">
                                         <tr>
@@ -603,6 +605,72 @@ export default function AdminDashboard() {
                                         ))}
                                     </tbody>
                                 </table>
+                            </div>
+
+                            {/* Mobile Card View */}
+                            <div className="md:hidden space-y-4">
+                                {productsLoading ? (
+                                    <div className="p-12 text-center text-[var(--text-muted)] uppercase tracking-widest text-xs">Loading Inventory...</div>
+                                ) : (products?.items || []).map((p: any) => (
+                                    <div key={p.id} className="bg-[var(--bg-card)] border border-[var(--border)] p-4 rounded-2xl shadow-lg relative h-full">
+                                        <div className="flex gap-4 mb-4">
+                                            <img src={getImageUrl(p.image)} alt="" className="w-20 h-20 rounded-xl object-cover bg-[var(--bg-input)]" />
+                                            <div className="flex-1">
+                                                <h3 className="font-bold text-[var(--text-main)] mb-1">{p.name}</h3>
+                                                <div className="flex flex-wrap gap-2 text-[10px] uppercase font-bold text-[var(--text-muted)]">
+                                                    {p.weightTola > 0 && <span className="px-1.5 py-0.5 bg-[var(--bg-input)] rounded border border-[var(--border)]">{p.weightTola} Tola</span>}
+                                                    {p.weightMasha > 0 && <span className="px-1.5 py-0.5 bg-[var(--bg-input)] rounded border border-[var(--border)]">{p.weightMasha} Masha</span>}
+                                                    {p.weightRati > 0 && <span className="px-1.5 py-0.5 bg-[var(--bg-input)] rounded border border-[var(--border)]">{p.weightRati} Rati</span>}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center justify-between pt-4 border-t border-[var(--border)]/50">
+                                            <div>
+                                                <div className="text-[var(--primary)] font-black text-lg leading-none">
+                                                    {p.category === 'Silver'
+                                                        ? (silverLoading ? '---' : formatPrice(calculateDynamicPrice(p, silverRate)))
+                                                        : (goldLoading ? '---' : formatPrice(calculateDynamicPrice(p, goldRate)))
+                                                    }
+                                                </div>
+                                                {((p.weightTola || 0) + (p.weightMasha || 0) + (p.weightRati || 0) > 0) && (
+                                                    <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-tight font-bold opacity-60">Market Based</span>
+                                                )}
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={() => {
+                                                        let displayPrice = Math.round(p.price || 0);
+                                                        if (currency === 'USD') {
+                                                            const { exchangeRate } = useCurrencyStore.getState();
+                                                            displayPrice = parseFloat((p.price / exchangeRate).toFixed(2));
+                                                        }
+                                                        setEditingProduct(p);
+                                                        setNewProduct({
+                                                            name: p.name,
+                                                            price: displayPrice.toString(),
+                                                            description: p.description || '',
+                                                            image: p.image || '',
+                                                            category: p.category || 'Gold',
+                                                            weightTola: (p.weightTola || 0).toString(),
+                                                            weightMasha: (p.weightMasha || 0).toString(),
+                                                            weightRati: (p.weightRati || 0).toString()
+                                                        });
+                                                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                                                    }}
+                                                    className="p-2.5 bg-[var(--bg-input)] rounded-xl text-[var(--text-muted)] hover:text-[var(--primary)] border border-[var(--border)] transition-all active:scale-95"
+                                                >
+                                                    <Pencil className="w-5 h-5" />
+                                                </button>
+                                                <button
+                                                    onClick={() => deleteProductMutation.mutate(p.id)}
+                                                    className="p-2.5 bg-red-500/5 rounded-xl text-red-500 hover:bg-red-500 hover:text-white border border-red-500/10 transition-all active:scale-95"
+                                                >
+                                                    <Trash2 className="w-5 h-5" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </section>
                     </div>

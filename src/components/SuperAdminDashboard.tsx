@@ -262,7 +262,8 @@ export default function SuperAdminDashboard() {
                                     Financial Settlement & Order Management
                                 </h3>
                             </div>
-                            <div className="overflow-x-auto">
+                            {/* Desktop View */}
+                            <div className="hidden lg:block overflow-x-auto">
                                 <table className="w-full">
                                     <thead className="bg-[var(--bg-input)]/50 border-b border-[var(--border)]">
                                         <tr>
@@ -375,6 +376,87 @@ export default function SuperAdminDashboard() {
                                         ))}
                                     </tbody>
                                 </table>
+                            </div>
+
+                            {/* Mobile Card View */}
+                            <div className="lg:hidden divide-y divide-[var(--border)]">
+                                {ordersLoading ? (
+                                    <div className="p-8 text-center"><Loader2 className="w-5 h-5 animate-spin inline" /></div>
+                                ) : !orders || orders.length === 0 ? (
+                                    <div className="p-12 text-center text-[var(--text-muted)] uppercase tracking-widest text-xs">No settlements found</div>
+                                ) : orders.map((o: any) => (
+                                    <div key={o.id} className="p-4 space-y-4">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex flex-col">
+                                                <span className="font-black text-[var(--primary)] text-lg">#{o.displayId || 'N/A'}</span>
+                                                <span className="text-[10px] text-[var(--text-muted)] font-mono opacity-50">GLOBAL ID: #{o.id}</span>
+                                            </div>
+                                            <div className="flex flex-col items-end gap-1">
+                                                <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase border ${o.status === 'Delivered' ? 'bg-green-500/10 text-green-500 border-green-500/20' : 'bg-blue-500/10 text-blue-500 border-blue-500/20'}`}>
+                                                    {o.status}
+                                                </span>
+                                                <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase border ${o.paymentStatus === 'Paid' ? 'bg-green-500/10 text-green-500 border-green-500/20' : 'bg-orange-500/10 text-orange-500 border-orange-500/20'}`}>
+                                                    {o.paymentStatus || 'Pending'}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="bg-[var(--bg-input)]/50 p-3 rounded-xl border border-[var(--border)]/50">
+                                                <p className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1">Customer</p>
+                                                <p className="text-sm font-bold text-[var(--text-main)] truncate">{o.customerName || 'N/A'}</p>
+                                                <p className="text-[10px] text-[var(--text-muted)] truncate">{o.customerPhone || 'N/A'}</p>
+                                            </div>
+                                            <div className="bg-[var(--bg-input)]/50 p-3 rounded-xl border border-[var(--border)]/50">
+                                                <p className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1">Financials</p>
+                                                <p className="text-sm font-black text-[var(--primary)]">{formatPrice(o.total)}</p>
+                                                <p className="text-[9px] text-[var(--text-muted)] font-bold">FEES: {formatPrice((o.userFee || 0) + (o.adminFee || 0))}</p>
+                                            </div>
+                                        </div>
+
+                                        {o.admin && (
+                                            <div className="bg-blue-500/5 p-3 rounded-xl border border-blue-500/10 flex items-center justify-between">
+                                                <div>
+                                                    <p className="text-[9px] font-black text-blue-500 uppercase tracking-widest mb-0.5">Assigned Jeweller</p>
+                                                    <p className="text-sm font-bold text-[var(--text-main)]">{o.admin.name}</p>
+                                                </div>
+                                                <p className="text-xs text-blue-500 font-bold">{o.admin.phone}</p>
+                                            </div>
+                                        )}
+
+                                        <div className="flex gap-2 pt-2">
+                                            {o.paymentStatus !== 'Paid' && (
+                                                <button
+                                                    onClick={() => confirmPayment.mutate(o.id)}
+                                                    className="flex-1 py-3 bg-green-600 text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-green-500/20"
+                                                >
+                                                    Confirm Payment
+                                                </button>
+                                            )}
+                                            {o.paymentReceipt && (
+                                                <a
+                                                    href={getImageUrl(o.paymentReceipt)}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="flex items-center justify-center p-3 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl text-[var(--primary)] active:scale-95"
+                                                    title="View Receipt"
+                                                >
+                                                    <Receipt className="w-5 h-5" />
+                                                </a>
+                                            )}
+                                            <button
+                                                onClick={() => {
+                                                    if (confirm('Delete order record?')) {
+                                                        deleteOrderMutation.mutate(o.id);
+                                                    }
+                                                }}
+                                                className="p-3 bg-red-500/10 text-red-500 border border-red-500/20 rounded-xl active:scale-95"
+                                            >
+                                                <Trash2 className="w-5 h-5" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </div>

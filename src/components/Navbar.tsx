@@ -33,8 +33,8 @@ export default function Navbar() {
     const cartCount = items.reduce((sum: number, item) => sum + item.quantity, 0);
 
     return (
-        <nav className="bg-[var(--bg-card)] border-b border-[var(--border)] sticky top-0 z-[100] backdrop-blur-md">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav className="bg-[var(--bg-card)] border-b border-[var(--border)] sticky top-0 z-[100] backdrop-blur-md w-full">
+            <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
                     {/* Left Section: Logo & Mobile Menu Toggle */}
                     <div className="flex items-center gap-2 sm:gap-4">
@@ -124,7 +124,7 @@ export default function Navbar() {
                                     <Palette className="w-4 h-4 sm:w-5 h-5" />
                                 </button>
                                 {showThemes && (
-                                    <div className="absolute right-0 mt-2 w-48 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl shadow-2xl p-2 z-[110]">
+                                    <div className="absolute right-0 mt-2 w-48 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl shadow-2xl p-2 z-[110] md:fixed md:top-14 md:right-auto md:translate-x-[-150px]">
                                         <div className="grid grid-cols-3 gap-2">
                                             {themes.map((t) => (
                                                 <button
@@ -251,14 +251,18 @@ export default function Navbar() {
                             <Link
                                 to="/profile"
                                 onClick={() => setIsMenuOpen(false)}
-                                className="flex items-center gap-4 p-3 bg-[var(--bg-input)] rounded-xl border border-[var(--border)]"
+                                className="flex items-center gap-4 p-4 bg-[var(--bg-input)] rounded-2xl border border-[var(--border)] hover:border-[var(--primary)] transition-all active:scale-[0.98]"
                             >
-                                <div className="w-10 h-10 rounded-full bg-[var(--bg-card)] flex items-center justify-center text-[var(--primary)] border border-[var(--border)]">
-                                    <User className="w-5 h-5" />
+                                <div className="w-12 h-12 rounded-full bg-[var(--bg-card)] flex items-center justify-center text-[var(--primary)] border border-[var(--border)] shadow-sm">
+                                    <User className="w-6 h-6" />
                                 </div>
-                                <div>
-                                    <p className="font-bold text-[var(--text-main)]">{user?.name}</p>
-                                    <p className="text-xs text-[var(--text-muted)] uppercase tracking-wider">View Profile</p>
+                                <div className="flex-1">
+                                    <p className="font-bold text-lg text-[var(--text-main)]">{user?.name}</p>
+                                    <div className="flex items-center gap-2">
+                                        <p className="text-xs text-[var(--text-muted)] uppercase tracking-widest font-bold">Account Settings</p>
+                                        <span className="w-1 h-1 bg-[var(--text-muted)] rounded-full opacity-30"></span>
+                                        <p className="text-[10px] text-[var(--primary)] font-black uppercase">{user?.role}</p>
+                                    </div>
                                 </div>
                             </Link>
 
@@ -267,10 +271,10 @@ export default function Navbar() {
                                     handleLogout();
                                     setIsMenuOpen(false);
                                 }}
-                                className="w-full mt-4 flex items-center justify-center gap-2 p-3 bg-red-500/10 text-red-500 rounded-xl font-bold uppercase tracking-widest text-xs border border-red-500/20"
+                                className="w-full mt-4 flex items-center justify-center gap-2 p-4 bg-red-500/5 hover:bg-red-500/10 text-red-500 rounded-2xl font-bold uppercase tracking-widest text-xs border border-red-500/10 hover:border-red-500/20 transition-all active:scale-[0.98]"
                             >
-                                <LogOut className="w-4 h-4" />
-                                Logout
+                                <LogOut className="w-5 h-5" />
+                                Sign Out safely
                             </button>
                         </div>
                     </div>
