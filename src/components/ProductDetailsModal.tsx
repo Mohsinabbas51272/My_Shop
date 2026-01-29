@@ -17,12 +17,12 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
     const [zoom, setZoom] = useState(1);
     const [quantity, setQuantity] = useState(1);
 
-    const { data: goldRate } = useQuery({
+    const { data: goldRate, isLoading: goldLoading } = useQuery({
         queryKey: ['gold-rate'],
         queryFn: async () => (await api.get('/commodity/gold-rate')).data,
     });
 
-    const { data: silverRate } = useQuery({
+    const { data: silverRate, isLoading: silverLoading } = useQuery({
         queryKey: ['silver-rate'],
         queryFn: async () => (await api.get('/commodity/silver-rate')).data,
     });
@@ -93,10 +93,20 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
                         </h2>
                         <div className="flex flex-col gap-2 mb-4 md:mb-6">
                             <div className="flex items-center gap-4">
-                                <span className="text-2xl md:text-3xl font-bold text-[var(--primary)]">{formatPrice(breakdown.total)}</span>
-                                <span className="text-xs md:text-sm text-[var(--text-muted)] line-through opacity-50">{formatPrice(breakdown.total * 1.5)}</span>
+                                <span className="text-2xl md:text-3xl font-bold text-[var(--primary)]">
+                                    {product.category === 'Silver'
+                                        ? (silverLoading ? 'Price Loading...' : formatPrice(breakdown.total))
+                                        : (goldLoading ? 'Price Loading...' : formatPrice(breakdown.total))
+                                    }
+                                </span>
+                                <span className="text-xs md:text-sm text-[var(--text-muted)] line-through opacity-50">
+                                    {product.category === 'Silver'
+                                        ? (silverLoading ? '---' : formatPrice(breakdown.total * 1.5))
+                                        : (goldLoading ? '---' : formatPrice(breakdown.total * 1.5))
+                                    }
+                                </span>
                             </div>
-                            {breakdown.goldValue > 0 && (
+                            {breakdown.goldValue > 0 && !goldLoading && !silverLoading && (
                                 <div className="p-3 bg-[var(--bg-input)] rounded-xl border border-[var(--border)] space-y-2">
                                     <div className="flex items-center gap-2 text-[10px] font-bold text-[var(--primary)] uppercase tracking-widest">
                                         <Info className="w-3 h-3" />
@@ -164,10 +174,15 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
 
                         <button
                             onClick={handleAddToCart}
-                            className="w-full bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-bold py-5 rounded-2xl transition-all shadow-xl shadow-[var(--accent-glow)] flex items-center justify-center gap-3 active:scale-[0.98]"
+                            disabled={product.category === 'Silver' ? silverLoading : goldLoading}
+                            className="w-full bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-bold py-5 rounded-2xl transition-all shadow-xl shadow-[var(--accent-glow)] flex items-center justify-center gap-3 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            <ShoppingCart className="w-6 h-6" />
-                            Add to Shopping Bag
+                            {(product.category === 'Silver' ? silverLoading : goldLoading) ? (
+                                <Loader2 className="w-6 h-6 animate-spin" />
+                            ) : (
+                                <ShoppingCart className="w-6 h-6" />
+                            )}
+                            {(product.category === 'Silver' ? silverLoading : goldLoading) ? 'Price Loading...' : 'Add to Shopping Bag'}
                         </button>
 
                         <div className="flex items-center justify-center gap-8 text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest opacity-50">

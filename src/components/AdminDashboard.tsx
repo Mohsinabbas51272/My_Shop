@@ -552,7 +552,10 @@ export default function AdminDashboard() {
                                                     {(!p.weightTola && !p.weightMasha && !p.weightRati) && '-'}
                                                 </td>
                                                 <td className="p-4 text-[var(--primary)] font-black">
-                                                    {formatPrice(calculateDynamicPrice(p, p.category === 'Silver' ? silverRate : goldRate))}
+                                                    {product.category === 'Silver'
+                                                        ? (silverLoading ? '---' : formatPrice(calculateDynamicPrice(p, silverRate)))
+                                                        : (goldLoading ? '---' : formatPrice(calculateDynamicPrice(p, goldRate)))
+                                                    }
                                                     {((p.weightTola || 0) + (p.weightMasha || 0) + (p.weightRati || 0) > 0) && (
                                                         <span className="block text-[8px] text-[var(--text-muted)] uppercase tracking-tighter opacity-70">
                                                             Market Based

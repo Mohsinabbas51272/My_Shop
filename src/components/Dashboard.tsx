@@ -373,7 +373,12 @@ export default function Dashboard() {
                                                                 </div>
                                                             )}
                                                         </div>
-                                                        <span className="text-[var(--primary)] font-bold whitespace-nowrap">{formatPrice(calculateDynamicPrice(product, product.category === 'Silver' ? silverRate : goldRate))}</span>
+                                                        <span className="text-[var(--primary)] font-bold whitespace-nowrap">
+                                                            {product.category === 'Silver'
+                                                                ? (silverLoading ? '---' : formatPrice(calculateDynamicPrice(product, silverRate)))
+                                                                : (goldLoading ? '---' : formatPrice(calculateDynamicPrice(product, goldRate)))
+                                                            }
+                                                        </span>
                                                     </div>
                                                     <p className="text-[var(--text-muted)] text-sm line-clamp-2 mb-6 flex-grow">
                                                         {product.description || 'No description available for this premium item.'}
@@ -382,13 +387,19 @@ export default function Dashboard() {
                                                     <button
                                                         onClick={(e) => {
                                                             e.stopPropagation();
-                                                            const calculatedPrice = calculateDynamicPrice(product, product.category === 'Silver' ? silverRate : goldRate);
+                                                            const rate = product.category === 'Silver' ? silverRate : goldRate;
+                                                            const calculatedPrice = calculateDynamicPrice(product, rate);
                                                             addItem({ ...product, price: calculatedPrice });
                                                         }}
-                                                        className="w-full flex items-center justify-center gap-2 bg-[var(--primary)]/10 hover:bg-[var(--primary)] text-[var(--primary)] hover:text-white font-semibold py-2.5 rounded-xl transition-all border border-[var(--primary)]/20 active:scale-[0.98]"
+                                                        disabled={(product.category === 'Silver' ? silverLoading : goldLoading)}
+                                                        className="w-full flex items-center justify-center gap-2 bg-[var(--primary)]/10 hover:bg-[var(--primary)] text-[var(--primary)] hover:text-white font-semibold py-2.5 rounded-xl transition-all border border-[var(--primary)]/20 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                                                     >
-                                                        <Plus className="w-4 h-4" />
-                                                        Add to Cart
+                                                        {(product.category === 'Silver' ? silverLoading : goldLoading) ? (
+                                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                                        ) : (
+                                                            <Plus className="w-4 h-4" />
+                                                        )}
+                                                        {(product.category === 'Silver' ? silverLoading : goldLoading) ? 'Loading Price...' : 'Add to Cart'}
                                                     </button>
                                                 </div>
                                             </div>
