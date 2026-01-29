@@ -33,7 +33,7 @@ export default function Dashboard() {
     const [isCalcOpen, setIsCalcOpen] = useState(false);
 
     // Shop discovery controls from global store
-    const { q, sort, minPrice, maxPrice, metalCategory, setMetalCategory } = useSearchStore();
+    const { q, sort, minPrice, maxPrice, metalCategory } = useSearchStore();
     const [page, setPage] = useState(1);
 
     useEffect(() => {
