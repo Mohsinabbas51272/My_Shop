@@ -12,6 +12,7 @@ import { Plus, Loader2, PackageX, ShoppingBag, Clock, CheckCircle2, Receipt, Tra
 import OrderReceipt from './OrderReceipt';
 import { useAuthStore } from '../store/useAuthStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
+import { useSearchStore } from '../store/useSearchStore';
 import { toast } from '../store/useToastStore';
 
 export default function Dashboard() {
@@ -31,13 +32,9 @@ export default function Dashboard() {
     const [viewingReceipt, setViewingReceipt] = useState<any>(null);
     const [isCalcOpen, setIsCalcOpen] = useState(false);
 
-    // Shop discovery controls
-    const [q, setQ] = useState('');
-    const [sort, setSort] = useState<'newest' | 'price_asc' | 'price_desc'>('newest');
+    // Shop discovery controls from global store
+    const { q, sort, minPrice, maxPrice, metalCategory, setMetalCategory } = useSearchStore();
     const [page, setPage] = useState(1);
-    const [minPrice, setMinPrice] = useState<string>('');
-    const [maxPrice, setMaxPrice] = useState<string>('');
-    const [metalCategory, setMetalCategory] = useState<'Gold' | 'Silver'>('Gold');
 
     useEffect(() => {
         // Reset to first page whenever filters change
@@ -149,24 +146,7 @@ export default function Dashboard() {
                         </p>
                     </div>
 
-                    {activeTab === 'shop' && (
-                        <div className="flex bg-[var(--bg-card)] p-1 rounded-2xl border border-[var(--border)] shadow-sm self-start md:self-center w-full sm:w-auto">
-                            <button
-                                onClick={() => setMetalCategory('Gold')}
-                                className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${metalCategory === 'Gold' ? 'bg-yellow-600 text-white shadow-lg shadow-yellow-600/20' : 'text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-input)]'}`}
-                            >
-                                <Gavel className={`w-4 h-4 ${metalCategory === 'Gold' ? 'text-yellow-200' : 'text-yellow-600'}`} />
-                                Gold
-                            </button>
-                            <button
-                                onClick={() => setMetalCategory('Silver')}
-                                className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${metalCategory === 'Silver' ? 'bg-slate-500 text-white shadow-lg shadow-slate-500/20' : 'text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-input)]'}`}
-                            >
-                                <Gavel className={`w-4 h-4 ${metalCategory === 'Silver' ? 'text-slate-200' : 'text-slate-500'}`} />
-                                Silver
-                            </button>
-                        </div>
-                    )}
+                    {/* Category Toggles moved to Navbar */}
 
                     <div className="flex flex-wrap gap-2 w-full md:w-auto">
                         <button
@@ -272,49 +252,7 @@ export default function Dashboard() {
                 {
                     activeTab === 'shop' ? (
                         <>
-                            <div className="mb-8 grid grid-cols-1 lg:grid-cols-12 gap-4">
-                                <div className="lg:col-span-6">
-                                    <label className="block text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] mb-2">Search</label>
-                                    <input
-                                        value={q}
-                                        onChange={(e) => setQ(e.target.value)}
-                                        placeholder="Search products (name, description)"
-                                        className="w-full bg-[var(--bg-card)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[var(--primary)]/40 outline-none"
-                                    />
-                                </div>
-                                <div className="lg:col-span-2">
-                                    <label className="block text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] mb-2">Sort</label>
-                                    <select
-                                        value={sort}
-                                        onChange={(e) => setSort(e.target.value as any)}
-                                        className="w-full bg-[var(--bg-card)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[var(--primary)]/40 outline-none cursor-pointer"
-                                    >
-                                        <option value="newest">Newest</option>
-                                        <option value="price_asc">Price: Low to High</option>
-                                        <option value="price_desc">Price: High to Low</option>
-                                    </select>
-                                </div>
-                                <div className="lg:col-span-2">
-                                    <label className="block text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] mb-2">Min Price</label>
-                                    <input
-                                        value={minPrice}
-                                        onChange={(e) => setMinPrice(e.target.value)}
-                                        inputMode="numeric"
-                                        placeholder="0"
-                                        className="w-full bg-[var(--bg-card)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[var(--primary)]/40 outline-none"
-                                    />
-                                </div>
-                                <div className="lg:col-span-2">
-                                    <label className="block text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] mb-2">Max Price</label>
-                                    <input
-                                        value={maxPrice}
-                                        onChange={(e) => setMaxPrice(e.target.value)}
-                                        inputMode="numeric"
-                                        placeholder="999999"
-                                        className="w-full bg-[var(--bg-card)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[var(--primary)]/40 outline-none"
-                                    />
-                                </div>
-                            </div>
+                            {/* Filter Section Removed - Now in Navbar */}
 
                             {productsLoading ? (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">

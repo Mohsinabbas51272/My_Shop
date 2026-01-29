@@ -6,6 +6,8 @@ import { useThemeStore } from '../store/useThemeStore';
 import type { ThemeType } from '../store/useThemeStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
 import { useState } from 'react';
+import { useSearchStore } from '../store/useSearchStore';
+import { Search, SlidersHorizontal, ChevronDown } from 'lucide-react';
 
 export default function Navbar() {
     const { user, logout } = useAuthStore();
@@ -15,6 +17,15 @@ export default function Navbar() {
     const navigate = useNavigate();
     const [showThemes, setShowThemes] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [showFilters, setShowFilters] = useState(false);
+
+    const {
+        q, setQ,
+        sort, setSort,
+        minPrice, setMinPrice,
+        maxPrice, setMaxPrice,
+        metalCategory, setMetalCategory
+    } = useSearchStore();
 
     const themes: { id: ThemeType; label: string; color: string }[] = [
         { id: 'midnight', label: 'Midnight', color: '#3b82f6' },
@@ -101,6 +112,20 @@ export default function Navbar() {
                         </div>
                     </div>
 
+                    {/* Middle Section: Search - Desktop Only */}
+                    <div className="hidden lg:flex flex-1 max-w-md mx-8">
+                        <div className="relative w-full">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
+                            <input
+                                type="text"
+                                placeholder={`Search ${metalCategory.toLowerCase()}...`}
+                                value={q}
+                                onChange={(e) => setQ(e.target.value)}
+                                className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-[var(--primary)]/40 outline-none transition-all"
+                            />
+                        </div>
+                    </div>
+
                     {/* Right Section: Utilities & User Actions */}
                     <div className="flex items-center gap-2 sm:gap-4">
                         {/* Utilities Group */}
@@ -139,6 +164,82 @@ export default function Navbar() {
                                                     title={t.label}
                                                 />
                                             ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Filters Popover */}
+                            <div className="relative">
+                                <button
+                                    onClick={() => setShowFilters(!showFilters)}
+                                    className={`p-1.5 sm:p-2 transition-colors rounded-full hover:bg-[var(--bg-input)] ${showFilters ? 'text-[var(--primary)] bg-[var(--bg-input)]' : 'text-[var(--text-muted)]'}`}
+                                    title="Filters & Sort"
+                                >
+                                    <SlidersHorizontal className="w-4 h-4 sm:w-5 h-5" />
+                                </button>
+                                {showFilters && (
+                                    <div className="absolute right-0 mt-2 w-72 bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl shadow-2xl p-4 z-[110] animate-in fade-in slide-in-from-top-2">
+                                        <div className="space-y-4">
+                                            {/* Metal Category Toggle */}
+                                            <div>
+                                                <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest block mb-2">Category</label>
+                                                <div className="flex bg-[var(--bg-input)] p-1 rounded-xl border border-[var(--border)]">
+                                                    <button
+                                                        onClick={() => setMetalCategory('Gold')}
+                                                        className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${metalCategory === 'Gold' ? 'bg-yellow-600 text-white shadow-sm' : 'text-[var(--text-muted)]'}`}
+                                                    >
+                                                        Gold
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setMetalCategory('Silver')}
+                                                        className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${metalCategory === 'Silver' ? 'bg-slate-500 text-white shadow-sm' : 'text-[var(--text-muted)]'}`}
+                                                    >
+                                                        Silver
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            {/* Sort Option */}
+                                            <div>
+                                                <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest block mb-2">Sort By</label>
+                                                <div className="relative">
+                                                    <select
+                                                        value={sort}
+                                                        onChange={(e) => setSort(e.target.value as any)}
+                                                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-3 py-2 text-xs font-bold text-[var(--text-main)] outline-none appearance-none"
+                                                    >
+                                                        <option value="newest">Newest First</option>
+                                                        <option value="price_asc">Price: Low to High</option>
+                                                        <option value="price_desc">Price: High to Low</option>
+                                                    </select>
+                                                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3 h-3 text-[var(--text-muted)] pointer-events-none" />
+                                                </div>
+                                            </div>
+
+                                            {/* Price Range */}
+                                            <div className="grid grid-cols-2 gap-3">
+                                                <div>
+                                                    <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest block mb-1.5">Min Price</label>
+                                                    <input
+                                                        type="number"
+                                                        placeholder="0"
+                                                        value={minPrice}
+                                                        onChange={(e) => setMinPrice(e.target.value)}
+                                                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-3 py-2 text-xs font-bold text-[var(--text-main)] outline-none"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest block mb-1.5">Max Price</label>
+                                                    <input
+                                                        type="number"
+                                                        placeholder="Any"
+                                                        value={maxPrice}
+                                                        onChange={(e) => setMaxPrice(e.target.value)}
+                                                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-3 py-2 text-xs font-bold text-[var(--text-main)] outline-none"
+                                                    />
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 )}
@@ -244,6 +345,56 @@ export default function Navbar() {
                                     </Link>
                                 </>
                             )}
+                        </div>
+
+                        {/* Mobile Search & Filters */}
+                        <div className="space-y-4 pt-2">
+                            <div className="relative">
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
+                                <input
+                                    type="text"
+                                    placeholder={`Search ${metalCategory.toLowerCase()}...`}
+                                    value={q}
+                                    onChange={(e) => setQ(e.target.value)}
+                                    className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-2xl pl-11 pr-4 py-3 text-sm focus:ring-2 focus:ring-[var(--primary)]/40 outline-none"
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="space-y-1.5">
+                                    <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest px-1">Min Price</label>
+                                    <input
+                                        type="number"
+                                        placeholder="0"
+                                        value={minPrice}
+                                        onChange={(e) => setMinPrice(e.target.value)}
+                                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-sm font-bold"
+                                    />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest px-1">Max Price</label>
+                                    <input
+                                        type="number"
+                                        placeholder="Any"
+                                        value={maxPrice}
+                                        onChange={(e) => setMaxPrice(e.target.value)}
+                                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-sm font-bold"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest px-1">Sort By</label>
+                                <select
+                                    value={sort}
+                                    onChange={(e) => setSort(e.target.value as any)}
+                                    className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm font-bold appearance-none"
+                                >
+                                    <option value="newest">Newest First</option>
+                                    <option value="price_asc">Price: Low to High</option>
+                                    <option value="price_desc">Price: High to Low</option>
+                                </select>
+                            </div>
                         </div>
 
                         {/* Mobile User Section */}

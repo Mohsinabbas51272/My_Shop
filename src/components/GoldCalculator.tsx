@@ -79,7 +79,8 @@ export default function GoldCalculator({ isOpen, onClose }: GoldCalculatorProps)
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-3 bg-[var(--bg-input)] hover:bg-red-500/10 text-[var(--text-muted)] hover:text-red-500 rounded-2xl transition-all"
+                        className="p-3 bg-[var(--bg-input)] hover:bg-red-500/10 text-[var(--text-muted)] hover:text-red-500 rounded-2xl transition-all active:scale-95 shadow-sm border border-[var(--border)]"
+                        title="Close Calculator"
                     >
                         <Plus className="w-6 h-6 rotate-45" />
                     </button>
