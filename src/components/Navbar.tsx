@@ -19,6 +19,8 @@ export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [showFilters, setShowFilters] = useState(false);
 
+    const [showSearch, setShowSearch] = useState(false);
+
     const {
         q, setQ,
         sort, setSort,
@@ -66,7 +68,7 @@ export default function Navbar() {
                         </Link>
 
                         {/* Navigation Links - Desktop */}
-                        <div className="hidden md:flex items-center gap-6">
+                        <div className="hidden md:flex items-center gap-6 ml-4 mr-[2px]">
                             {user?.role === 'SUPER_ADMIN' ? (
                                 <Link
                                     to="/super-admin/dashboard"
@@ -112,45 +114,47 @@ export default function Navbar() {
                         </div>
                     </div>
 
-                    {/* Middle Section: Search - Desktop Only */}
-                    <div className="hidden lg:flex flex-1 max-w-md mx-8">
-                        <div className="relative w-full">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
-                            <input
-                                type="text"
-                                placeholder={`Search ${metalCategory.toLowerCase()}...`}
-                                value={q}
-                                onChange={(e) => setQ(e.target.value)}
-                                className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-[var(--primary)]/40 outline-none transition-all"
-                            />
-                        </div>
-                    </div>
-
                     {/* Right Section: Utilities & User Actions */}
                     <div className="flex items-center gap-2 sm:gap-4">
                         {/* Utilities Group */}
-                        <div className="flex items-center gap-1.5 sm:gap-2">
+                        <div className="flex items-center gap-1 sm:gap-2">
                             {/* Currency Toggle */}
                             <button
                                 onClick={() => setCurrency(currency === 'PKR' ? 'USD' : 'PKR')}
-                                className="px-2 sm:px-3 py-1 rounded-lg bg-[var(--bg-input)] hover:bg-[var(--bg-card)] border border-[var(--border)] text-[10px] sm:text-xs font-bold text-[var(--primary)] transition-all min-w-[40px] sm:min-w-[50px]"
+                                className="px-2 sm:px-3 py-1.5 rounded-xl bg-[var(--bg-input)] hover:bg-[var(--bg-card)] border border-[var(--border)] text-[10px] sm:text-xs font-black text-[var(--primary)] transition-all min-w-[44px] sm:min-w-[54px]"
                                 title="Switch Currency"
                             >
                                 {currency}
                             </button>
 
+                            {/* Metal Category Toggle - Desktop Only */}
+                            <div className="hidden md:flex bg-[var(--bg-input)] p-1 rounded-xl border border-[var(--border)]">
+                                <button
+                                    onClick={() => setMetalCategory('Gold')}
+                                    className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all ${metalCategory === 'Gold' ? 'bg-yellow-600 text-white shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'}`}
+                                >
+                                    Gold
+                                </button>
+                                <button
+                                    onClick={() => setMetalCategory('Silver')}
+                                    className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all ${metalCategory === 'Silver' ? 'bg-slate-500 text-white shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'}`}
+                                >
+                                    Silver
+                                </button>
+                            </div>
+
                             {/* Theme Picker */}
                             <div className="relative">
                                 <button
                                     onClick={() => setShowThemes(!showThemes)}
-                                    className="p-1.5 sm:p-2 text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors rounded-full hover:bg-[var(--bg-input)]"
+                                    className={`p-1.5 sm:p-2 transition-colors rounded-full hover:bg-[var(--bg-input)] ${showThemes ? 'text-[var(--primary)] bg-[var(--bg-input)]' : 'text-[var(--text-muted)]'}`}
                                     title="Switch Theme"
                                 >
                                     <Palette className="w-4 h-4 sm:w-5 h-5" />
                                 </button>
                                 {showThemes && (
-                                    <div className="absolute right-0 mt-2 w-48 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl shadow-2xl p-2 z-[110] md:fixed md:top-14 md:right-auto md:translate-x-[-150px]">
-                                        <div className="grid grid-cols-3 gap-2">
+                                    <div className="absolute right-0 mt-2 w-48 bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl shadow-2xl p-2 z-[110] animate-in fade-in slide-in-from-top-2">
+                                        <div className="grid grid-cols-3 gap-2 p-1">
                                             {themes.map((t) => (
                                                 <button
                                                     key={t.id}
@@ -158,7 +162,7 @@ export default function Navbar() {
                                                         setTheme(t.id);
                                                         setShowThemes(false);
                                                     }}
-                                                    className={`w-full aspect-square rounded-lg border-2 transition-all ${theme === t.id ? 'border-[var(--primary)] scale-110' : 'border-transparent opacity-60 hover:opacity-100 hover:scale-105'
+                                                    className={`w-full aspect-square rounded-xl border-2 transition-all ${theme === t.id ? 'border-[var(--primary)] scale-110 shadow-lg' : 'border-transparent opacity-60 hover:opacity-100'
                                                         }`}
                                                     style={{ backgroundColor: t.color }}
                                                     title={t.label}
@@ -169,74 +173,102 @@ export default function Navbar() {
                                 )}
                             </div>
 
+
+                            {/* Search Popover - NEW (Moved from middle) */}
+                            <div className="relative">
+                                <button
+                                    onClick={() => setShowSearch(!showSearch)}
+                                    className={`p-1.5 sm:p-2 transition-colors rounded-full hover:bg-[var(--bg-input)] ${showSearch ? 'text-[var(--primary)] bg-[var(--bg-input)]' : 'text-[var(--text-muted)]'}`}
+                                    title="Quick Search"
+                                >
+                                    <Search className="w-4 h-4 sm:w-5 h-5" />
+                                </button>
+                                {showSearch && (
+                                    <div className="absolute right-0 mt-2 w-80 bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl shadow-2xl p-5 z-[110] animate-in fade-in slide-in-from-top-2">
+                                        <div className="flex items-center justify-between mb-4 mt-1">
+                                            <h4 className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] px-1">Quick Search</h4>
+                                            <button
+                                                onClick={() => setShowSearch(false)}
+                                                className="p-1 px-1.5 hover:bg-red-500/10 text-[var(--text-muted)] hover:text-red-500 rounded-lg transition-all"
+                                                title="Close Search"
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                        <div className="relative">
+                                            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
+                                            <input
+                                                autoFocus
+                                                type="text"
+                                                placeholder={`Search items...`}
+                                                value={q}
+                                                onChange={(e) => setQ(e.target.value)}
+                                                className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl pl-11 pr-4 py-3 text-sm font-bold focus:ring-2 focus:ring-[var(--primary)]/40 outline-none transition-all"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
                             {/* Filters Popover */}
                             <div className="relative">
                                 <button
                                     onClick={() => setShowFilters(!showFilters)}
                                     className={`p-1.5 sm:p-2 transition-colors rounded-full hover:bg-[var(--bg-input)] ${showFilters ? 'text-[var(--primary)] bg-[var(--bg-input)]' : 'text-[var(--text-muted)]'}`}
-                                    title="Filters & Sort"
+                                    title="Advanced Filters"
                                 >
                                     <SlidersHorizontal className="w-4 h-4 sm:w-5 h-5" />
                                 </button>
                                 {showFilters && (
-                                    <div className="absolute right-0 mt-2 w-72 bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl shadow-2xl p-4 z-[110] animate-in fade-in slide-in-from-top-2">
-                                        <div className="space-y-4">
-                                            {/* Metal Category Toggle */}
-                                            <div>
-                                                <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest block mb-2">Category</label>
-                                                <div className="flex bg-[var(--bg-input)] p-1 rounded-xl border border-[var(--border)]">
-                                                    <button
-                                                        onClick={() => setMetalCategory('Gold')}
-                                                        className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${metalCategory === 'Gold' ? 'bg-yellow-600 text-white shadow-sm' : 'text-[var(--text-muted)]'}`}
-                                                    >
-                                                        Gold
-                                                    </button>
-                                                    <button
-                                                        onClick={() => setMetalCategory('Silver')}
-                                                        className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${metalCategory === 'Silver' ? 'bg-slate-500 text-white shadow-sm' : 'text-[var(--text-muted)]'}`}
-                                                    >
-                                                        Silver
-                                                    </button>
-                                                </div>
-                                            </div>
-
+                                    <div className="absolute right-0 mt-2 w-80 bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl shadow-2xl p-5 z-[110] animate-in fade-in slide-in-from-top-2">
+                                        <div className="flex items-center justify-between mb-4 mt-1">
+                                            <h4 className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] px-1">Advanced Filters</h4>
+                                            <button
+                                                onClick={() => setShowFilters(false)}
+                                                className="p-1 px-1.5 hover:bg-red-500/10 text-[var(--text-muted)] hover:text-red-500 rounded-lg transition-all"
+                                                title="Close Filters"
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                        <div className="space-y-5">
                                             {/* Sort Option */}
                                             <div>
-                                                <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest block mb-2">Sort By</label>
+                                                <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest block mb-2">Order By</label>
                                                 <div className="relative">
                                                     <select
                                                         value={sort}
                                                         onChange={(e) => setSort(e.target.value as any)}
-                                                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-3 py-2 text-xs font-bold text-[var(--text-main)] outline-none appearance-none"
+                                                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-4 py-3 text-xs font-bold text-[var(--text-main)] outline-none appearance-none"
                                                     >
                                                         <option value="newest">Newest First</option>
                                                         <option value="price_asc">Price: Low to High</option>
                                                         <option value="price_desc">Price: High to Low</option>
                                                     </select>
-                                                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3 h-3 text-[var(--text-muted)] pointer-events-none" />
+                                                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--text-muted)] pointer-events-none" />
                                                 </div>
                                             </div>
 
                                             {/* Price Range */}
-                                            <div className="grid grid-cols-2 gap-3">
-                                                <div>
-                                                    <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest block mb-1.5">Min Price</label>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="space-y-1.5">
+                                                    <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest block px-1">Min {currency}</label>
                                                     <input
                                                         type="number"
                                                         placeholder="0"
                                                         value={minPrice}
                                                         onChange={(e) => setMinPrice(e.target.value)}
-                                                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-3 py-2 text-xs font-bold text-[var(--text-main)] outline-none"
+                                                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-xs font-bold text-[var(--text-main)] outline-none"
                                                     />
                                                 </div>
-                                                <div>
-                                                    <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest block mb-1.5">Max Price</label>
+                                                <div className="space-y-1.5">
+                                                    <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest block px-1">Max {currency}</label>
                                                     <input
                                                         type="number"
                                                         placeholder="Any"
                                                         value={maxPrice}
                                                         onChange={(e) => setMaxPrice(e.target.value)}
-                                                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-3 py-2 text-xs font-bold text-[var(--text-main)] outline-none"
+                                                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-xs font-bold text-[var(--text-main)] outline-none"
                                                     />
                                                 </div>
                                             </div>
@@ -245,11 +277,12 @@ export default function Navbar() {
                                 )}
                             </div>
 
-                            {/* Cart - Only for customers */}
+                            {/* Cart - Moved here */}
                             {user?.role !== 'ADMIN' && user?.role !== 'SUPER_ADMIN' && (
                                 <Link
                                     to="/cart"
                                     className="relative p-1.5 sm:p-2 text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-input)] rounded-full transition-all"
+                                    title="Shopping Bag"
                                 >
                                     <ShoppingCart className="w-4 h-4 sm:w-5 h-5" />
                                     {cartCount > 0 && (
@@ -262,7 +295,7 @@ export default function Navbar() {
                         </div>
 
                         {/* Separator - Hidden on mobile */}
-                        <div className="h-6 w-px bg-[var(--border)] hidden md:block"></div>
+                        <div className="h-8 w-px bg-[var(--border)] hidden md:block mx-1"></div>
 
                         {/* User Profile & Logout - Desktop Only */}
                         <div className="hidden md:flex items-center gap-3 pl-2">
@@ -270,18 +303,18 @@ export default function Navbar() {
                                 to="/profile"
                                 className="flex items-center gap-2 group"
                             >
-                                <div className="w-8 h-8 rounded-full bg-[var(--bg-input)] flex items-center justify-center text-[var(--primary)] border border-[var(--border)] group-hover:border-[var(--primary)] transition-all">
+                                <div className="w-9 h-9 rounded-full bg-[var(--bg-input)] flex items-center justify-center text-[var(--primary)] border border-[var(--border)] group-hover:border-[var(--primary)] transition-all overflow-hidden">
                                     <User className="w-4 h-4" />
                                 </div>
                                 <div className="hidden lg:block text-sm">
                                     <p className="font-bold leading-none text-[var(--text-main)] group-hover:text-[var(--primary)] transition-colors">{user?.name?.split(' ')[0]}</p>
-                                    <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">Account</p>
+                                    <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-widest font-bold opacity-60">Account</p>
                                 </div>
                             </Link>
 
                             <button
                                 onClick={handleLogout}
-                                className="p-2 text-[var(--text-muted)] hover:text-red-500 hover:bg-red-500/10 rounded-full transition-all"
+                                className="p-2.5 text-[var(--text-muted)] hover:text-red-500 hover:bg-red-500/10 rounded-full transition-all"
                                 title="Logout"
                             >
                                 <LogOut className="w-5 h-5" />
@@ -295,13 +328,14 @@ export default function Navbar() {
             {isMenuOpen && (
                 <div className="md:hidden border-t border-[var(--border)] bg-[var(--bg-card)] animate-in slide-in-from-top duration-300">
                     <div className="px-4 py-6 space-y-6">
+
                         {/* Mobile Nav Links */}
-                        <div className="flex flex-col gap-4">
+                        <div className="grid grid-cols-2 gap-3">
                             {user?.role === 'SUPER_ADMIN' ? (
                                 <Link
                                     to="/super-admin/dashboard"
                                     onClick={() => setIsMenuOpen(false)}
-                                    className="text-lg font-bold uppercase tracking-widest text-[var(--primary)]"
+                                    className="col-span-2 text-center py-4 bg-[var(--primary)] text-white font-black uppercase tracking-widest rounded-2xl shadow-lg"
                                 >
                                     Command Center
                                 </Link>
@@ -309,7 +343,7 @@ export default function Navbar() {
                                 <Link
                                     to="/admin/dashboard"
                                     onClick={() => setIsMenuOpen(false)}
-                                    className="text-lg font-bold uppercase tracking-widest text-[var(--primary)]"
+                                    className="col-span-2 text-center py-4 bg-[var(--primary)] text-white font-black uppercase tracking-widest rounded-2xl shadow-lg"
                                 >
                                     Admin Panel
                                 </Link>
@@ -318,28 +352,28 @@ export default function Navbar() {
                                     <Link
                                         to="/user/dashboard?tab=shop"
                                         onClick={() => setIsMenuOpen(false)}
-                                        className="text-lg font-bold uppercase tracking-widest text-[var(--text-main)] hover:text-[var(--primary)] transition-colors"
+                                        className="p-4 bg-[var(--bg-input)] rounded-2xl text-center font-bold text-[var(--text-main)] active:scale-95 transition-all"
                                     >
                                         Shop
                                     </Link>
                                     <Link
                                         to="/user/dashboard?tab=orders"
                                         onClick={() => setIsMenuOpen(false)}
-                                        className="text-lg font-bold uppercase tracking-widest text-[var(--text-main)] hover:text-[var(--primary)] transition-colors"
+                                        className="p-4 bg-[var(--bg-input)] rounded-2xl text-center font-bold text-[var(--text-main)] active:scale-95 transition-all"
                                     >
-                                        My Orders
+                                        Orders
                                     </Link>
                                     <Link
                                         to="/contact"
                                         onClick={() => setIsMenuOpen(false)}
-                                        className="text-lg font-bold uppercase tracking-widest text-[var(--text-main)] hover:text-[var(--primary)] transition-colors"
+                                        className="p-4 bg-[var(--bg-input)] rounded-2xl text-center font-bold text-[var(--text-main)] active:scale-95 transition-all"
                                     >
                                         Contact
                                     </Link>
                                     <Link
                                         to="/user/dashboard?tab=policy"
                                         onClick={() => setIsMenuOpen(false)}
-                                        className="text-lg font-bold uppercase tracking-widest text-[var(--text-main)] hover:text-[var(--primary)] transition-colors"
+                                        className="p-4 bg-[var(--bg-input)] rounded-2xl text-center font-bold text-[var(--text-main)] active:scale-95 transition-all"
                                     >
                                         Policy
                                     </Link>
@@ -349,6 +383,16 @@ export default function Navbar() {
 
                         {/* Mobile Search & Filters */}
                         <div className="space-y-4 pt-2">
+                            <div className="flex items-center justify-between mb-1">
+                                <h4 className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] px-1">Search & Filters</h4>
+                                <button
+                                    onClick={() => setIsMenuOpen(false)}
+                                    className="p-1 px-1.5 bg-red-500/10 text-red-500 rounded-lg transition-all flex items-center gap-1.5"
+                                >
+                                    <span className="text-[9px] font-black uppercase tracking-wider">Close</span>
+                                    <X className="w-3.5 h-3.5" />
+                                </button>
+                            </div>
                             <div className="relative">
                                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
                                 <input
@@ -356,7 +400,7 @@ export default function Navbar() {
                                     placeholder={`Search ${metalCategory.toLowerCase()}...`}
                                     value={q}
                                     onChange={(e) => setQ(e.target.value)}
-                                    className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-2xl pl-11 pr-4 py-3 text-sm focus:ring-2 focus:ring-[var(--primary)]/40 outline-none"
+                                    className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-2xl pl-11 pr-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-[var(--primary)]/40 outline-none"
                                 />
                             </div>
 
@@ -368,7 +412,7 @@ export default function Navbar() {
                                         placeholder="0"
                                         value={minPrice}
                                         onChange={(e) => setMinPrice(e.target.value)}
-                                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-sm font-bold"
+                                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm font-black"
                                     />
                                 </div>
                                 <div className="space-y-1.5">
@@ -378,22 +422,25 @@ export default function Navbar() {
                                         placeholder="Any"
                                         value={maxPrice}
                                         onChange={(e) => setMaxPrice(e.target.value)}
-                                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-sm font-bold"
+                                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm font-black"
                                     />
                                 </div>
                             </div>
 
                             <div className="space-y-1.5">
                                 <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest px-1">Sort By</label>
-                                <select
-                                    value={sort}
-                                    onChange={(e) => setSort(e.target.value as any)}
-                                    className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm font-bold appearance-none"
-                                >
-                                    <option value="newest">Newest First</option>
-                                    <option value="price_asc">Price: Low to High</option>
-                                    <option value="price_desc">Price: High to Low</option>
-                                </select>
+                                <div className="relative">
+                                    <select
+                                        value={sort}
+                                        onChange={(e) => setSort(e.target.value as any)}
+                                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-4 py-3.5 text-sm font-black appearance-none"
+                                    >
+                                        <option value="newest">Newest First</option>
+                                        <option value="price_asc">Price: Low to High</option>
+                                        <option value="price_desc">Price: High to Low</option>
+                                    </select>
+                                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
+                                </div>
                             </div>
                         </div>
 
@@ -402,17 +449,17 @@ export default function Navbar() {
                             <Link
                                 to="/profile"
                                 onClick={() => setIsMenuOpen(false)}
-                                className="flex items-center gap-4 p-4 bg-[var(--bg-input)] rounded-2xl border border-[var(--border)] hover:border-[var(--primary)] transition-all active:scale-[0.98]"
+                                className="flex items-center gap-4 p-5 bg-gradient-to-br from-[var(--bg-input)] to-[var(--bg-card)] rounded-[2rem] border border-[var(--border)] shadow-sm active:scale-[0.98] transition-all"
                             >
-                                <div className="w-12 h-12 rounded-full bg-[var(--bg-card)] flex items-center justify-center text-[var(--primary)] border border-[var(--border)] shadow-sm">
-                                    <User className="w-6 h-6" />
+                                <div className="w-14 h-14 rounded-full bg-[var(--bg-card)] flex items-center justify-center text-[var(--primary)] border-2 border-[var(--primary)]/20 shadow-inner">
+                                    <User className="w-7 h-7" />
                                 </div>
                                 <div className="flex-1">
-                                    <p className="font-bold text-lg text-[var(--text-main)]">{user?.name}</p>
-                                    <div className="flex items-center gap-2">
-                                        <p className="text-xs text-[var(--text-muted)] uppercase tracking-widest font-bold">Account Settings</p>
-                                        <span className="w-1 h-1 bg-[var(--text-muted)] rounded-full opacity-30"></span>
-                                        <p className="text-[10px] text-[var(--primary)] font-black uppercase">{user?.role}</p>
+                                    <p className="font-black text-xl text-[var(--text-main)] leading-tight">{user?.name}</p>
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <p className="text-[10px] text-[var(--primary)] font-black uppercase tracking-widest">{user?.role}</p>
+                                        <span className="w-1 h-1 bg-[var(--border)] rounded-full"></span>
+                                        <p className="text-[10px] text-[var(--text-muted)] font-black uppercase tracking-widest">Settings</p>
                                     </div>
                                 </div>
                             </Link>
@@ -422,10 +469,10 @@ export default function Navbar() {
                                     handleLogout();
                                     setIsMenuOpen(false);
                                 }}
-                                className="w-full mt-4 flex items-center justify-center gap-2 p-4 bg-red-500/5 hover:bg-red-500/10 text-red-500 rounded-2xl font-bold uppercase tracking-widest text-xs border border-red-500/10 hover:border-red-500/20 transition-all active:scale-[0.98]"
+                                className="w-full mt-4 flex items-center justify-center gap-2 py-4 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-2xl font-black uppercase tracking-[0.2em] text-xs transition-all active:scale-95"
                             >
                                 <LogOut className="w-5 h-5" />
-                                Sign Out safely
+                                Logout
                             </button>
                         </div>
                     </div>

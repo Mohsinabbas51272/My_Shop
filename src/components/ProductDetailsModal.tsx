@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import api, { IMAGE_BASE_URL } from '../lib/api';
 import { useCartStore } from '../store/useCartStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
+import { toast } from '../store/useToastStore';
 import { getPriceBreakdown } from '../lib/pricing';
 
 interface ProductDetailsModalProps {
@@ -42,6 +43,7 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
         for (let i = 0; i < quantity; i++) {
             addItem({ ...product, price: breakdown.total });
         }
+        toast.success(`${quantity} item(s) added to Shopping Bag!`);
         onClose();
     };
 

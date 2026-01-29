@@ -87,7 +87,7 @@ export default function Profile() {
                                 else if (user?.role === 'ADMIN') navigate('/admin/dashboard');
                                 else navigate('/user/dashboard');
                             }}
-                            className="absolute top-6 right-6 p-2 text-[var(--text-muted)] hover:text-red-500 hover:bg-[var(--bg-card)] rounded-full transition-all"
+                            className="absolute top-3 right-4 sm:top-6 sm:right-6 p-2 text-[var(--text-muted)] hover:text-red-500 hover:bg-[var(--bg-card)] rounded-full transition-all"
                         >
                             <X className="w-6 h-6" />
                         </button>

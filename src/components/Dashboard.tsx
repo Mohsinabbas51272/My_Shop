@@ -33,7 +33,7 @@ export default function Dashboard() {
     const [isCalcOpen, setIsCalcOpen] = useState(false);
 
     // Shop discovery controls from global store
-    const { q, sort, minPrice, maxPrice, metalCategory } = useSearchStore();
+    const { q, sort, minPrice, maxPrice, metalCategory, setMetalCategory } = useSearchStore();
     const [page, setPage] = useState(1);
 
     useEffect(() => {
@@ -132,122 +132,142 @@ export default function Dashboard() {
             <Navbar />
 
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-                <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-6">
-                    <div>
-                        <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-[var(--text-main)]">
-                            {activeTab === 'shop' ? 'Our Collection' : activeTab === 'orders' ? 'My Order History' : activeTab === 'policy' ? 'Shop Policies' : 'My Queries & Support'}
-                        </h1>
-                        <p className="text-[var(--text-muted)] mt-2">
-                            {activeTab === 'shop'
-                                ? `Discover premium ${metalCategory.toLowerCase()} items curated just for you.`
-                                : activeTab === 'orders'
-                                    ? 'Track your recent purchases and delivery status.'
-                                    : 'View your support queries and admin responses.'}
-                        </p>
-                    </div>
+                <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 sm:mb-12 gap-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between w-full gap-4">
+                        <div>
+                            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-[var(--text-main)]">
+                                {activeTab === 'shop' ? 'Our Collection' : activeTab === 'orders' ? 'My Order History' : activeTab === 'policy' ? 'Shop Policies' : 'My Queries & Support'}
+                            </h1>
+                            <p className="text-[var(--text-muted)] mt-2">
+                                {activeTab === 'shop'
+                                    ? `Discover premium ${metalCategory.toLowerCase()} items curated just for you.`
+                                    : activeTab === 'orders'
+                                        ? 'Track your recent purchases and delivery status.'
+                                        : 'View your support queries and admin responses.'}
+                            </p>
+                        </div>
 
-                    {/* Category Toggles moved to Navbar */}
-
-                    <div className="flex flex-wrap gap-2 w-full md:w-auto">
-                        <button
-                            onClick={() => setSearchParams({ tab: 'shop' })}
-                            className={`flex-1 md:flex-none px-4 py-2 rounded-lg font-semibold text-sm transition-all text-center ${activeTab === 'shop'
-                                ? 'bg-[var(--primary)] text-white'
-                                : 'bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-main)] hover:border-[var(--primary)]'
-                                }`}
-                        >
-                            Shop
-                        </button>
-                        <button
-                            onClick={() => setSearchParams({ tab: 'orders' })}
-                            className={`flex-1 md:flex-none px-4 py-2 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2 ${activeTab === 'orders'
-                                ? 'bg-[var(--primary)] text-white'
-                                : 'bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-main)] hover:border-[var(--primary)]'
-                                }`}
-                        >
-                            <ShoppingBag className="w-4 h-4" />
-                            Orders
-                        </button>
-                        <button
-                            onClick={() => setSearchParams({ tab: 'complaints' })}
-                            className={`flex-1 md:flex-none px-4 py-2 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2 ${activeTab === 'complaints'
-                                ? 'bg-[var(--primary)] text-white'
-                                : 'bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-main)] hover:border-[var(--primary)]'
-                                }`}
-                        >
-                            <MessageCircle className="w-4 h-4" />
-                            Queries
-                        </button>
-                        <button
-                            onClick={() => setIsCalcOpen(true)}
-                            className="w-full md:w-auto bg-yellow-500/10 text-yellow-600 border border-yellow-500/20 px-4 py-2 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2 hover:bg-yellow-500/20"
-                        >
-                            <Calculator className="w-4 h-4" />
-                            Math Calculator
-                        </button>
+                        {/* Mobile Metal Category Toggle - Only visible on small screens */}
+                        {activeTab === 'shop' && (
+                            <div className="flex md:hidden bg-[var(--bg-input)] p-1 rounded-xl border border-[var(--border)] self-start sm:self-center">
+                                <button
+                                    onClick={() => setMetalCategory('Gold')}
+                                    className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-tight transition-all ${metalCategory === 'Gold' ? 'bg-yellow-600 text-white shadow-md' : 'text-[var(--text-muted)]'}`}
+                                >
+                                    Gold
+                                </button>
+                                <button
+                                    onClick={() => setMetalCategory('Silver')}
+                                    className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-tight transition-all ${metalCategory === 'Silver' ? 'bg-slate-500 text-white shadow-md' : 'text-[var(--text-muted)]'}`}
+                                >
+                                    Silver
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
 
+                <div className="flex flex-wrap gap-[6px] w-full md:w-auto mb-8">
+                    <button
+                        onClick={() => setSearchParams({ tab: 'shop' })}
+                        className={`flex-1 md:flex-none px-4 py-2 rounded-lg font-semibold text-sm transition-all text-center ${activeTab === 'shop'
+                            ? 'bg-[var(--primary)] text-white'
+                            : 'bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-main)] hover:border-[var(--primary)]'
+                            }`}
+                    >
+                        Shop
+                    </button>
+                    <button
+                        onClick={() => setSearchParams({ tab: 'orders' })}
+                        className={`flex-1 md:flex-none px-4 py-2 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2 ${activeTab === 'orders'
+                            ? 'bg-[var(--primary)] text-white'
+                            : 'bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-main)] hover:border-[var(--primary)]'
+                            }`}
+                    >
+                        <ShoppingBag className="w-4 h-4" />
+                        Orders
+                    </button>
+                    <button
+                        onClick={() => setSearchParams({ tab: 'complaints' })}
+                        className={`flex-1 md:flex-none px-4 py-2 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2 ${activeTab === 'complaints'
+                            ? 'bg-[var(--primary)] text-white'
+                            : 'bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-main)] hover:border-[var(--primary)]'
+                            }`}
+                    >
+                        <MessageCircle className="w-4 h-4" />
+                        Queries
+                    </button>
+                    <button
+                        onClick={() => setIsCalcOpen(true)}
+                        className="w-full md:w-auto bg-yellow-500/10 text-yellow-600 border border-yellow-500/20 px-4 py-2 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2 hover:bg-yellow-500/20"
+                    >
+                        <Calculator className="w-4 h-4" />
+                        Math Calculator
+                    </button>
+                </div>
+
                 {/* Market Rates Banner */}
-                {metalCategory === 'Gold' ? (
-                    goldRate && !goldLoading && (
-                        <div className="mb-8 p-1 bg-gradient-to-r from-yellow-500/20 via-yellow-600/30 to-yellow-500/20 rounded-2xl animate-in fade-in slide-in-from-top-4 duration-700">
-                            <div className="bg-[var(--bg-card)] border border-yellow-500/20 rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-                                <div className="flex items-center gap-4 w-full sm:w-auto">
-                                    <div className="p-3 bg-yellow-500/10 rounded-xl shrink-0">
-                                        <Gavel className="w-6 h-6 text-yellow-500" />
-                                    </div>
-                                    <div>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-[10px] font-bold uppercase tracking-widest text-yellow-600">Market Update</span>
-                                            <span className="w-1 h-1 bg-yellow-500 rounded-full animate-pulse" />
+                {
+                    metalCategory === 'Gold' ? (
+                        goldRate && !goldLoading && (
+                            <div className="mb-8 p-1 bg-gradient-to-r from-yellow-500/20 via-yellow-600/30 to-yellow-500/20 rounded-2xl animate-in fade-in slide-in-from-top-4 duration-700">
+                                <div className="bg-[var(--bg-card)] border border-yellow-500/20 rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                                    <div className="flex items-center gap-4 w-full sm:w-auto">
+                                        <div className="p-3 bg-yellow-500/10 rounded-xl shrink-0">
+                                            <Gavel className="w-6 h-6 text-yellow-500" />
                                         </div>
-                                        <h2 className="text-sm sm:text-lg font-bold text-[var(--text-main)]">
-                                            Current Gold Rate ({goldRate.purity})
-                                        </h2>
+                                        <div>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-[10px] font-bold uppercase tracking-widest text-yellow-600">Market Update</span>
+                                                <span className="w-1 h-1 bg-yellow-500 rounded-full animate-pulse" />
+                                            </div>
+                                            <h2 className="text-sm sm:text-lg font-bold text-[var(--text-main)]">
+                                                Current Gold Rate ({goldRate.purity})
+                                            </h2>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="text-center sm:text-right w-full sm:w-auto flex sm:flex-col justify-between items-center sm:items-end p-2 bg-yellow-500/5 sm:bg-transparent rounded-lg">
-                                    <p className="text-xl sm:text-2xl font-black text-yellow-600">
-                                        {goldRate.currency} {goldRate.price}
-                                    </p>
-                                    <p className="text-[9px] sm:text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">
-                                        Per {goldRate.unit} • {new Date(goldRate.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                    </p>
+                                    <div className="text-center sm:text-right w-full sm:w-auto flex sm:flex-col justify-between items-center sm:items-end p-2 bg-yellow-500/5 sm:bg-transparent rounded-lg">
+                                        <p className="text-xl sm:text-2xl font-black text-yellow-600">
+                                            {goldRate.currency} {goldRate.price}
+                                        </p>
+                                        <p className="text-[9px] sm:text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">
+                                            Per {goldRate.unit} • {new Date(goldRate.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    )
-                ) : (
-                    silverRate && !silverLoading && (
-                        <div className="mb-8 p-1 bg-gradient-to-r from-slate-400/20 via-slate-500/30 to-slate-400/20 rounded-2xl animate-in fade-in slide-in-from-top-4 duration-700">
-                            <div className="bg-[var(--bg-card)] border border-slate-400/20 rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-                                <div className="flex items-center gap-4 w-full sm:w-auto">
-                                    <div className="p-3 bg-slate-500/10 rounded-xl shrink-0">
-                                        <Gavel className="w-6 h-6 text-slate-500" />
-                                    </div>
-                                    <div>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Market Update</span>
-                                            <span className="w-1 h-1 bg-slate-500 rounded-full animate-pulse" />
+                        )
+                    ) : (
+                        silverRate && !silverLoading && (
+                            <div className="mb-8 p-1 bg-gradient-to-r from-slate-400/20 via-slate-500/30 to-slate-400/20 rounded-2xl animate-in fade-in slide-in-from-top-4 duration-700">
+                                <div className="bg-[var(--bg-card)] border border-slate-400/20 rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                                    <div className="flex items-center gap-4 w-full sm:w-auto">
+                                        <div className="p-3 bg-slate-500/10 rounded-xl shrink-0">
+                                            <Gavel className="w-6 h-6 text-slate-500" />
                                         </div>
-                                        <h2 className="text-sm sm:text-lg font-bold text-[var(--text-main)]">
-                                            Current Silver Rate ({silverRate.purity})
-                                        </h2>
+                                        <div>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Market Update</span>
+                                                <span className="w-1 h-1 bg-slate-500 rounded-full animate-pulse" />
+                                            </div>
+                                            <h2 className="text-sm sm:text-lg font-bold text-[var(--text-main)]">
+                                                Current Silver Rate ({silverRate.purity})
+                                            </h2>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="text-center sm:text-right w-full sm:w-auto flex sm:flex-col justify-between items-center sm:items-end p-2 bg-slate-500/5 sm:bg-transparent rounded-lg">
-                                    <p className="text-xl sm:text-2xl font-black text-slate-500">
-                                        {silverRate.currency} {silverRate.price}
-                                    </p>
-                                    <p className="text-[9px] sm:text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">
-                                        Per {silverRate.unit} • {new Date(silverRate.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                    </p>
+                                    <div className="text-center sm:text-right w-full sm:w-auto flex sm:flex-col justify-between items-center sm:items-end p-2 bg-slate-500/5 sm:bg-transparent rounded-lg">
+                                        <p className="text-xl sm:text-2xl font-black text-slate-500">
+                                            {silverRate.currency} {silverRate.price}
+                                        </p>
+                                        <p className="text-[9px] sm:text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">
+                                            Per {silverRate.unit} • {new Date(silverRate.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        )
                     )
-                )}
+                }
 
                 {
                     activeTab === 'shop' ? (
@@ -328,6 +348,7 @@ export default function Dashboard() {
                                                             const rate = product.category === 'Silver' ? silverRate : goldRate;
                                                             const calculatedPrice = calculateDynamicPrice(product, rate);
                                                             addItem({ ...product, price: calculatedPrice });
+                                                            toast.success('Added to Shopping Bag!');
                                                         }}
                                                         disabled={(product.category === 'Silver' ? silverLoading : goldLoading)}
                                                         className="w-full flex items-center justify-center gap-2 bg-[var(--primary)]/10 hover:bg-[var(--primary)] text-[var(--primary)] hover:text-white font-semibold py-2.5 rounded-xl transition-all border border-[var(--primary)]/20 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
@@ -753,12 +774,13 @@ export default function Dashboard() {
                     ) : null
                 }
 
-                {selectedProduct && (
-                    <ProductDetailsModal
-                        product={selectedProduct}
-                        onClose={() => setSelectedProduct(null)}
-                    />
-                )
+                {
+                    selectedProduct && (
+                        <ProductDetailsModal
+                            product={selectedProduct}
+                            onClose={() => setSelectedProduct(null)}
+                        />
+                    )
                 }
 
                 {/* Dispute Modal */}
@@ -816,14 +838,16 @@ export default function Dashboard() {
                     )
                 }
                 <GoldCalculator isOpen={isCalcOpen} onClose={() => setIsCalcOpen(false)} />
-                {viewingReceipt && (
-                    <OrderReceipt
-                        order={viewingReceipt}
-                        formatPrice={formatPrice}
-                        onClose={() => setViewingReceipt(null)}
-                    />
-                )}
-            </main>
+                {
+                    viewingReceipt && (
+                        <OrderReceipt
+                            order={viewingReceipt}
+                            formatPrice={formatPrice}
+                            onClose={() => setViewingReceipt(null)}
+                        />
+                    )
+                }
+            </main >
         </div >
     );
 }

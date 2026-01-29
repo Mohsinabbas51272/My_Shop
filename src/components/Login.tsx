@@ -69,9 +69,9 @@ export default function Login() {
                     <div className="w-14 h-14 sm:w-20 sm:h-20 bg-[var(--primary)] rounded-2xl sm:rounded-3xl flex items-center justify-center mb-4 sm:mb-6 shadow-xl shadow-[var(--accent-glow)]">
                         <LogIn className="w-7 h-7 sm:w-10 sm:h-10" />
                     </div>
-                    <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-[var(--text-main)] text-center">Masterpiece Awaits</h1>
+                    <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-[var(--text-main)] text-center">Welcome Back</h1>
                     <p className="text-[var(--text-muted)] mt-2 text-center text-xs sm:text-sm font-medium opacity-70">
-                        Sign in to continue your luxury journey
+                        Sign in to explore our exquisite collection
                     </p>
                 </div>
 
