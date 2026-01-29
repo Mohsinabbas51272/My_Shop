@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Plus, Minus, ShoppingCart, ZoomIn, ZoomOut, Info } from 'lucide-react';
+import { X, Plus, Minus, ShoppingCart, ZoomIn, ZoomOut, Info, Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import api, { IMAGE_BASE_URL } from '../lib/api';
 import { useCartStore } from '../store/useCartStore';
