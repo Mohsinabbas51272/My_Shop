@@ -552,7 +552,7 @@ export default function AdminDashboard() {
                                                     {(!p.weightTola && !p.weightMasha && !p.weightRati) && '-'}
                                                 </td>
                                                 <td className="p-4 text-[var(--primary)] font-black">
-                                                    {product.category === 'Silver'
+                                                    {p.category === 'Silver'
                                                         ? (silverLoading ? '---' : formatPrice(calculateDynamicPrice(p, silverRate)))
                                                         : (goldLoading ? '---' : formatPrice(calculateDynamicPrice(p, goldRate)))
                                                     }
