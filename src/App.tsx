@@ -4,6 +4,7 @@ import Register from './components/Register';
 import Dashboard from './components/Dashboard';
 import Profile from './components/Profile';
 import Cart from './components/Cart';
+import Wishlist from './components/Wishlist';
 import Checkout from './components/Checkout';
 import AdminDashboard from './components/AdminDashboard';
 import SuperAdminDashboard from './components/SuperAdminDashboard';
@@ -115,6 +116,14 @@ function App() {
             element={
               <ProtectedRoute userRole="USER">
                 <Cart />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/wishlist"
+            element={
+              <ProtectedRoute userRole="USER">
+                <Wishlist />
               </ProtectedRoute>
             }
           />

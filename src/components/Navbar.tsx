@@ -1,19 +1,23 @@
 import { Link, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../store/useAuthStore';
 import { useCartStore } from '../store/useCartStore';
-import { Store, User, Palette, Menu, X, ShoppingCart, LogOut } from 'lucide-react';
+import { Store, User, Palette, Menu, X, ShoppingCart, LogOut, Banknote } from 'lucide-react';
 import { useThemeStore } from '../store/useThemeStore';
 import type { ThemeType } from '../store/useThemeStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
 import { useState } from 'react';
 import { useSearchStore } from '../store/useSearchStore';
-import { Search, SlidersHorizontal, ChevronDown } from 'lucide-react';
+import { useWishlistStore } from '../store/useWishlistStore';
+import { Search, SlidersHorizontal, ChevronDown, Heart } from 'lucide-react';
 
 export default function Navbar() {
     const { user, logout } = useAuthStore();
     const { theme, setTheme } = useThemeStore();
     const { items } = useCartStore();
     const { currency, setCurrency } = useCurrencyStore();
+    const wishlistItems = useWishlistStore((state) => state.items);
+    const wishlistCount = wishlistItems.length;
     const navigate = useNavigate();
     const [showThemes, setShowThemes] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -46,7 +50,7 @@ export default function Navbar() {
     const cartCount = items.reduce((sum: number, item) => sum + item.quantity, 0);
 
     return (
-        <nav className="bg-[var(--bg-card)] border-b border-[var(--border)] sticky top-0 z-[100] backdrop-blur-md w-full">
+        <nav className="bg-[var(--bg-card)]/80 border-b border-[var(--border)] sticky top-0 z-[100] backdrop-blur-md w-full">
             <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
                     {/* Left Section: Logo & Mobile Menu Toggle */}
@@ -92,12 +96,6 @@ export default function Navbar() {
                                         Shop
                                     </Link>
                                     <Link
-                                        to="/user/dashboard?tab=orders"
-                                        className="text-sm font-bold uppercase tracking-widest text-[var(--text-main)] hover:text-[var(--primary)] transition-colors"
-                                    >
-                                        My Orders
-                                    </Link>
-                                    <Link
                                         to="/contact"
                                         className="text-sm font-bold uppercase tracking-widest text-[var(--text-main)] hover:text-[var(--primary)] transition-colors"
                                     >
@@ -118,109 +116,60 @@ export default function Navbar() {
                     <div className="flex items-center gap-2 sm:gap-4">
                         {/* Utilities Group */}
                         <div className="flex items-center gap-1 sm:gap-2">
-                            {/* Currency Toggle */}
-                            <button
-                                onClick={() => setCurrency(currency === 'PKR' ? 'USD' : 'PKR')}
-                                className="px-2 sm:px-3 py-1.5 rounded-xl bg-[var(--bg-input)] hover:bg-[var(--bg-card)] border border-[var(--border)] text-[10px] sm:text-xs font-black text-[var(--primary)] transition-all min-w-[44px] sm:min-w-[54px]"
-                                title="Switch Currency"
-                            >
-                                {currency}
-                            </button>
+                            {/* Desktop-only utilities */}
+                            <div className="hidden sm:flex items-center gap-1 sm:gap-2">
+                                {/* Currency Toggle */}
+                                <button
+                                    onClick={() => setCurrency(currency === 'PKR' ? 'USD' : 'PKR')}
+                                    className="p-1.5 sm:p-2 flex items-center gap-1.5 text-[var(--text-muted)] hover:text-[var(--primary)] hover:bg-[var(--bg-input)] rounded-full transition-all"
+                                    title={`Switch Currency (Current: ${currency})`}
+                                >
+                                    <Banknote className="w-4 h-4 sm:w-5 h-5" />
+                                    <span className="text-[10px] font-black hidden lg:inline">{currency}</span>
+                                </button>
 
-                            {/* Metal Category Toggle - Desktop Only */}
-                            <div className="hidden md:flex bg-[var(--bg-input)] p-1 rounded-xl border border-[var(--border)]">
-                                <button
-                                    onClick={() => setMetalCategory('Gold')}
-                                    className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all ${metalCategory === 'Gold' ? 'bg-yellow-600 text-white shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'}`}
-                                >
-                                    Gold
-                                </button>
-                                <button
-                                    onClick={() => setMetalCategory('Silver')}
-                                    className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all ${metalCategory === 'Silver' ? 'bg-slate-500 text-white shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'}`}
-                                >
-                                    Silver
-                                </button>
+                                {/* Theme Picker */}
+                                <div className="relative">
+                                    <button
+                                        onClick={() => setShowThemes(!showThemes)}
+                                        className={`p-1.5 sm:p-2 transition-all duration-300 rounded-full hover:bg-[var(--bg-input)]/50 ${showThemes ? 'text-[var(--primary)] scale-110' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'}`}
+                                        title="Switch Theme"
+                                    >
+                                        <Palette className="w-4 h-4 sm:w-5 h-5" />
+                                    </button>
+                                    {showThemes && (
+                                        <div className="absolute right-0 mt-2 w-48 bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl shadow-2xl p-2 z-[110] animate-in fade-in slide-in-from-top-2">
+                                            <div className="grid grid-cols-3 gap-2 p-1">
+                                                {themes.map((t) => (
+                                                    <button
+                                                        key={t.id}
+                                                        onClick={() => {
+                                                            setTheme(t.id);
+                                                            setShowThemes(false);
+                                                        }}
+                                                        className={`w-full aspect-square rounded-xl border-2 transition-all ${theme === t.id ? 'border-[var(--primary)] scale-110 shadow-lg' : 'border-transparent opacity-60 hover:opacity-100'
+                                                            }`}
+                                                        style={{ backgroundColor: t.color }}
+                                                        title={t.label}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
-                            {/* Theme Picker */}
-                            <div className="relative">
-                                <button
-                                    onClick={() => setShowThemes(!showThemes)}
-                                    className={`p-1.5 sm:p-2 transition-colors rounded-full hover:bg-[var(--bg-input)] ${showThemes ? 'text-[var(--primary)] bg-[var(--bg-input)]' : 'text-[var(--text-muted)]'}`}
-                                    title="Switch Theme"
-                                >
-                                    <Palette className="w-4 h-4 sm:w-5 h-5" />
-                                </button>
-                                {showThemes && (
-                                    <div className="absolute right-0 mt-2 w-48 bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl shadow-2xl p-2 z-[110] animate-in fade-in slide-in-from-top-2">
-                                        <div className="grid grid-cols-3 gap-2 p-1">
-                                            {themes.map((t) => (
-                                                <button
-                                                    key={t.id}
-                                                    onClick={() => {
-                                                        setTheme(t.id);
-                                                        setShowThemes(false);
-                                                    }}
-                                                    className={`w-full aspect-square rounded-xl border-2 transition-all ${theme === t.id ? 'border-[var(--primary)] scale-110 shadow-lg' : 'border-transparent opacity-60 hover:opacity-100'
-                                                        }`}
-                                                    style={{ backgroundColor: t.color }}
-                                                    title={t.label}
-                                                />
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-
-
-                            {/* Search Popover - NEW (Moved from middle) */}
-                            <div className="relative">
-                                <button
-                                    onClick={() => setShowSearch(!showSearch)}
-                                    className={`p-1.5 sm:p-2 transition-colors rounded-full hover:bg-[var(--bg-input)] ${showSearch ? 'text-[var(--primary)] bg-[var(--bg-input)]' : 'text-[var(--text-muted)]'}`}
-                                    title="Quick Search"
-                                >
-                                    <Search className="w-4 h-4 sm:w-5 h-5" />
-                                </button>
-                                {showSearch && (
-                                    <div className="absolute right-0 mt-2 w-80 bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl shadow-2xl p-5 z-[110] animate-in fade-in slide-in-from-top-2">
-                                        <div className="flex items-center justify-between mb-4 mt-1">
-                                            <h4 className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] px-1">Quick Search</h4>
-                                            <button
-                                                onClick={() => setShowSearch(false)}
-                                                className="p-1 px-1.5 hover:bg-red-500/10 text-[var(--text-muted)] hover:text-red-500 rounded-lg transition-all"
-                                                title="Close Search"
-                                            >
-                                                <X className="w-4 h-4" />
-                                            </button>
-                                        </div>
-                                        <div className="relative">
-                                            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
-                                            <input
-                                                autoFocus
-                                                type="text"
-                                                placeholder={`Search items...`}
-                                                value={q}
-                                                onChange={(e) => setQ(e.target.value)}
-                                                className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl pl-11 pr-4 py-3 text-sm font-bold focus:ring-2 focus:ring-[var(--primary)]/40 outline-none transition-all"
-                                            />
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Filters Popover */}
-                            <div className="relative">
+                            {/* Filters Popover - Desktop Only */}
+                            <div className="relative hidden md:block">
                                 <button
                                     onClick={() => setShowFilters(!showFilters)}
-                                    className={`p-1.5 sm:p-2 transition-colors rounded-full hover:bg-[var(--bg-input)] ${showFilters ? 'text-[var(--primary)] bg-[var(--bg-input)]' : 'text-[var(--text-muted)]'}`}
+                                    className={`p-1.5 sm:p-2 transition-all duration-300 rounded-full hover:bg-[var(--bg-input)]/50 ${showFilters ? 'text-[var(--primary)] scale-110' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'}`}
                                     title="Advanced Filters"
                                 >
                                     <SlidersHorizontal className="w-4 h-4 sm:w-5 h-5" />
                                 </button>
                                 {showFilters && (
-                                    <div className="absolute right-0 mt-2 w-80 bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl shadow-2xl p-5 z-[110] animate-in fade-in slide-in-from-top-2">
+                                    <div className="fixed md:absolute inset-x-4 md:inset-auto md:-right-2 top-20 md:top-full md:mt-3 w-auto md:w-80 bg-[var(--bg-card)]/95 backdrop-blur-xl border-2 border-[var(--border)] rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] p-5 z-[110] animate-in fade-in slide-in-from-top-2">
                                         <div className="flex items-center justify-between mb-4 mt-1">
                                             <h4 className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] px-1">Advanced Filters</h4>
                                             <button
@@ -239,7 +188,7 @@ export default function Navbar() {
                                                     <select
                                                         value={sort}
                                                         onChange={(e) => setSort(e.target.value as any)}
-                                                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-4 py-3 text-xs font-bold text-[var(--text-main)] outline-none appearance-none"
+                                                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-4 py-3 text-xs font-bold text-white outline-none appearance-none cursor-pointer"
                                                     >
                                                         <option value="newest">Newest First</option>
                                                         <option value="price_asc">Price: Low to High</option>
@@ -258,7 +207,7 @@ export default function Navbar() {
                                                         placeholder="0"
                                                         value={minPrice}
                                                         onChange={(e) => setMinPrice(e.target.value)}
-                                                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-xs font-bold text-[var(--text-main)] outline-none"
+                                                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-xs font-bold text-white outline-none placeholder:text-[var(--text-muted)]/50"
                                                     />
                                                 </div>
                                                 <div className="space-y-1.5">
@@ -268,7 +217,7 @@ export default function Navbar() {
                                                         placeholder="Any"
                                                         value={maxPrice}
                                                         onChange={(e) => setMaxPrice(e.target.value)}
-                                                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-xs font-bold text-[var(--text-main)] outline-none"
+                                                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-xs font-bold text-white outline-none placeholder:text-[var(--text-muted)]/50"
                                                     />
                                                 </div>
                                             </div>
@@ -277,7 +226,59 @@ export default function Navbar() {
                                 )}
                             </div>
 
-                            {/* Cart - Moved here */}
+                            {/* Search Popover - Mobile & Tablet Friendly Trigger */}
+                            <div className="relative">
+                                <button
+                                    onClick={() => setShowSearch(!showSearch)}
+                                    className={`p-1.5 sm:p-2 transition-all duration-300 rounded-full hover:bg-[var(--bg-input)]/50 ${showSearch ? 'text-[var(--primary)] scale-110' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'}`}
+                                    title="Quick Search"
+                                >
+                                    <Search className="w-4 h-4 sm:w-5 h-5" />
+                                </button>
+                                {showSearch && (
+                                    <div className="fixed md:absolute inset-x-4 md:inset-auto md:-right-2 top-20 md:top-full md:mt-3 w-auto md:w-80 bg-[var(--bg-card)]/95 backdrop-blur-xl border-2 border-[var(--border)] rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] p-5 z-[110] animate-in fade-in slide-in-from-top-2">
+                                        <div className="flex items-center justify-between mb-4 mt-1">
+                                            <h4 className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] px-1">Quick Search</h4>
+                                            <button
+                                                onClick={() => setShowSearch(false)}
+                                                className="p-1 px-1.5 hover:bg-red-500/10 text-[var(--text-muted)] hover:text-red-500 rounded-lg transition-all"
+                                                title="Close Search"
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                        <div className="relative">
+                                            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
+                                            <input
+                                                autoFocus
+                                                type="text"
+                                                placeholder={`Search items...`}
+                                                value={q}
+                                                onChange={(e) => setQ(e.target.value)}
+                                                className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl pl-11 pr-4 py-3 text-sm font-bold focus:ring-2 focus:ring-[var(--primary)]/40 outline-none transition-all text-white placeholder:text-[var(--text-muted)]/50"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Wishlist */}
+                            {user?.role !== 'ADMIN' && user?.role !== 'SUPER_ADMIN' && (
+                                <Link
+                                    to="/wishlist"
+                                    className="relative p-1.5 sm:p-2 text-[var(--text-muted)] hover:text-red-500 hover:bg-[var(--bg-input)] rounded-full transition-all"
+                                    title="Wishlist"
+                                >
+                                    <Heart className={`w-4 h-4 sm:w-5 h-5 ${wishlistCount > 0 ? 'fill-red-500 text-red-500' : ''}`} />
+                                    {wishlistCount > 0 && (
+                                        <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full ring-2 ring-[var(--bg-card)]">
+                                            {wishlistCount}
+                                        </span>
+                                    )}
+                                </Link>
+                            )}
+
+                            {/* Cart */}
                             {user?.role !== 'ADMIN' && user?.role !== 'SUPER_ADMIN' && (
                                 <Link
                                     to="/cart"
@@ -325,159 +326,199 @@ export default function Navbar() {
             </div>
 
             {/* Mobile Navigation Menu */}
-            {isMenuOpen && (
-                <div className="md:hidden border-t border-[var(--border)] bg-[var(--bg-card)] animate-in slide-in-from-top duration-300">
-                    <div className="px-4 py-6 space-y-6">
+            <AnimatePresence>
+                {isMenuOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="md:hidden border-t border-[var(--border)] bg-[var(--bg-card)] overflow-hidden"
+                    >
+                        <div className="px-4 py-6 space-y-6 max-h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar">
 
-                        {/* Mobile Nav Links */}
-                        <div className="grid grid-cols-2 gap-3">
-                            {user?.role === 'SUPER_ADMIN' ? (
+                            {/* Mobile User Profiles & Quick Actions */}
+                            <div className="grid grid-cols-2 gap-3 mb-6">
                                 <Link
-                                    to="/super-admin/dashboard"
+                                    to="/profile"
                                     onClick={() => setIsMenuOpen(false)}
-                                    className="col-span-2 text-center py-4 bg-[var(--primary)] text-white font-black uppercase tracking-widest rounded-2xl shadow-lg"
+                                    className="flex flex-col items-center justify-center p-4 bg-[var(--bg-input)] rounded-2xl border border-[var(--border)] active:scale-95 transition-all group"
                                 >
-                                    Command Center
+                                    <div className="w-10 h-10 rounded-full bg-[var(--bg-card)] flex items-center justify-center text-[var(--primary)] mb-2 border border-[var(--border)] group-hover:border-[var(--primary)]">
+                                        <User className="w-5 h-5" />
+                                    </div>
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-[var(--text-main)]">Profile</span>
                                 </Link>
-                            ) : user?.role === 'ADMIN' ? (
-                                <Link
-                                    to="/admin/dashboard"
-                                    onClick={() => setIsMenuOpen(false)}
-                                    className="col-span-2 text-center py-4 bg-[var(--primary)] text-white font-black uppercase tracking-widest rounded-2xl shadow-lg"
-                                >
-                                    Admin Panel
-                                </Link>
-                            ) : (
-                                <>
-                                    <Link
-                                        to="/user/dashboard?tab=shop"
-                                        onClick={() => setIsMenuOpen(false)}
-                                        className="p-4 bg-[var(--bg-input)] rounded-2xl text-center font-bold text-[var(--text-main)] active:scale-95 transition-all"
-                                    >
-                                        Shop
-                                    </Link>
-                                    <Link
-                                        to="/user/dashboard?tab=orders"
-                                        onClick={() => setIsMenuOpen(false)}
-                                        className="p-4 bg-[var(--bg-input)] rounded-2xl text-center font-bold text-[var(--text-main)] active:scale-95 transition-all"
-                                    >
-                                        Orders
-                                    </Link>
-                                    <Link
-                                        to="/contact"
-                                        onClick={() => setIsMenuOpen(false)}
-                                        className="p-4 bg-[var(--bg-input)] rounded-2xl text-center font-bold text-[var(--text-main)] active:scale-95 transition-all"
-                                    >
-                                        Contact
-                                    </Link>
-                                    <Link
-                                        to="/user/dashboard?tab=policy"
-                                        onClick={() => setIsMenuOpen(false)}
-                                        className="p-4 bg-[var(--bg-input)] rounded-2xl text-center font-bold text-[var(--text-main)] active:scale-95 transition-all"
-                                    >
-                                        Policy
-                                    </Link>
-                                </>
-                            )}
-                        </div>
-
-                        {/* Mobile Search & Filters */}
-                        <div className="space-y-4 pt-2">
-                            <div className="flex items-center justify-between mb-1">
-                                <h4 className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] px-1">Search & Filters</h4>
                                 <button
-                                    onClick={() => setIsMenuOpen(false)}
-                                    className="p-1 px-1.5 bg-red-500/10 text-red-500 rounded-lg transition-all flex items-center gap-1.5"
+                                    onClick={() => {
+                                        setCurrency(currency === 'PKR' ? 'USD' : 'PKR');
+                                    }}
+                                    className="flex flex-col items-center justify-center p-4 bg-[var(--bg-input)] rounded-2xl border border-[var(--border)] active:scale-95 transition-all"
                                 >
-                                    <span className="text-[9px] font-black uppercase tracking-wider">Close</span>
-                                    <X className="w-3.5 h-3.5" />
+                                    <div className="w-10 h-10 rounded-full bg-[var(--bg-card)] flex items-center justify-center text-[var(--primary)] mb-2 border border-[var(--border)]">
+                                        <Banknote className="w-5 h-5" />
+                                    </div>
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-[var(--text-main)]">{currency}</span>
                                 </button>
                             </div>
-                            <div className="relative">
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
-                                <input
-                                    type="text"
-                                    placeholder={`Search ${metalCategory.toLowerCase()}...`}
-                                    value={q}
-                                    onChange={(e) => setQ(e.target.value)}
-                                    className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-2xl pl-11 pr-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-[var(--primary)]/40 outline-none"
-                                />
-                            </div>
 
+                            {/* Mobile Nav Links */}
                             <div className="grid grid-cols-2 gap-3">
-                                <div className="space-y-1.5">
-                                    <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest px-1">Min Price</label>
-                                    <input
-                                        type="number"
-                                        placeholder="0"
-                                        value={minPrice}
-                                        onChange={(e) => setMinPrice(e.target.value)}
-                                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm font-black"
-                                    />
-                                </div>
-                                <div className="space-y-1.5">
-                                    <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest px-1">Max Price</label>
-                                    <input
-                                        type="number"
-                                        placeholder="Any"
-                                        value={maxPrice}
-                                        onChange={(e) => setMaxPrice(e.target.value)}
-                                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm font-black"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="space-y-1.5">
-                                <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest px-1">Sort By</label>
-                                <div className="relative">
-                                    <select
-                                        value={sort}
-                                        onChange={(e) => setSort(e.target.value as any)}
-                                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-4 py-3.5 text-sm font-black appearance-none"
+                                {user?.role === 'SUPER_ADMIN' ? (
+                                    <Link
+                                        to="/super-admin/dashboard"
+                                        onClick={() => setIsMenuOpen(false)}
+                                        className="col-span-2 text-center py-4 bg-[var(--primary)] text-white font-black uppercase tracking-widest rounded-2xl shadow-lg"
                                     >
-                                        <option value="newest">Newest First</option>
-                                        <option value="price_asc">Price: Low to High</option>
-                                        <option value="price_desc">Price: High to Low</option>
-                                    </select>
-                                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
+                                        Command Center
+                                    </Link>
+                                ) : user?.role === 'ADMIN' ? (
+                                    <Link
+                                        to="/admin/dashboard"
+                                        onClick={() => setIsMenuOpen(false)}
+                                        className="col-span-2 text-center py-4 bg-[var(--primary)] text-white font-black uppercase tracking-widest rounded-2xl shadow-lg"
+                                    >
+                                        Admin Panel
+                                    </Link>
+                                ) : (
+                                    <>
+                                        <Link
+                                            to="/user/dashboard?tab=shop"
+                                            onClick={() => setIsMenuOpen(false)}
+                                            className="p-4 bg-[var(--bg-input)] rounded-2xl text-center font-bold text-[var(--text-main)] active:scale-95 transition-all border border-[var(--border)]"
+                                        >
+                                            Shop
+                                        </Link>
+                                        <Link
+                                            to="/contact"
+                                            onClick={() => setIsMenuOpen(false)}
+                                            className="p-4 bg-[var(--bg-input)] rounded-2xl text-center font-bold text-[var(--text-main)] active:scale-95 transition-all border border-[var(--border)]"
+                                        >
+                                            Contact
+                                        </Link>
+                                        <Link
+                                            to="/user/dashboard?tab=policy"
+                                            onClick={() => setIsMenuOpen(false)}
+                                            className="p-4 bg-[var(--bg-input)] rounded-2xl text-center font-bold text-[var(--text-main)] active:scale-95 transition-all border border-[var(--border)]"
+                                        >
+                                            Policy
+                                        </Link>
+                                        <Link
+                                            to="/wishlist"
+                                            onClick={() => setIsMenuOpen(false)}
+                                            className="p-4 bg-[var(--bg-input)] rounded-2xl text-center font-bold text-[var(--text-main)] active:scale-95 transition-all border border-[var(--border)] flex items-center justify-center gap-2"
+                                        >
+                                            <Heart className="w-4 h-4 text-red-500" /> Wishlist
+                                        </Link>
+                                    </>
+                                )}
+                            </div>
+
+                            {/* Mobile Theme Selection */}
+                            <div className="space-y-3">
+                                <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest px-1 flex items-center gap-2">
+                                    <Palette className="w-3.5 h-3.5" /> Appearance
+                                </label>
+                                <div className="grid grid-cols-6 gap-2 bg-[var(--bg-input)] p-3 rounded-2xl border border-[var(--border)]">
+                                    {themes.map((t) => (
+                                        <button
+                                            key={t.id}
+                                            onClick={() => setTheme(t.id)}
+                                            className={`aspect-square rounded-lg border-2 transition-all ${theme === t.id ? 'border-[var(--primary)] scale-110 shadow-lg' : 'border-transparent opacity-60'}`}
+                                            style={{ backgroundColor: t.color }}
+                                        />
+                                    ))}
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Mobile User Section */}
-                        <div className="pt-6 border-t border-[var(--border)]">
-                            <Link
-                                to="/profile"
-                                onClick={() => setIsMenuOpen(false)}
-                                className="flex items-center gap-4 p-5 bg-gradient-to-br from-[var(--bg-input)] to-[var(--bg-card)] rounded-[2rem] border border-[var(--border)] shadow-sm active:scale-[0.98] transition-all"
-                            >
-                                <div className="w-14 h-14 rounded-full bg-[var(--bg-card)] flex items-center justify-center text-[var(--primary)] border-2 border-[var(--primary)]/20 shadow-inner">
-                                    <User className="w-7 h-7" />
+                            {/* Mobile Search & Filters */}
+                            <div className="space-y-4 pt-2">
+                                <div className="flex items-center justify-between mb-1">
+                                    <h4 className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] px-1">Search & Filters</h4>
                                 </div>
-                                <div className="flex-1">
-                                    <p className="font-black text-xl text-[var(--text-main)] leading-tight">{user?.name}</p>
-                                    <div className="flex items-center gap-2 mt-1">
-                                        <p className="text-[10px] text-[var(--primary)] font-black uppercase tracking-widest">{user?.role}</p>
-                                        <span className="w-1 h-1 bg-[var(--border)] rounded-full"></span>
-                                        <p className="text-[10px] text-[var(--text-muted)] font-black uppercase tracking-widest">Settings</p>
+
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => setMetalCategory('Gold')}
+                                        className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-tighter transition-all border ${metalCategory === 'Gold' ? 'bg-yellow-600 border-yellow-500 text-white' : 'bg-[var(--bg-input)] border-[var(--border)] text-[var(--text-muted)]'}`}
+                                    >
+                                        Gold
+                                    </button>
+                                    <button
+                                        onClick={() => setMetalCategory('Silver')}
+                                        className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-tighter transition-all border ${metalCategory === 'Silver' ? 'bg-slate-500 border-slate-400 text-white' : 'bg-[var(--bg-input)] border-[var(--border)] text-[var(--text-muted)]'}`}
+                                    >
+                                        Silver
+                                    </button>
+                                </div>
+
+                                <div className="relative">
+                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
+                                    <input
+                                        type="text"
+                                        placeholder={`Search items...`}
+                                        value={q}
+                                        onChange={(e) => setQ(e.target.value)}
+                                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-2xl pl-11 pr-4 py-3.5 text-sm font-bold focus:ring-2 focus:ring-[var(--primary)]/40 outline-none"
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="space-y-1.5">
+                                        <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest px-1">Min Price</label>
+                                        <input
+                                            type="number"
+                                            placeholder="0"
+                                            value={minPrice}
+                                            onChange={(e) => setMinPrice(e.target.value)}
+                                            className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm font-black"
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest px-1">Max Price</label>
+                                        <input
+                                            type="number"
+                                            placeholder="Any"
+                                            value={maxPrice}
+                                            onChange={(e) => setMaxPrice(e.target.value)}
+                                            className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm font-black"
+                                        />
                                     </div>
                                 </div>
-                            </Link>
 
-                            <button
-                                onClick={() => {
-                                    handleLogout();
-                                    setIsMenuOpen(false);
-                                }}
-                                className="w-full mt-4 flex items-center justify-center gap-2 py-4 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-2xl font-black uppercase tracking-[0.2em] text-xs transition-all active:scale-95"
-                            >
-                                <LogOut className="w-5 h-5" />
-                                Logout
-                            </button>
+                                <div className="space-y-1.5">
+                                    <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest px-1">Sort By</label>
+                                    <div className="relative">
+                                        <select
+                                            value={sort}
+                                            onChange={(e) => setSort(e.target.value as any)}
+                                            className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-4 py-3.5 text-sm font-black appearance-none"
+                                        >
+                                            <option value="newest">Newest First</option>
+                                            <option value="price_asc">Price: Low to High</option>
+                                            <option value="price_desc">Price: High to Low</option>
+                                        </select>
+                                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Mobile Logout */}
+                            <div className="pt-6 border-t border-[var(--border)]">
+                                <button
+                                    onClick={() => {
+                                        handleLogout();
+                                        setIsMenuOpen(false);
+                                    }}
+                                    className="w-full flex items-center justify-center gap-2 py-4 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-2xl font-black uppercase tracking-[0.2em] text-xs transition-all active:scale-95"
+                                >
+                                    <LogOut className="w-5 h-5" />
+                                    Logout
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            )}
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </nav>
     );
 }

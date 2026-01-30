@@ -79,125 +79,136 @@ export default function Profile() {
                     </div>
                 )}
 
-                <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl shadow-2xl overflow-hidden backdrop-blur-xl">
-                    <div className="p-8 border-b border-[var(--border)] bg-[var(--bg-input)]/30 relative">
+                <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-[2.5rem] shadow-2xl overflow-hidden backdrop-blur-xl relative">
+                    <div className="p-6 md:p-10 border-b border-[var(--border)] bg-[var(--bg-input)]/30 relative overflow-hidden">
+                        {/* Decorative Background */}
+                        <div className="absolute top-0 right-0 p-10 opacity-5 -mr-8 -mt-8">
+                            <User className="w-40 h-40" />
+                        </div>
+
                         <button
                             onClick={() => {
                                 if (user?.role === 'SUPER_ADMIN') navigate('/super-admin/dashboard');
                                 else if (user?.role === 'ADMIN') navigate('/admin/dashboard');
                                 else navigate('/user/dashboard');
                             }}
-                            className="absolute top-3 right-4 sm:top-6 sm:right-6 p-2 text-[var(--text-muted)] hover:text-red-500 hover:bg-[var(--bg-card)] rounded-full transition-all"
+                            className="absolute top-6 right-6 p-2.5 bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-red-500 rounded-xl border border-[var(--border)] transition-all active:scale-90 z-10"
                         >
-                            <X className="w-6 h-6" />
+                            <X className="w-5 h-5" />
                         </button>
-                        <div className="flex items-center gap-4">
-                            <div className="w-20 h-20 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-hover)] rounded-2xl flex items-center justify-center shadow-lg shadow-[var(--accent-glow)]">
-                                <User className="w-10 h-10 text-white" />
+
+                        <div className="flex flex-col md:flex-row items-center md:items-start gap-6 text-center md:text-left">
+                            <div className="w-24 h-24 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-hover)] rounded-3xl flex items-center justify-center shadow-xl shadow-[var(--primary)]/20 shrink-0">
+                                <User className="w-12 h-12 text-white" />
                             </div>
-                            <div className="flex-1">
-                                <div className="flex items-center gap-3">
-                                    <h1 className="text-2xl font-bold">Account Settings</h1>
+                            <div className="flex-1 space-y-2">
+                                <div className="flex flex-col md:flex-row items-center gap-3">
+                                    <h1 className="text-3xl font-black text-[var(--text-main)] tracking-tight">Identity Profile</h1>
                                     {user?.isVerified ? (
-                                        <span className="flex items-center gap-1 bg-green-500/10 text-green-500 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border border-green-500/20">
-                                            <ShieldCheck className="w-3 h-3" /> Verified
+                                        <span className="flex items-center gap-1.5 bg-green-500/10 text-green-500 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest border border-green-500/20">
+                                            <ShieldCheck className="w-3.5 h-3.5" /> Verified Citizen
                                         </span>
                                     ) : (
-                                        <span className="flex items-center gap-1 bg-yellow-500/10 text-yellow-500 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border border-yellow-500/20">
-                                            <ShieldAlert className="w-3 h-3" /> Pending Verification
+                                        <span className="flex items-center gap-1.5 bg-yellow-500/10 text-yellow-500 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest border border-yellow-500/20">
+                                            <ShieldAlert className="w-3.5 h-3.5" /> Identity Pending
                                         </span>
                                     )}
                                 </div>
-                                <p className="text-[var(--text-muted)] text-sm mt-1">Manage your identity and preferences to stay verified.</p>
+                                <p className="text-[var(--text-muted)] text-sm font-medium opacity-70 max-w-md mx-auto md:mx-0">Manage your secure identity and transmission preferences to maintain verification status.</p>
                             </div>
                         </div>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="p-8 space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <form onSubmit={handleSubmit} className="p-6 md:p-10 space-y-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-2">
-                                <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">
-                                    <User className="w-3 h-3" /> Full Name
+                                <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] ml-1">
+                                    <User className="w-3 h-3 text-[var(--primary)]" /> Real Name
                                 </label>
                                 <input
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-3 text-sm focus:ring-2 focus:ring-[var(--primary)]/50 outline-none"
-                                    placeholder="Enter your name"
+                                    className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-4 text-sm font-bold focus:ring-4 focus:ring-[var(--primary)]/5 outline-none transition-all placeholder:opacity-30"
+                                    placeholder="Enter your legal name"
                                     required
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">
-                                    <Mail className="w-3 h-3" /> Email Address
+                                <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] ml-1">
+                                    <Mail className="w-3 h-3 text-[var(--primary)]" /> Digital Mail
                                 </label>
-                                <input
-                                    value={user?.email || ''}
-                                    disabled
-                                    className="w-full bg-[var(--bg-input)]/50 border border-[var(--border)] rounded-xl p-3 text-sm opacity-60 cursor-not-allowed outline-none"
-                                />
-                                <p className="text-[10px] text-[var(--text-muted)]">Email cannot be changed.</p>
+                                <div className="relative group">
+                                    <input
+                                        value={user?.email || ''}
+                                        disabled
+                                        className="w-full bg-[var(--bg-input)]/50 border border-[var(--border)] rounded-xl p-4 text-sm font-bold opacity-60 cursor-not-allowed outline-none"
+                                    />
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                                        <ShieldCheck className="w-4 h-4 text-green-500/50" />
+                                    </div>
+                                </div>
                             </div>
 
                             <div className="space-y-2">
-                                <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">
-                                    <BadgeCheck className="w-3 h-3" /> CNIC Number
+                                <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] ml-1">
+                                    <BadgeCheck className="w-3 h-3 text-[var(--primary)]" /> Government ID
                                 </label>
                                 <input
                                     value={formData.cnic}
                                     onChange={(e) => setFormData({ ...formData, cnic: e.target.value })}
-                                    className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-3 text-sm focus:ring-2 focus:ring-[var(--primary)]/50 outline-none"
+                                    className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-4 text-sm font-bold focus:ring-4 focus:ring-[var(--primary)]/5 outline-none transition-all placeholder:opacity-30"
                                     placeholder="42101-XXXXXXX-X"
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">
-                                    <Phone className="w-3 h-3" /> Contact Number
+                                <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] ml-1">
+                                    <Phone className="w-3 h-3 text-[var(--primary)]" /> Secure Line
                                 </label>
                                 <input
                                     value={formData.phone}
                                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                    className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-3 text-sm focus:ring-2 focus:ring-[var(--primary)]/50 outline-none"
+                                    className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-4 text-sm font-bold focus:ring-4 focus:ring-[var(--primary)]/5 outline-none transition-all placeholder:opacity-30"
                                     placeholder="+92 3XX XXXXXXX"
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">
-                                    <CreditCard className="w-3 h-3" /> Payment Method
+                                <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] ml-1">
+                                    <CreditCard className="w-3 h-3 text-[var(--primary)]" /> Preferred Settlement
                                 </label>
                                 <select
                                     value={formData.paymentMethod}
                                     onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
-                                    className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-3 text-sm focus:ring-2 focus:ring-[var(--primary)]/50 outline-none cursor-pointer"
+                                    className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-4 text-sm font-black appearance-none outline-none focus:ring-4 focus:ring-[var(--primary)]/5 transition-all cursor-pointer"
                                 >
-                                    <option value="Cash on Shop">Cash on Shop</option>
-                                    <option value="Online">Online</option>
+                                    <option value="Cash on Shop">Physical Collection (Shop)</option>
+                                    <option value="Online">Digital Transmission (Online)</option>
                                 </select>
                             </div>
 
                             <div className="space-y-2 md:col-span-2">
-                                <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[var(--text-muted)]">
-                                    <MapPin className="w-3 h-3" /> Delivery Address
+                                <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] ml-1">
+                                    <MapPin className="w-3 h-3 text-[var(--primary)]" /> Logistics Protocol (Address)
                                 </label>
                                 <textarea
                                     value={formData.address}
                                     onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                                    className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-3 text-sm focus:ring-2 focus:ring-[var(--primary)]/50 outline-none h-32 resize-none"
-                                    placeholder="Your complete delivery address"
+                                    className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-2xl p-4 text-sm font-bold focus:ring-4 focus:ring-[var(--primary)]/5 outline-none h-32 resize-none transition-all placeholder:opacity-30"
+                                    placeholder="Your verified delivery location for artifacts..."
                                 />
                             </div>
                         </div>
 
-                        <div className="pt-6 border-t border-[var(--border)]">
+                        <div className="pt-8 border-t border-[var(--border)]/30">
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-[var(--accent-glow)] flex items-center justify-center gap-2 disabled:opacity-50"
+                                className="w-full bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-black py-5 rounded-2xl transition-all shadow-xl shadow-[var(--primary)]/20 flex items-center justify-center gap-3 disabled:opacity-50 active:scale-[0.98] uppercase tracking-[0.2em] text-xs"
                             >
-                                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Save className="w-5 h-5" /> Save Profile Changes</>}
+                                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                                {loading ? 'Synchronizing Profile…' : 'Update Identity Profile'}
                             </button>
                         </div>
                     </form>

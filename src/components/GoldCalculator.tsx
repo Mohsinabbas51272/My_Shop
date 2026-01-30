@@ -50,7 +50,7 @@ export default function GoldCalculator({ isOpen, onClose }: GoldCalculatorProps)
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[var(--bg-main)]/80 backdrop-blur-sm animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-[var(--bg-main)]/80 backdrop-blur-sm animate-in fade-in duration-300">
             <div className="bg-[var(--bg-card)] border border-[var(--border)] w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col relative scale-in-center">
                 {/* Header */}
                 <div className={`p-8 border-b border-[var(--border)] bg-gradient-to-r ${metalCategory === 'Gold' ? 'from-yellow-500/10 via-amber-500/10 to-yellow-500/10' : 'from-slate-400/10 via-slate-500/10 to-slate-400/10'} flex items-center justify-between`}>
