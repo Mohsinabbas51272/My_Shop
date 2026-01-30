@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CreditCard, ArrowLeft, Loader2, ShieldAlert, AlertCircle } from 'lucide-react';
+import { CreditCard, ArrowLeft, Loader2, ShieldAlert, AlertCircle, ShoppingBag } from 'lucide-react';
 import Navbar from './Navbar';
 import PolicyModal from './PolicyModal';
-import api, { IMAGE_BASE_URL } from '../lib/api';
+import api from '../lib/api';
 import { useAuthStore } from '../store/useAuthStore';
 import { useCartStore } from '../store/useCartStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
@@ -55,11 +55,7 @@ export default function Checkout() {
     }));
   }, [user?.name, user?.cnic, user?.address, user?.phone, user?.paymentMethod]);
 
-  const getImageUrl = (url: string) => {
-    if (!url) return '';
-    if (url.startsWith('http')) return url;
-    return `${IMAGE_BASE_URL}${url}`;
-  };
+
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

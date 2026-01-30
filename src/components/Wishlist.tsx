@@ -2,7 +2,7 @@ import { useWishlistStore } from '../store/useWishlistStore';
 import { useCartStore } from '../store/useCartStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
 import Navbar from './Navbar';
-import { Trash2, ShoppingBag, ArrowLeft, Heart } from 'lucide-react';
+import { ShoppingBag, ArrowLeft, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { IMAGE_BASE_URL } from '../lib/api';
 import { toast } from '../store/useToastStore';
@@ -84,7 +84,7 @@ export default function Wishlist() {
                                     <div className="space-y-2">
                                         <button
                                             onClick={() => {
-                                                addItem({ ...product, quantity: 1 });
+                                                addItem(product);
                                                 toast.success('Added to Bag');
                                             }}
                                             className="w-full bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-black py-4 rounded-xl transition-all shadow-lg shadow-[var(--primary)]/10 flex items-center justify-center gap-2 active:scale-[0.98] uppercase tracking-[0.1em] text-[10px]"
