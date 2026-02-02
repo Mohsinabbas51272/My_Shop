@@ -87,16 +87,27 @@ export default function Dashboard() {
     const { data: rates, isLoading: ratesLoading } = useQuery({
         queryKey: ['commodity-rates'],
         queryFn: async () => {
-            const gold = await api.get('/commodity/gold-rate');
-            const silver = await api.get('/commodity/silver-rate');
-            return {
-                gold: gold.data?.price || 0,
-                silver: silver.data?.price || 0,
-                goldRaw: gold.data,
-                silverRaw: silver.data
-            };
+            try {
+                const gold = await api.get('/commodity/gold-rate');
+                const silver = await api.get('/commodity/silver-rate');
+                return {
+                    gold: gold.data?.price || 0,
+                    silver: silver.data?.price || 0,
+                    goldRaw: gold.data,
+                    silverRaw: silver.data
+                };
+            } catch (error) {
+                console.error('Failed to fetch rates', error);
+                return {
+                    gold: 0,
+                    silver: 0,
+                    goldRaw: { price: 0, error: 'Network Error' },
+                    silverRaw: { price: 0, error: 'Network Error' }
+                };
+            }
         },
-        refetchInterval: 300000, // 5 minutes
+        refetchInterval: 60000, // 1 minute
+        retry: 2,
     });
 
     // Keeping separate aliases for compatibility if used elsewhere in the component
@@ -182,11 +193,11 @@ export default function Dashboard() {
                                         <div className="flex items-baseline gap-1.5">
                                             <span className="text-[10px] font-bold text-amber-500">AU</span>
                                             <span className="text-xs md:text-sm font-black text-[var(--text-main)]">
-                                                {formatPrice(rates?.gold || 0)}
+                                                {rates?.gold && rates.gold !== 0 ? formatPrice(rates.gold) : (ratesLoading ? 'Loading...' : 'Unavailable')}
                                             </span>
                                         </div>
                                         <span className="text-[8px] text-[var(--text-muted)] opacity-60 leading-none">
-                                            {rates?.goldRaw?.sourceUpdatedAt || new Date(rates?.goldRaw?.updatedAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            {rates?.goldRaw?.sourceUpdatedAt || (rates?.goldRaw?.updatedAt ? new Date(rates.goldRaw.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '')}
                                         </span>
                                     </div>
                                     <div className="w-px h-6 bg-[var(--border)]" />
