@@ -18,13 +18,13 @@ export default function GoldCalculator({ isOpen, onClose }: GoldCalculatorProps)
     const { data: goldRate, isLoading: goldLoading, refetch: refetchGold, isFetching: isFetchingGold } = useQuery({
         queryKey: ['gold-rate'],
         queryFn: async () => (await api.get('/commodity/gold-rate')).data,
-        refetchInterval: 3600000,
+        refetchInterval: 300000,
     });
 
     const { data: silverRate, isLoading: silverLoading, refetch: refetchSilver, isFetching: isFetchingSilver } = useQuery({
         queryKey: ['silver-rate'],
         queryFn: async () => (await api.get('/commodity/silver-rate')).data,
-        refetchInterval: 3600000,
+        refetchInterval: 300000,
     });
 
     const metalRate = metalCategory === 'Gold' ? goldRate : silverRate;

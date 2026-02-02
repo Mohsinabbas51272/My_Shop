@@ -96,7 +96,7 @@ export default function Dashboard() {
                 silverRaw: silver.data
             };
         },
-        refetchInterval: 3600000,
+        refetchInterval: 300000, // 5 minutes
     });
 
     // Keeping separate aliases for compatibility if used elsewhere in the component
