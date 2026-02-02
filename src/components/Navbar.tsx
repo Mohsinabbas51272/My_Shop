@@ -37,7 +37,13 @@ export default function Navbar() {
 
     const themes: { id: ThemeType; label: string; color: string }[] = [
         { id: 'light', label: 'Light', color: '#ffffff' },
-        { id: 'dark', label: 'Dark', color: '#1e293b' },
+        { id: 'dark', label: 'Dark', color: '#0f172a' },
+        { id: 'midnight', label: 'Midnight', color: '#1e293b' },
+        { id: 'emerald', label: 'Emerald', color: '#10b981' },
+        { id: 'sunset', label: 'Sunset', color: '#f59e0b' },
+        { id: 'ocean', label: 'Ocean', color: '#06b6d4' },
+        { id: 'lavender', label: 'Lavender', color: '#a855f7' },
+        { id: 'rosegold', label: 'Rose Gold', color: '#fb7185' },
         { id: 'system', label: 'System', color: '#64748b' }
     ];
 
@@ -158,8 +164,8 @@ export default function Navbar() {
                                         <Palette className="w-4 h-4 sm:w-5 h-5" />
                                     </button>
                                     {showThemes && (
-                                        <div className="absolute right-0 mt-2 w-48 bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl shadow-2xl p-2 z-[110] animate-in fade-in slide-in-from-top-2">
-                                            <div className="grid grid-cols-3 gap-2 p-1">
+                                        <div className="absolute right-0 mt-2 w-64 bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl shadow-2xl p-3 z-[110] animate-in fade-in slide-in-from-top-2">
+                                            <div className="grid grid-cols-3 gap-2">
                                                 {themes.map((t) => (
                                                     <button
                                                         key={t.id}

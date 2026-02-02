@@ -14,6 +14,30 @@
         --accent-glow: rgba(59, 130, 246, 0.1);
     }
 
+    .theme-light {
+        --primary: #3b82f6;
+        --primary-hover: #2563eb;
+        --bg-main: #ffffff;
+        --bg-card: #f8fafc;
+        --bg-input: #f1f5f9;
+        --border: #e2e8f0;
+        --text-main: #020617;
+        --text-muted: #64748b;
+        --accent-glow: rgba(59, 130, 246, 0.1);
+    }
+
+    .theme-dark {
+        --primary: #3b82f6;
+        --primary-hover: #2563eb;
+        --bg-main: #0f172a;
+        --bg-card: #1e293b;
+        --bg-input: #020617;
+        --border: #334155;
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+        --accent-glow: rgba(59, 130, 246, 0.1);
+    }
+
     .theme-emerald {
         --primary: #10b981;
         --primary-hover: #059669;
@@ -79,7 +103,9 @@
     }
 
     body {
-        @apply transition-colors duration-500;
+        transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 500ms;
         background-color: var(--bg-main);
         color: var(--text-main);
         -webkit-tap-highlight-color: transparent;
@@ -159,7 +185,10 @@
 }
 
 .text-gradient-primary {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-[var(--primary)] to-blue-400;
+    background-image: linear-gradient(to right, var(--primary), #60a5fa);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
 }
 
 @keyframes fade-in-up {

@@ -192,24 +192,40 @@ export default function Dashboard() {
                                     <div className="flex flex-col items-end">
                                         <div className="flex items-baseline gap-1.5">
                                             <span className="text-[10px] font-bold text-amber-500">AU</span>
-                                            <span className="text-xs md:text-sm font-black text-[var(--text-main)]">
-                                                {rates?.gold && rates.gold !== 0 ? formatPrice(rates.gold) : (ratesLoading ? 'Loading...' : 'Unavailable')}
+                                            <span className="text-xs md:text-sm font-black text-[var(--text-main)] min-w-[60px] text-right">
+                                                {ratesLoading ? (
+                                                    <div className="h-4 w-16 bg-[var(--text-muted)]/20 animate-pulse rounded" />
+                                                ) : (
+                                                    rates?.gold && rates.gold !== 0 ? formatPrice(rates.gold) : 'Unavailable'
+                                                )}
                                             </span>
                                         </div>
-                                        <span className="text-[8px] text-[var(--text-muted)] opacity-60 leading-none">
-                                            {rates?.goldRaw?.sourceUpdatedAt || (rates?.goldRaw?.updatedAt ? new Date(rates.goldRaw.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '')}
+                                        <span className="text-[8px] text-[var(--text-muted)] opacity-60 leading-none mt-0.5">
+                                            {ratesLoading ? (
+                                                <div className="h-2 w-10 bg-[var(--text-muted)]/20 animate-pulse rounded ml-auto" />
+                                            ) : (
+                                                rates?.goldRaw?.sourceUpdatedAt || (rates?.goldRaw?.updatedAt ? new Date(rates.goldRaw.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '')
+                                            )}
                                         </span>
                                     </div>
                                     <div className="w-px h-6 bg-[var(--border)]" />
                                     <div className="flex flex-col items-end">
                                         <div className="flex items-baseline gap-1.5">
                                             <span className="text-[10px] font-bold text-slate-400">AG</span>
-                                            <span className="text-xs md:text-sm font-black text-[var(--text-main)]">
-                                                {formatPrice(rates?.silver || 0)}
+                                            <span className="text-xs md:text-sm font-black text-[var(--text-main)] min-w-[50px] text-right">
+                                                {ratesLoading ? (
+                                                    <div className="h-4 w-14 bg-[var(--text-muted)]/20 animate-pulse rounded" />
+                                                ) : (
+                                                    formatPrice(rates?.silver || 0)
+                                                )}
                                             </span>
                                         </div>
-                                        <span className="text-[8px] text-[var(--text-muted)] opacity-60 leading-none">
-                                            {rates?.silverRaw?.sourceUpdatedAt || new Date(rates?.silverRaw?.updatedAt || Date.now()).toLocaleDateString()}
+                                        <span className="text-[8px] text-[var(--text-muted)] opacity-60 leading-none mt-0.5">
+                                            {ratesLoading ? (
+                                                <div className="h-2 w-10 bg-[var(--text-muted)]/20 animate-pulse rounded ml-auto" />
+                                            ) : (
+                                                rates?.silverRaw?.sourceUpdatedAt || new Date(rates?.silverRaw?.updatedAt || Date.now()).toLocaleDateString()
+                                            )}
                                         </span>
                                     </div>
                                 </div>
@@ -230,7 +246,7 @@ export default function Dashboard() {
                 <div className="min-h-[60vh]">
                     {activeTab === 'shop' && (
                         <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                            {productsLoading ? (
+                            {(productsLoading || ratesLoading) ? (
                                 <div className="responsive-grid">
                                     {Array.from({ length: 8 }).map((_, idx) => (
                                         <div
@@ -303,8 +319,8 @@ export default function Dashboard() {
                                                         <div className="flex items-center justify-between gap-2 mb-4">
                                                             <div className="classic-price !text-xl !mb-0">
                                                                 {product.category === 'Silver'
-                                                                    ? (silverLoading ? <Loader2 className="w-4 h-4 animate-spin inline-block" /> : formatPrice(calculateDynamicPrice(product, silverRate)))
-                                                                    : (goldLoading ? <Loader2 className="w-4 h-4 animate-spin inline-block" /> : formatPrice(calculateDynamicPrice(product, goldRate)))
+                                                                    ? formatPrice(calculateDynamicPrice(product, silverRate))
+                                                                    : formatPrice(calculateDynamicPrice(product, goldRate))
                                                                 }
                                                             </div>
 
@@ -337,14 +353,10 @@ export default function Dashboard() {
                                                                 disabled={(product.category === 'Silver' ? silverLoading : goldLoading)}
                                                                 className="flex-1 bg-[var(--primary)] text-white py-3 rounded-xl text-[11px] font-black uppercase tracking-wider shadow-lg shadow-[var(--primary)]/20 transition-all flex items-center justify-center gap-2"
                                                             >
-                                                                {(product.category === 'Silver' ? silverLoading : goldLoading) ? (
-                                                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                                                ) : (
-                                                                    <>
-                                                                        <ShoppingBag className="w-4 h-4" />
-                                                                        Buy
-                                                                    </>
-                                                                )}
+                                                                <>
+                                                                    <ShoppingBag className="w-4 h-4" />
+                                                                    Buy
+                                                                </>
                                                             </motion.button>
 
                                                             <motion.button
@@ -361,11 +373,7 @@ export default function Dashboard() {
                                                                 className="p-3 bg-[var(--bg-input)] hover:bg-[var(--border)] text-[var(--text-main)] rounded-xl border border-[var(--border)] transition-all flex items-center justify-center shrink-0 group"
                                                                 title="Add to Cart"
                                                             >
-                                                                {(product.category === 'Silver' ? silverLoading : goldLoading) ? (
-                                                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                                                ) : (
-                                                                    <ShoppingCart className="w-4.5 h-4.5 group-hover:text-[var(--primary)]" />
-                                                                )}
+                                                                <ShoppingCart className="w-4.5 h-4.5 group-hover:text-[var(--primary)]" />
                                                             </motion.button>
                                                         </div>
                                                     </div>
