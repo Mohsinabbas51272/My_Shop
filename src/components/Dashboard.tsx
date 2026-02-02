@@ -292,8 +292,8 @@ export default function Dashboard() {
                                                         <div className="flex items-center justify-between gap-2 mb-4">
                                                             <div className="classic-price !text-xl !mb-0">
                                                                 {product.category === 'Silver'
-                                                                    ? (silverLoading ? '---' : formatPrice(calculateDynamicPrice(product, silverRate)))
-                                                                    : (goldLoading ? '---' : formatPrice(calculateDynamicPrice(product, goldRate)))
+                                                                    ? (silverLoading ? <Loader2 className="w-4 h-4 animate-spin inline-block" /> : formatPrice(calculateDynamicPrice(product, silverRate)))
+                                                                    : (goldLoading ? <Loader2 className="w-4 h-4 animate-spin inline-block" /> : formatPrice(calculateDynamicPrice(product, goldRate)))
                                                                 }
                                                             </div>
 
