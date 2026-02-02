@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Plus, Calculator, RefreshCcw, Info } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import api from '../lib/api';
@@ -49,21 +50,21 @@ export default function GoldCalculator({ isOpen, onClose }: GoldCalculatorProps)
 
     if (!isOpen) return null;
 
-    return (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-[var(--bg-main)]/80 backdrop-blur-sm animate-in fade-in duration-300">
-            <div className="bg-[var(--bg-card)] border border-[var(--border)] w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col relative scale-in-center">
+    return createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-[var(--bg-main)]/80 backdrop-blur-sm animate-in fade-in duration-300">
+            <div className="bg-[var(--bg-card)] border border-[var(--border)] w-full max-w-lg max-h-[85dvh] rounded-[2rem] shadow-2xl overflow-hidden flex flex-col relative scale-in-center">
                 {/* Header */}
-                <div className={`p-8 border-b border-[var(--border)] bg-gradient-to-r ${metalCategory === 'Gold' ? 'from-yellow-500/10 via-amber-500/10 to-yellow-500/10' : 'from-slate-400/10 via-slate-500/10 to-slate-400/10'} flex items-center justify-between`}>
-                    <div className="flex items-center gap-4">
-                        <div className={`p-3 ${metalCategory === 'Gold' ? 'bg-yellow-500/20' : 'bg-slate-500/20'} rounded-2xl`}>
-                            <Calculator className={`w-8 h-8 ${metalCategory === 'Gold' ? 'text-yellow-600' : 'text-slate-600'}`} />
+                <div className={`p-5 sm:p-6 shrink-0 border-b border-[var(--border)] bg-gradient-to-r ${metalCategory === 'Gold' ? 'from-yellow-500/10 via-amber-500/10 to-yellow-500/10' : 'from-slate-400/10 via-slate-500/10 to-slate-400/10'} flex items-center justify-between`}>
+                    <div className="flex items-center gap-3 sm:gap-4">
+                        <div className={`p-2.5 sm:p-3 ${metalCategory === 'Gold' ? 'bg-yellow-500/20' : 'bg-slate-500/20'} rounded-2xl`}>
+                            <Calculator className={`w-6 h-6 sm:w-8 sm:h-8 ${metalCategory === 'Gold' ? 'text-yellow-600' : 'text-slate-600'}`} />
                         </div>
                         <div>
-                            <h3 className="text-xl font-black text-[var(--text-main)]">{metalCategory} Calculator</h3>
+                            <h3 className="text-lg sm:text-xl font-black text-[var(--text-main)] w-max">{metalCategory} Calculator</h3>
                             <p className={`text-[10px] font-bold ${metalCategory === 'Gold' ? 'text-yellow-600' : 'text-slate-600'} uppercase tracking-[0.2em]`}>Estimate Value</p>
                         </div>
                     </div>
-                    <div className="flex bg-[var(--bg-input)] p-1 rounded-xl border border-[var(--border)] mx-4 scale-90">
+                    <div className="flex bg-[var(--bg-input)] p-1 rounded-xl border border-[var(--border)] mx-2 sm:mx-4 scale-90 shrink-0">
                         <button
                             onClick={() => setMetalCategory('Gold')}
                             className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all ${metalCategory === 'Gold' ? 'bg-yellow-600 text-white shadow-sm' : 'text-[var(--text-muted)]'}`}
@@ -79,14 +80,14 @@ export default function GoldCalculator({ isOpen, onClose }: GoldCalculatorProps)
                     </div>
                     <button
                         onClick={onClose}
-                        className="absolute top-4 right-4 p-2 bg-red-500 hover:bg-red-600 text-white rounded-xl transition-all active:scale-95 shadow-lg z-[120] border border-white/20"
+                        className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-xl transition-all active:scale-95 shadow-lg border border-white/20"
                         title="Close Calculator"
                     >
                         <Plus className="w-4 h-4 rotate-45" />
                     </button>
                 </div>
 
-                <div className="p-8 space-y-8 overflow-y-auto max-h-[70vh]">
+                <div className="p-5 sm:p-6 space-y-5 sm:space-y-6 overflow-y-auto custom-scrollbar">
                     {/* Live Rate Brief */}
                     <div className="bg-[var(--bg-input)]/50 rounded-3xl p-5 border border-[var(--border)] flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -186,6 +187,7 @@ export default function GoldCalculator({ isOpen, onClose }: GoldCalculatorProps)
                     </div>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }

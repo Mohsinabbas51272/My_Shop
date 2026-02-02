@@ -6,10 +6,9 @@ import api, { IMAGE_BASE_URL } from '../lib/api';
 import { calculateDynamicPrice } from '../lib/pricing';
 import Navbar from './Navbar';
 import ProductDetailsModal from './ProductDetailsModal';
-import GoldCalculator from './GoldCalculator';
 import Policy from './Policy';
 import { useCartStore } from '../store/useCartStore';
-import { Plus, Loader2, PackageX, ShoppingBag, Clock, CheckCircle2, Receipt, Trash2, Edit2, MessageCircle, Gavel, ShieldCheck, Calculator, File, Heart, ShoppingCart, BookOpen } from 'lucide-react';
+import { Plus, Loader2, PackageX, ShoppingBag, Clock, CheckCircle2, Receipt, Trash2, Edit2, MessageCircle, Gavel, ShieldCheck, File, Heart, ShoppingCart, BookOpen } from 'lucide-react';
 import OrderReceipt from './OrderReceipt';
 import { useAuthStore } from '../store/useAuthStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
@@ -33,10 +32,9 @@ export default function Dashboard() {
     const [disputeData, setDisputeData] = useState({ subject: '', message: '' });
     const [editFormData, setEditFormData] = useState<any>({});
     const [viewingReceipt, setViewingReceipt] = useState<any>(null);
-    const [isCalcOpen, setIsCalcOpen] = useState(false);
 
     // Shop discovery controls from global store
-    const { q, sort, minPrice, maxPrice, metalCategory } = useSearchStore();
+    const { q, sort, minPrice, maxPrice, metalCategory, setMetalCategory } = useSearchStore();
     const [page, setPage] = useState(1);
 
     useEffect(() => {
@@ -145,7 +143,7 @@ export default function Dashboard() {
 
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
                 {/* Header Section */}
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-12">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8">
                     <div className="space-y-1">
                         <h1 className="text-3xl md:text-4xl font-black text-[var(--text-main)] tracking-tight">
                             Digital <span className="text-[var(--primary)]">Vault</span>
@@ -153,8 +151,24 @@ export default function Dashboard() {
                         <p className="text-sm md:text-base text-[var(--text-muted)] font-medium">Manage your assets and explore the market.</p>
                     </div>
 
-                    {/* Market Rate Pill - Enhanced Responsiveness */}
+                    {/* Market Rate Pill & Metal Toggle */}
                     <div className="flex flex-wrap items-center gap-3">
+                        {/* Gold/Silver Toggle - Web View Only */}
+                        <div className="hidden md:flex items-center p-1 bg-[var(--bg-card)]/50 backdrop-blur-xl border border-[var(--border)] rounded-full">
+                            <button
+                                onClick={() => setMetalCategory('Gold')}
+                                className={`px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all ${metalCategory === 'Gold' ? 'bg-yellow-500 text-black shadow-lg shadow-yellow-500/20' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'}`}
+                            >
+                                Gold
+                            </button>
+                            <button
+                                onClick={() => setMetalCategory('Silver')}
+                                className={`px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all ${metalCategory === 'Silver' ? 'bg-slate-400 text-black shadow-lg shadow-slate-400/20' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'}`}
+                            >
+                                Silver
+                            </button>
+                        </div>
+
                         <div className="flex items-center gap-2 px-4 py-3 bg-[var(--bg-card)]/50 backdrop-blur-xl border border-[var(--border)] rounded-2xl shadow-xl">
                             <div className="flex -space-x-2">
                                 <div className="p-1.5 bg-yellow-500/20 rounded-full border border-yellow-500/30">
@@ -163,18 +177,28 @@ export default function Dashboard() {
                             </div>
                             <div className="flex flex-col">
                                 <span className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest leading-none mb-1">Live Market</span>
-                                <div className="flex items-center gap-3">
-                                    <div className="flex items-baseline gap-1.5">
-                                        <span className="text-[10px] font-bold text-yellow-500/80">AU</span>
-                                        <span className="text-xs md:text-sm font-black text-[var(--text-main)]">
-                                            {formatPrice(rates?.gold || 0)}
+                                <div className="flex items-start gap-4">
+                                    <div className="flex flex-col items-end">
+                                        <div className="flex items-baseline gap-1.5">
+                                            <span className="text-[10px] font-bold text-amber-500">AU</span>
+                                            <span className="text-xs md:text-sm font-black text-[var(--text-main)]">
+                                                {formatPrice(rates?.gold || 0)}
+                                            </span>
+                                        </div>
+                                        <span className="text-[8px] text-[var(--text-muted)] opacity-60 leading-none">
+                                            {rates?.goldRaw?.sourceUpdatedAt || new Date(rates?.goldRaw?.updatedAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                         </span>
                                     </div>
-                                    <div className="w-px h-3 bg-[var(--border)]" />
-                                    <div className="flex items-baseline gap-1.5">
-                                        <span className="text-[10px] font-bold text-slate-400">AG</span>
-                                        <span className="text-xs md:text-sm font-black text-[var(--text-main)]">
-                                            {formatPrice(rates?.silver || 0)}
+                                    <div className="w-px h-6 bg-[var(--border)]" />
+                                    <div className="flex flex-col items-end">
+                                        <div className="flex items-baseline gap-1.5">
+                                            <span className="text-[10px] font-bold text-slate-400">AG</span>
+                                            <span className="text-xs md:text-sm font-black text-[var(--text-main)]">
+                                                {formatPrice(rates?.silver || 0)}
+                                            </span>
+                                        </div>
+                                        <span className="text-[8px] text-[var(--text-muted)] opacity-60 leading-none">
+                                            {rates?.silverRaw?.sourceUpdatedAt || new Date(rates?.silverRaw?.updatedAt || Date.now()).toLocaleDateString()}
                                         </span>
                                     </div>
                                 </div>
@@ -188,54 +212,6 @@ export default function Dashboard() {
                                 <span className="text-[10px] font-black text-[var(--primary)] uppercase tracking-widest">Operator Access</span>
                             </div>
                         )}
-                    </div>
-                </div>
-
-                {/* Navigation and Tools - Sticky */}
-                <div className="sticky top-16 z-[90] bg-[var(--bg-main)]/80 backdrop-blur-md py-4 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 border-b border-[var(--border)]/10 mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="relative flex items-center gap-1 p-1.5 bg-[var(--bg-card)]/30 backdrop-blur-md border border-[var(--border)]/50 rounded-2xl h-14 overflow-x-auto no-scrollbar shrink-0">
-                        {[
-                            { id: 'shop', label: 'Shop', icon: PackageX },
-                            { id: 'orders', label: 'Orders', icon: ShoppingBag, badge: orders?.filter((o: any) => o.status !== 'Delivered').length },
-                            { id: 'complaints', label: 'Queries', icon: MessageCircle, badge: (complaints?.filter((c: any) => c.status !== 'Resolved').length || 0) + (disputes?.filter((d: any) => d.status !== 'Resolved').length || 0) },
-                            { id: 'policy', label: 'Policy', icon: BookOpen }
-                        ].map((tab) => (
-                            <button
-                                key={tab.id}
-                                onClick={() => setSearchParams({ tab: tab.id })}
-                                className={`relative px-4 md:px-6 h-full rounded-xl font-black text-[10px] uppercase tracking-widest transition-all duration-300 flex items-center gap-2.5 z-10 whitespace-nowrap ${activeTab === tab.id
-                                    ? 'text-white'
-                                    : 'text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-input)]/50'
-                                    }`}
-                            >
-                                {activeTab === tab.id && (
-                                    <motion.div
-                                        layoutId="activeTab"
-                                        className="absolute inset-0 bg-[var(--primary)] rounded-xl -z-10 shadow-[0_0_20px_rgba(59,130,246,0.3)]"
-                                        transition={{ type: "spring", bounce: 0.15, duration: 0.5 }}
-                                    />
-                                )}
-                                <div className="relative shrink-0">
-                                    <tab.icon className="w-4 h-4" />
-                                    {tab.badge > 0 && (
-                                        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[8px] font-black min-w-[14px] h-[14px] flex items-center justify-center rounded-full border border-[var(--bg-card)] shadow-[0_0_10px_rgba(239,68,68,0.3)] z-20">
-                                            {tab.badge}
-                                        </span>
-                                    )}
-                                </div>
-                                <span className="text-[10px] sm:text-[11px]">{tab.label}</span>
-                            </button>
-                        ))}
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                        <button
-                            onClick={() => setIsCalcOpen(true)}
-                            className="flex-1 md:flex-none px-6 h-14 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center justify-center gap-3 bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 hover:bg-yellow-500 hover:text-black active:scale-95"
-                        >
-                            <Calculator className="w-4 h-4" />
-                            <span>Price Tool</span>
-                        </button>
                     </div>
                 </div>
 
@@ -888,7 +864,7 @@ export default function Dashboard() {
                 </div>
             )}
 
-            <GoldCalculator isOpen={isCalcOpen} onClose={() => setIsCalcOpen(false)} />
+
 
             {viewingReceipt && (
                 <OrderReceipt

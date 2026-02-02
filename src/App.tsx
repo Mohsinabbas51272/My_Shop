@@ -14,6 +14,7 @@ import VerifyOtp from './components/auth/VerifyOtp';
 import ResetPassword from './components/auth/ResetPassword';
 import { useAuthStore } from './store/useAuthStore';
 import { useThemeStore } from './store/useThemeStore';
+import { useCurrencyStore } from './store/useCurrencyStore';
 import { useState, useEffect } from 'react';
 import SplashScreen from './components/SplashScreen';
 import { AnimatePresence } from 'framer-motion';
@@ -61,9 +62,11 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 function App() {
   const { theme } = useThemeStore();
   const { hasHydrated } = useAuthStore();
+  const { fetchExchangeRate } = useCurrencyStore();
   const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
+    fetchExchangeRate();
     const timer = setTimeout(() => setShowSplash(false), 3500);
     return () => clearTimeout(timer);
   }, []);

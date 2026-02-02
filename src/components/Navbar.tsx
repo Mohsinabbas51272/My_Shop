@@ -2,7 +2,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../store/useAuthStore';
 import { useCartStore } from '../store/useCartStore';
-import { Store, User, Palette, Menu, X, ShoppingCart, LogOut, Banknote } from 'lucide-react';
+import { Store, User, Palette, Menu, X, ShoppingCart, LogOut, Banknote, Calculator } from 'lucide-react';
+import GoldCalculator from './GoldCalculator';
 import { useThemeStore } from '../store/useThemeStore';
 import type { ThemeType } from '../store/useThemeStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
@@ -15,16 +16,17 @@ export default function Navbar() {
     const { user, logout } = useAuthStore();
     const { theme, setTheme } = useThemeStore();
     const { items } = useCartStore();
-    const { currency, setCurrency } = useCurrencyStore();
+    const { currency, setCurrency } = useCurrencyStore() as any; // Type assertion to bypass strict check if store is partial
     const wishlistItems = useWishlistStore((state) => state.items);
     const wishlistCount = wishlistItems.length;
     const navigate = useNavigate();
-    const [showThemes, setShowThemes] = useState(false);
+    const [isCalcOpen, setIsCalcOpen] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [showFilters, setShowFilters] = useState(false);
-
     const [showSearch, setShowSearch] = useState(false);
+    const [showFilters, setShowFilters] = useState(false);
+    const [showThemes, setShowThemes] = useState(false);
 
+    // Destructure search store
     const {
         q, setQ,
         sort, setSort,
@@ -34,12 +36,9 @@ export default function Navbar() {
     } = useSearchStore();
 
     const themes: { id: ThemeType; label: string; color: string }[] = [
-        { id: 'midnight', label: 'Midnight', color: '#3b82f6' },
-        { id: 'emerald', label: 'Emerald', color: '#10b981' },
-        { id: 'sunset', label: 'Sunset', color: '#f59e0b' },
-        { id: 'ocean', label: 'Ocean', color: '#06b6d4' },
-        { id: 'lavender', label: 'Lavender', color: '#a855f7' },
-        { id: 'rosegold', label: 'Rose Gold', color: '#fb7185' },
+        { id: 'light', label: 'Light', color: '#ffffff' },
+        { id: 'dark', label: 'Dark', color: '#1e293b' },
+        { id: 'system', label: 'System', color: '#64748b' }
     ];
 
     const handleLogout = () => {
@@ -96,6 +95,18 @@ export default function Navbar() {
                                         Shop
                                     </Link>
                                     <Link
+                                        to="/user/dashboard?tab=orders"
+                                        className="text-sm font-bold uppercase tracking-widest text-[var(--text-main)] hover:text-[var(--primary)] transition-colors"
+                                    >
+                                        Orders
+                                    </Link>
+                                    <Link
+                                        to="/user/dashboard?tab=complaints"
+                                        className="text-sm font-bold uppercase tracking-widest text-[var(--text-main)] hover:text-[var(--primary)] transition-colors"
+                                    >
+                                        Queries
+                                    </Link>
+                                    <Link
                                         to="/contact"
                                         className="text-sm font-bold uppercase tracking-widest text-[var(--text-main)] hover:text-[var(--primary)] transition-colors"
                                     >
@@ -118,6 +129,15 @@ export default function Navbar() {
                         <div className="flex items-center gap-1 sm:gap-2">
                             {/* Desktop-only utilities */}
                             <div className="hidden sm:flex items-center gap-1 sm:gap-2">
+                                {/* Calculator Button (Web Only) */}
+                                <button
+                                    onClick={() => setIsCalcOpen(true)}
+                                    className="p-1.5 sm:p-2 flex items-center gap-1.5 text-[var(--text-muted)] hover:text-yellow-500 hover:bg-[var(--bg-input)] rounded-full transition-all"
+                                    title="Gold Calculator"
+                                >
+                                    <Calculator className="w-4 h-4 sm:w-5 h-5" />
+                                </button>
+
                                 {/* Currency Toggle */}
                                 <button
                                     onClick={() => setCurrency(currency === 'PKR' ? 'USD' : 'PKR')}
@@ -389,6 +409,20 @@ export default function Navbar() {
                                             Shop
                                         </Link>
                                         <Link
+                                            to="/user/dashboard?tab=orders"
+                                            onClick={() => setIsMenuOpen(false)}
+                                            className="p-4 bg-[var(--bg-input)] rounded-2xl text-center font-bold text-[var(--text-main)] active:scale-95 transition-all border border-[var(--border)]"
+                                        >
+                                            Orders
+                                        </Link>
+                                        <Link
+                                            to="/user/dashboard?tab=complaints"
+                                            onClick={() => setIsMenuOpen(false)}
+                                            className="p-4 bg-[var(--bg-input)] rounded-2xl text-center font-bold text-[var(--text-main)] active:scale-95 transition-all border border-[var(--border)]"
+                                        >
+                                            Queries
+                                        </Link>
+                                        <Link
                                             to="/contact"
                                             onClick={() => setIsMenuOpen(false)}
                                             className="p-4 bg-[var(--bg-input)] rounded-2xl text-center font-bold text-[var(--text-main)] active:scale-95 transition-all border border-[var(--border)]"
@@ -519,6 +553,8 @@ export default function Navbar() {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            <GoldCalculator isOpen={isCalcOpen} onClose={() => setIsCalcOpen(false)} />
         </nav>
     );
 }
