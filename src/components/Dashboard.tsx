@@ -8,7 +8,7 @@ import Navbar from './Navbar';
 import ProductDetailsModal from './ProductDetailsModal';
 import Policy from './Policy';
 import { useCartStore } from '../store/useCartStore';
-import { Plus, Loader2, PackageX, ShoppingBag, Clock, CheckCircle2, Receipt, Trash2, Edit2, MessageCircle, Gavel, ShieldCheck, File, Heart, ShoppingCart, BookOpen } from 'lucide-react';
+import { Plus, Loader2, PackageX, ShoppingBag, Clock, CheckCircle2, Receipt, Trash2, Edit2, MessageCircle, Gavel, ShieldCheck, File, Heart, ShoppingCart } from 'lucide-react';
 import OrderReceipt from './OrderReceipt';
 import { useAuthStore } from '../store/useAuthStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';

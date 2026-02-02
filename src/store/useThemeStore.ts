@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export type ThemeType = 'midnight' | 'emerald' | 'sunset' | 'ocean' | 'lavender' | 'rosegold';
+export type ThemeType = 'light' | 'dark' | 'system' | 'midnight' | 'emerald' | 'sunset' | 'ocean' | 'lavender' | 'rosegold';
 
 interface ThemeState {
     theme: ThemeType;
