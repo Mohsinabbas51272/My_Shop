@@ -70,18 +70,21 @@ export default function Dashboard() {
         queryKey: ['orders-me', user?.id],
         queryFn: async () => (await api.get(`/orders?userId=${user?.id}`)).data,
         enabled: !!user?.id,
+        refetchInterval: 10000, // Real-time updates
     });
 
     const { data: complaints, isLoading: complaintsLoading } = useQuery({
         queryKey: ['complaints-me', user?.id],
         queryFn: async () => (await api.get(`/complaints?userId=${user?.id}`)).data,
         enabled: !!user?.id,
+        refetchInterval: 10000,
     });
 
     const { data: disputes, isLoading: disputesUserLoading } = useQuery({
         queryKey: ['disputes-me', user?.id],
         queryFn: async () => (await api.get('/disputes')).data,
         enabled: !!user?.id,
+        refetchInterval: 10000,
     });
 
     const { data: rates, isLoading: ratesLoading } = useQuery({
@@ -106,7 +109,7 @@ export default function Dashboard() {
                 };
             }
         },
-        refetchInterval: 60000, // 1 minute
+        refetchInterval: 5000, // 5 seconds (backend caches so no extra scraping)
         retry: 2,
     });
 
@@ -274,33 +277,30 @@ export default function Dashboard() {
                                 </div>
                             ) : (
                                 <>
-                                    <motion.div
-                                        layout
-                                        className="responsive-grid"
-                                    >
-                                        <AnimatePresence mode='popLayout'>
-                                            {productsData?.items?.map((product: any) => (
+                                    <div className="responsive-grid">
+                                        <AnimatePresence mode='wait'>
+                                            {productsData?.items?.map((product: any, index: number) => (
                                                 <motion.div
-                                                    layout
                                                     key={product.id}
-                                                    initial={{ opacity: 0, scale: 0.9 }}
-                                                    animate={{ opacity: 1, scale: 1 }}
-                                                    exit={{ opacity: 0, scale: 0.9 }}
-                                                    transition={{ duration: 0.3 }}
+                                                    initial={{ opacity: 0, y: 10 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ duration: 0.2, delay: index * 0.02 }}
                                                     onClick={() => setSelectedProduct(product)}
                                                     className="classic-card group cursor-pointer flex flex-col h-full"
                                                 >
                                                     <div className="classic-image-wrapper">
-                                                        <motion.img
+                                                        <img
                                                             src={getImageUrl(product.image)}
                                                             alt={product.name}
+                                                            className="transition-transform duration-300 group-hover:scale-105"
                                                         />
                                                         <button
                                                             className={`classic-heart-btn ${isInWishlist(product.id) ? '!text-red-500 !bg-white' : ''}`}
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
+                                                                const wasInWishlist = isInWishlist(product.id);
                                                                 toggleItem(product);
-                                                                if (isInWishlist(product.id)) {
+                                                                if (wasInWishlist) {
                                                                     toast.success('Removed from Wishlist');
                                                                 } else {
                                                                     toast.success('Added to Wishlist');
@@ -340,9 +340,7 @@ export default function Dashboard() {
                                                         </div>
 
                                                         <div className="flex items-center gap-2 mt-auto pt-4 border-t border-[var(--border)]/20">
-                                                            <motion.button
-                                                                whileHover={{ scale: 1.02 }}
-                                                                whileTap={{ scale: 0.98 }}
+                                                            <button
                                                                 onClick={(e) => {
                                                                     e.stopPropagation();
                                                                     const rate = product.category === 'Silver' ? silverRate : goldRate;
@@ -351,17 +349,13 @@ export default function Dashboard() {
                                                                     navigate('/checkout');
                                                                 }}
                                                                 disabled={(product.category === 'Silver' ? silverLoading : goldLoading)}
-                                                                className="flex-1 bg-[var(--primary)] text-white py-3 rounded-xl text-[11px] font-black uppercase tracking-wider shadow-lg shadow-[var(--primary)]/20 transition-all flex items-center justify-center gap-2"
+                                                                className="flex-1 bg-[var(--primary)] text-white py-3 rounded-xl text-[11px] font-black uppercase tracking-wider shadow-lg shadow-[var(--primary)]/20 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
                                                             >
-                                                                <>
-                                                                    <ShoppingBag className="w-4 h-4" />
-                                                                    Buy
-                                                                </>
-                                                            </motion.button>
+                                                                <ShoppingBag className="w-4 h-4" />
+                                                                Buy
+                                                            </button>
 
-                                                            <motion.button
-                                                                whileHover={{ scale: 1.05 }}
-                                                                whileTap={{ scale: 0.95 }}
+                                                            <button
                                                                 onClick={(e) => {
                                                                     e.stopPropagation();
                                                                     const rate = product.category === 'Silver' ? silverRate : goldRate;
@@ -370,17 +364,17 @@ export default function Dashboard() {
                                                                     toast.success('Added to Bag');
                                                                 }}
                                                                 disabled={(product.category === 'Silver' ? silverLoading : goldLoading)}
-                                                                className="p-3 bg-[var(--bg-input)] hover:bg-[var(--border)] text-[var(--text-main)] rounded-xl border border-[var(--border)] transition-all flex items-center justify-center shrink-0 group"
+                                                                className="p-3 bg-[var(--bg-input)] hover:bg-[var(--border)] text-[var(--text-main)] rounded-xl border border-[var(--border)] transition-all hover:scale-105 active:scale-95 flex items-center justify-center shrink-0"
                                                                 title="Add to Cart"
                                                             >
                                                                 <ShoppingCart className="w-4.5 h-4.5 group-hover:text-[var(--primary)]" />
-                                                            </motion.button>
+                                                            </button>
                                                         </div>
                                                     </div>
                                                 </motion.div>
                                             ))}
                                         </AnimatePresence>
-                                    </motion.div>
+                                    </div>
 
                                     <div className="mt-10 flex items-center justify-center gap-3">
                                         <button

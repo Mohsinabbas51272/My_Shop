@@ -133,7 +133,10 @@ export default function Cart() {
                                             </div>
 
                                             <button
-                                                onClick={() => removeItem(item.id)}
+                                                onClick={() => {
+                                                    removeItem(item.id);
+                                                    toast.success('Removed from Bag');
+                                                }}
                                                 className="p-2.5 bg-red-500/5 text-red-500/50 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all active:scale-95 border border-transparent hover:border-red-500/20"
                                                 title="Remove Item"
                                             >

@@ -56,27 +56,37 @@ export default function AdminDashboard() {
     const { data: dashboardCounts } = useQuery({
         queryKey: ['dashboard-counts'],
         queryFn: async () => (await api.get('/complaints/counts')).data,
+        refetchInterval: 10000, // 10 seconds
+        refetchOnWindowFocus: true,
     });
 
     const { data: complaints, isLoading: complaintsLoading } = useQuery({
         queryKey: ['complaints'],
         queryFn: async () => (await api.get('/complaints')).data,
         enabled: activeTab === 'queries',
+        refetchInterval: 10000,
+        refetchOnWindowFocus: true,
     });
 
     const { data: products, isLoading: productsLoading } = useQuery({
         queryKey: ['products'],
         queryFn: async () => (await api.get('/products', { params: { page: 1, limit: 100 } })).data,
+        refetchInterval: 10000,
+        refetchOnWindowFocus: true,
     });
 
     const { data: orders, isLoading: ordersLoading } = useQuery({
         queryKey: ['orders'],
         queryFn: async () => (await api.get('/orders')).data,
+        refetchInterval: 10000,
+        refetchOnWindowFocus: true,
     });
 
     const { data: users, isLoading: usersLoading } = useQuery({
         queryKey: ['users'],
         queryFn: async () => (await api.get('/users')).data,
+        refetchInterval: 10000,
+        refetchOnWindowFocus: true,
     });
 
     const { data: goldRate, isLoading: goldLoading } = useQuery({
@@ -136,12 +146,20 @@ export default function AdminDashboard() {
 
     const deleteProductMutation = useMutation({
         mutationFn: (id: number) => api.delete(`/products/${id}`),
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['products'] }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['products'] });
+            toast.success('Product deleted successfully!');
+        },
+        onError: () => toast.error('Failed to delete product'),
     });
 
     const updateOrderStatusMutation = useMutation({
         mutationFn: ({ id, status }: { id: number; status: string }) => api.patch(`/orders/${id}/status`, { status }),
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['orders'] }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['orders'] });
+            toast.success('Order status updated!');
+        },
+        onError: () => toast.error('Failed to update order status'),
     });
 
     // Removed updatePaymentStatusMutation as only SUPER_ADMIN can confirm payments now
@@ -151,7 +169,9 @@ export default function AdminDashboard() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['orders'] });
             queryClient.invalidateQueries({ queryKey: ['dashboard-counts'] });
-        }
+            toast.success('Order deleted successfully!');
+        },
+        onError: () => toast.error('Failed to delete order'),
     });
 
     const sendReceiptMutation = useMutation({

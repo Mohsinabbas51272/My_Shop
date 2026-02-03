@@ -6,8 +6,6 @@ import Profile from './components/Profile';
 import Cart from './components/Cart';
 import Wishlist from './components/Wishlist';
 import Checkout from './components/Checkout';
-import AdminDashboard from './components/AdminDashboard';
-import SuperAdminDashboard from './components/SuperAdminDashboard';
 import Contact from './components/Contact';
 import ForgotPassword from './components/auth/ForgotPassword';
 import VerifyOtp from './components/auth/VerifyOtp';
@@ -15,9 +13,13 @@ import ResetPassword from './components/auth/ResetPassword';
 import { useAuthStore } from './store/useAuthStore';
 import { useThemeStore } from './store/useThemeStore';
 import { useCurrencyStore } from './store/useCurrencyStore';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense, lazy } from 'react';
 import SplashScreen from './components/SplashScreen';
 import { AnimatePresence } from 'framer-motion';
+
+// Lazy load large admin components for better initial load
+const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
+const SuperAdminDashboard = lazy(() => import('./components/SuperAdminDashboard'));
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -67,7 +69,7 @@ function App() {
 
   useEffect(() => {
     fetchExchangeRate();
-    const timer = setTimeout(() => setShowSplash(false), 3500);
+    const timer = setTimeout(() => setShowSplash(false), 1500);
     return () => clearTimeout(timer);
   }, []);
 
@@ -142,7 +144,9 @@ function App() {
             path="/admin/dashboard"
             element={
               <ProtectedRoute userRole="ADMIN">
-                <AdminDashboard />
+                <Suspense fallback={<div className="min-h-screen bg-[var(--bg-main)] flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-[var(--primary)] border-t-transparent rounded-full" /></div>}>
+                  <AdminDashboard />
+                </Suspense>
               </ProtectedRoute>
             }
           />
@@ -150,7 +154,9 @@ function App() {
             path="/super-admin/dashboard"
             element={
               <ProtectedRoute userRole="SUPER_ADMIN">
-                <SuperAdminDashboard />
+                <Suspense fallback={<div className="min-h-screen bg-[var(--bg-main)] flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-[var(--primary)] border-t-transparent rounded-full" /></div>}>
+                  <SuperAdminDashboard />
+                </Suspense>
               </ProtectedRoute>
             }
           />

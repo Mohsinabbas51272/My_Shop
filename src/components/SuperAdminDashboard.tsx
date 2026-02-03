@@ -29,11 +29,15 @@ export default function SuperAdminDashboard() {
     const { data: users, isLoading: usersLoading } = useQuery({
         queryKey: ['super-admin-users'],
         queryFn: async () => (await api.get('/users')).data,
+        refetchInterval: 10000,
+        refetchOnWindowFocus: true,
     });
 
     const { data: dashboardCounts } = useQuery({
         queryKey: ['dashboard-counts'],
         queryFn: async () => (await api.get('/complaints/counts')).data,
+        refetchInterval: 10000,
+        refetchOnWindowFocus: true,
     });
 
     const { data: orders, isLoading: ordersLoading } = useQuery({
@@ -46,11 +50,15 @@ export default function SuperAdminDashboard() {
     const { data: disputes, isLoading: disputesLoading } = useQuery({
         queryKey: ['super-admin-disputes'],
         queryFn: async () => (await api.get('/disputes')).data,
+        refetchInterval: 10000,
+        refetchOnWindowFocus: true,
     });
 
     const { data: logs, isLoading: logsLoading } = useQuery({
         queryKey: ['audit-logs'],
         queryFn: async () => (await api.get('/audit')).data,
+        refetchInterval: 10000,
+        refetchOnWindowFocus: true,
     });
 
     // Mutations
@@ -61,12 +69,20 @@ export default function SuperAdminDashboard() {
 
     const freezeUser = useMutation({
         mutationFn: (id: number) => api.post(`/users/${id}/freeze`),
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['super-admin-users'] }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['super-admin-users'] });
+            toast.success('User account frozen successfully!');
+        },
+        onError: () => toast.error('Failed to freeze user'),
     });
 
     const blockUser = useMutation({
         mutationFn: (id: number) => api.post(`/users/${id}/block`),
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['super-admin-users'] }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['super-admin-users'] });
+            toast.success('User blocked successfully!');
+        },
+        onError: () => toast.error('Failed to block user'),
     });
 
     const registerFIR = useMutation({
@@ -88,12 +104,20 @@ export default function SuperAdminDashboard() {
 
     const confirmPayment = useMutation({
         mutationFn: (id: number) => api.patch(`/superadmin/orders/${id}/confirm-payment`),
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['super-admin-orders'] }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['super-admin-orders'] });
+            toast.success('Payment confirmed!');
+        },
+        onError: () => toast.error('Failed to confirm payment'),
     });
 
     const deleteOrderMutation = useMutation({
         mutationFn: (id: number) => api.delete(`/orders/${id}`),
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['super-admin-orders'] }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['super-admin-orders'] });
+            toast.success('Order deleted successfully!');
+        },
+        onError: () => toast.error('Failed to delete order'),
     });
 
     const updateDispute = useMutation({
@@ -117,7 +141,11 @@ export default function SuperAdminDashboard() {
 
     const deleteAllLogs = useMutation({
         mutationFn: () => api.delete('/audit'),
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['audit-logs'] }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['audit-logs'] });
+            toast.success('All audit logs cleared!');
+        },
+        onError: () => toast.error('Failed to delete logs'),
     });
 
     const getImageUrl = (url: string) => {

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { Lock, ArrowRight } from 'lucide-react';
 import api from '../../lib/api';
+import { toast } from '../../store/useToastStore';
 
 export default function ResetPassword() {
     const location = useLocation();
@@ -25,6 +26,7 @@ export default function ResetPassword() {
 
         try {
             await api.post('/auth/reset-password', { email, otp, newPassword });
+            toast.success('Password reset successfully! Please login.');
             navigate('/login');
         } catch (err: any) {
             setError(err.response?.data?.message || 'Failed to reset password');
