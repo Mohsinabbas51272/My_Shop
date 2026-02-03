@@ -207,7 +207,17 @@ export default function Dashboard() {
                                             {ratesLoading ? (
                                                 <div className="h-2 w-10 bg-[var(--text-muted)]/20 animate-pulse rounded ml-auto" />
                                             ) : (
-                                                rates?.goldRaw?.sourceUpdatedAt || (rates?.goldRaw?.updatedAt ? new Date(rates.goldRaw.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '')
+                                                <div className="flex items-center gap-1">
+                                                    {rates?.goldRaw?.source && (
+                                                        <span className="text-[7px] font-black opacity-70 uppercase tracking-tighter">
+                                                            {rates.goldRaw.source.replace('average', 'avg').replace('sources', 'src')}
+                                                        </span>
+                                                    )}
+                                                    <span className="text-[7px] opacity-40">•</span>
+                                                    <span>
+                                                        {new Date(rates?.goldRaw?.sourceUpdatedAt || rates?.goldRaw?.updatedAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
+                                                    </span>
+                                                </div>
                                             )}
                                         </span>
                                     </div>
@@ -227,7 +237,17 @@ export default function Dashboard() {
                                             {ratesLoading ? (
                                                 <div className="h-2 w-10 bg-[var(--text-muted)]/20 animate-pulse rounded ml-auto" />
                                             ) : (
-                                                rates?.silverRaw?.sourceUpdatedAt || new Date(rates?.silverRaw?.updatedAt || Date.now()).toLocaleDateString()
+                                                <div className="flex items-center gap-1">
+                                                    {rates?.silverRaw?.source && (
+                                                        <span className="text-[7px] font-black opacity-70 uppercase tracking-tighter">
+                                                            {rates.silverRaw.source.replace('average', 'avg').replace('sources', 'src')}
+                                                        </span>
+                                                    )}
+                                                    <span className="text-[7px] opacity-40">•</span>
+                                                    <span>
+                                                        {new Date(rates?.silverRaw?.sourceUpdatedAt || rates?.silverRaw?.updatedAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
+                                                    </span>
+                                                </div>
                                             )}
                                         </span>
                                     </div>

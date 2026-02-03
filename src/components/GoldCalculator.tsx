@@ -95,9 +95,22 @@ export default function GoldCalculator({ isOpen, onClose }: GoldCalculatorProps)
                             <span className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest">Market Rate ({metalCategory === 'Gold' ? '24K' : metalRate?.purity || '99.9%'})</span>
                         </div>
                         <div className="flex items-center gap-3">
-                            <span className={`text-sm font-black ${metalCategory === 'Gold' ? 'text-yellow-600' : 'text-slate-600'}`}>
-                                {isLoading ? '...' : (metalRate?.price ? `${metalRate.currency} ${metalRate.price}` : 'N/A')}
-                            </span>
+                            <div className="flex flex-col items-end">
+                                <span className={`text-sm font-black ${metalCategory === 'Gold' ? 'text-yellow-600' : 'text-slate-600'}`}>
+                                    {isLoading ? '...' : (metalRate?.price ? `${metalRate.currency} ${metalRate.price}` : 'N/A')}
+                                </span>
+                                <div className="flex items-center gap-1.5 mt-0.5">
+                                    {!isLoading && metalRate?.source && (
+                                        <span className="text-[7px] font-black text-[var(--text-muted)] uppercase tracking-widest opacity-70">
+                                            {metalRate.source.replace('average', 'avg').replace('sources', 'src')}
+                                        </span>
+                                    )}
+                                    <span className="text-[7px] text-[var(--text-muted)] opacity-30">•</span>
+                                    <span className="text-[7px] font-bold text-[var(--text-muted)] uppercase">
+                                        {new Date(metalRate?.sourceUpdatedAt || metalRate?.updatedAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </span>
+                                </div>
+                            </div>
                             <button
                                 onClick={() => refetch()}
                                 disabled={isFetching}

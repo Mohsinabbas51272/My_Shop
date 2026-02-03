@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../store/useAuthStore';
 import { useCartStore } from '../store/useCartStore';
-import { Store, User, Palette, Menu, X, ShoppingCart, LogOut, Banknote, Calculator } from 'lucide-react';
+import { User, Palette, Menu, X, ShoppingCart, LogOut, Banknote, Calculator } from 'lucide-react';
 import GoldCalculator from './GoldCalculator';
 import { useThemeStore } from '../store/useThemeStore';
 import type { ThemeType } from '../store/useThemeStore';
@@ -37,12 +37,9 @@ export default function Navbar() {
 
     const themes: { id: ThemeType; label: string; color: string }[] = [
         { id: 'light', label: 'Light', color: '#ffffff' },
-        { id: 'dark', label: 'Dark', color: '#0f172a' },
-        { id: 'midnight', label: 'Midnight', color: '#1e293b' },
         { id: 'emerald', label: 'Emerald', color: '#10b981' },
         { id: 'sunset', label: 'Sunset', color: '#f59e0b' },
         { id: 'ocean', label: 'Ocean', color: '#06b6d4' },
-        { id: 'lavender', label: 'Lavender', color: '#a855f7' },
         { id: 'rosegold', label: 'Rose Gold', color: '#fb7185' },
         { id: 'system', label: 'System', color: '#64748b' }
     ];
@@ -71,24 +68,24 @@ export default function Navbar() {
                             user?.role === 'SUPER_ADMIN' ? "/super-admin/dashboard" :
                                 user?.role === 'ADMIN' ? "/admin/dashboard" :
                                     "/user/dashboard"
-                        } className="flex items-center gap-1.5 sm:gap-2 text-[var(--primary)] font-bold text-lg sm:text-xl hover:opacity-80 transition-opacity shrink-0">
-                            <Store className="w-5 h-5 sm:w-6 sm:h-6" />
-                            <span className="truncate max-w-[100px] sm:max-w-none">MyShop</span>
+                        } className="flex items-center gap-3 text-[var(--primary)] font-bold text-xl hover:opacity-80 transition-opacity shrink-0">
+                            <img src="/logo_3d.png" alt="" className="w-10 h-10 object-contain rounded-full border border-[var(--primary)]/30 shadow-lg" />
+                            <span className="truncate hidden lg:inline uppercase tracking-tighter">Alamgir<span className="text-[var(--text-main)]"> Jewellers</span></span>
                         </Link>
 
                         {/* Navigation Links - Desktop */}
-                        <div className="hidden md:flex items-center gap-6 ml-4 mr-[2px]">
+                        <div className="hidden md:flex items-center gap-0.5 lg:gap-1 ml-1 lg:ml-2">
                             {user?.role === 'SUPER_ADMIN' ? (
                                 <Link
                                     to="/super-admin/dashboard"
-                                    className="text-sm font-bold uppercase tracking-widest text-[var(--primary)] hover:opacity-80 transition-opacity"
+                                    className="text-[10px] lg:text-sm font-bold uppercase tracking-widest text-[var(--primary)] hover:opacity-80 transition-opacity"
                                 >
                                     Command Center
                                 </Link>
                             ) : user?.role === 'ADMIN' ? (
                                 <Link
                                     to="/admin/dashboard"
-                                    className="text-sm font-bold uppercase tracking-widest text-[var(--primary)] hover:opacity-80 transition-opacity"
+                                    className="text-[10px] lg:text-sm font-bold uppercase tracking-widest text-[var(--primary)] hover:opacity-80 transition-opacity"
                                 >
                                     Admin Panel
                                 </Link>
@@ -96,31 +93,31 @@ export default function Navbar() {
                                 <>
                                     <Link
                                         to="/user/dashboard?tab=shop"
-                                        className="text-sm font-bold uppercase tracking-widest text-[var(--text-main)] hover:text-[var(--primary)] transition-colors"
+                                        className="px-1 py-1 text-[10px] lg:text-sm font-bold uppercase tracking-widest text-[var(--text-main)] hover:text-[var(--primary)] transition-colors"
                                     >
                                         Shop
                                     </Link>
                                     <Link
                                         to="/user/dashboard?tab=orders"
-                                        className="text-sm font-bold uppercase tracking-widest text-[var(--text-main)] hover:text-[var(--primary)] transition-colors"
+                                        className="px-1 py-1 text-[10px] lg:text-sm font-bold uppercase tracking-widest text-[var(--text-main)] hover:text-[var(--primary)] transition-colors"
                                     >
                                         Orders
                                     </Link>
                                     <Link
                                         to="/user/dashboard?tab=complaints"
-                                        className="text-sm font-bold uppercase tracking-widest text-[var(--text-main)] hover:text-[var(--primary)] transition-colors"
+                                        className="hidden lg:block px-1 py-1 text-[10px] lg:text-sm font-bold uppercase tracking-widest text-[var(--text-main)] hover:text-[var(--primary)] transition-colors"
                                     >
                                         Queries
                                     </Link>
                                     <Link
                                         to="/contact"
-                                        className="text-sm font-bold uppercase tracking-widest text-[var(--text-main)] hover:text-[var(--primary)] transition-colors"
+                                        className="px-1 py-1 text-[10px] lg:text-sm font-bold uppercase tracking-widest text-[var(--text-main)] hover:text-[var(--primary)] transition-colors"
                                     >
                                         Contact
                                     </Link>
                                     <Link
                                         to="/user/dashboard?tab=policy"
-                                        className="text-sm font-bold uppercase tracking-widest text-[var(--text-main)] hover:text-[var(--primary)] transition-colors"
+                                        className="px-1 py-1 text-[9px] lg:text-sm font-bold uppercase tracking-tighter lg:tracking-widest text-[var(--text-main)] hover:text-[var(--primary)] transition-colors shrink-0"
                                     >
                                         Policy
                                     </Link>
@@ -129,16 +126,19 @@ export default function Navbar() {
                         </div>
                     </div>
 
+                    {/* Spacer to push utilities to the right */}
+                    <div className="flex-1 md:flex-none" />
+
                     {/* Right Section: Utilities & User Actions */}
-                    <div className="flex items-center gap-2 sm:gap-4">
+                    <div className="flex items-center gap-1 sm:gap-2 ml-1">
                         {/* Utilities Group */}
-                        <div className="flex items-center gap-1 sm:gap-2">
+                        <div className="flex items-center gap-0.5 sm:gap-1">
                             {/* Desktop-only utilities */}
-                            <div className="hidden sm:flex items-center gap-1 sm:gap-2">
+                            <div className="hidden sm:flex items-center gap-0.5 sm:gap-1">
                                 {/* Calculator Button (Web Only) */}
                                 <button
                                     onClick={() => setIsCalcOpen(true)}
-                                    className="p-1.5 sm:p-2 flex items-center gap-1.5 text-[var(--text-muted)] hover:text-yellow-500 hover:bg-[var(--bg-input)] rounded-full transition-all"
+                                    className="p-1.5 sm:p-2 flex items-center justify-center text-[var(--text-muted)] hover:text-yellow-500 hover:bg-[var(--bg-input)] rounded-full transition-all"
                                     title="Gold Calculator"
                                 >
                                     <Calculator className="w-4 h-4 sm:w-5 h-5" />
@@ -157,7 +157,11 @@ export default function Navbar() {
                                 {/* Theme Picker */}
                                 <div className="relative">
                                     <button
-                                        onClick={() => setShowThemes(!showThemes)}
+                                        onClick={() => {
+                                            setShowThemes(!showThemes);
+                                            setShowFilters(false);
+                                            setShowSearch(false);
+                                        }}
                                         className={`p-1.5 sm:p-2 transition-all duration-300 rounded-full hover:bg-[var(--bg-input)]/50 ${showThemes ? 'text-[var(--primary)] scale-110' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'}`}
                                         title="Switch Theme"
                                     >
@@ -188,7 +192,11 @@ export default function Navbar() {
                             {/* Filters Popover - Desktop Only */}
                             <div className="relative hidden md:block">
                                 <button
-                                    onClick={() => setShowFilters(!showFilters)}
+                                    onClick={() => {
+                                        setShowFilters(!showFilters);
+                                        setShowThemes(false);
+                                        setShowSearch(false);
+                                    }}
                                     className={`p-1.5 sm:p-2 transition-all duration-300 rounded-full hover:bg-[var(--bg-input)]/50 ${showFilters ? 'text-[var(--primary)] scale-110' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'}`}
                                     title="Advanced Filters"
                                 >
@@ -255,7 +263,11 @@ export default function Navbar() {
                             {/* Search Popover - Mobile & Tablet Friendly Trigger */}
                             <div className="relative">
                                 <button
-                                    onClick={() => setShowSearch(!showSearch)}
+                                    onClick={() => {
+                                        setShowSearch(!showSearch);
+                                        setShowFilters(false);
+                                        setShowThemes(false);
+                                    }}
                                     className={`p-1.5 sm:p-2 transition-all duration-300 rounded-full hover:bg-[var(--bg-input)]/50 ${showSearch ? 'text-[var(--primary)] scale-110' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'}`}
                                     title="Quick Search"
                                 >
@@ -328,14 +340,14 @@ export default function Navbar() {
                         <div className="hidden md:flex items-center gap-3 pl-2">
                             <Link
                                 to="/profile"
-                                className="flex items-center gap-2 group"
+                                className="flex items-center gap-3 group"
                             >
-                                <div className="w-9 h-9 rounded-full bg-[var(--bg-input)] flex items-center justify-center text-[var(--primary)] border border-[var(--border)] group-hover:border-[var(--primary)] transition-all overflow-hidden">
+                                <div className="w-9 h-9 rounded-full bg-[var(--bg-input)] flex items-center justify-center text-[var(--primary)] border border-[var(--border)] group-hover:border-[var(--primary)] transition-all overflow-hidden shrink-0">
                                     <User className="w-4 h-4" />
                                 </div>
-                                <div className="hidden lg:block text-sm">
-                                    <p className="font-bold leading-none text-[var(--text-main)] group-hover:text-[var(--primary)] transition-colors">{user?.name?.split(' ')[0]}</p>
-                                    <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-widest font-bold opacity-60">Account</p>
+                                <div className="hidden lg:flex flex-col justify-center">
+                                    <p className="font-bold leading-[1.1] text-[var(--text-main)] group-hover:text-[var(--primary)] transition-colors">{user?.name?.split(' ')[0]}</p>
+                                    <p className="text-[9px] text-[var(--text-muted)] uppercase tracking-widest font-black opacity-60">Account</p>
                                 </div>
                             </Link>
 

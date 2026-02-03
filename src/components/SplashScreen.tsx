@@ -1,11 +1,21 @@
 import { motion } from 'framer-motion';
-import { Store } from 'lucide-react';
+
 
 export default function SplashScreen() {
     return (
         <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-slate-950 overflow-hidden">
+            {/* Full Background Logo Image */}
+            <div className="absolute inset-0 z-0">
+                <img
+                    src="/logo_3d.png"
+                    alt=""
+                    className="w-full h-full object-cover opacity-20 blur-sm scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-slate-950" />
+            </div>
+
             {/* Background Glows */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-blue-500/20 blur-[120px] rounded-full animate-pulse" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[var(--primary)]/10 blur-[120px] rounded-full animate-pulse" />
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-indigo-500/30 blur-[80px] rounded-full" />
 
             {/* Logo Animation */}
@@ -16,9 +26,9 @@ export default function SplashScreen() {
                 className="relative z-10 flex flex-col items-center"
             >
                 <div className="relative mb-8">
-                    <div className="absolute inset-0 bg-blue-500 blur-2xl opacity-20 animate-splash-ping rounded-full" />
-                    <div className="p-8 bg-slate-900 border border-slate-800 rounded-[2.5rem] shadow-2xl relative">
-                        <Store className="w-20 h-20 text-blue-500" />
+                    <div className="absolute inset-0 bg-yellow-500 blur-3xl opacity-20 animate-splash-ping rounded-full" />
+                    <div className="relative p-2 bg-gradient-to-b from-yellow-500/20 to-transparent rounded-full border border-yellow-500/30 shadow-2xl">
+                        <img src="/logo_3d.png" alt="Alamgir Jewellers" className="w-56 h-56 md:w-64 md:h-64 object-contain rounded-full shadow-[0_0_50px_rgba(234,179,8,0.3)]" />
                     </div>
                 </div>
 
@@ -26,9 +36,9 @@ export default function SplashScreen() {
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ delay: 0.5, duration: 1 }}
-                    className="text-4xl font-black tracking-tighter text-white flex items-center gap-1"
+                    className="text-4xl font-black tracking-tighter text-white uppercase"
                 >
-                    MY<span className="text-blue-500">SHOP</span>
+                    ALAMGIR<span className="text-[var(--primary)]"> JEWELLERS</span>
                 </motion.h1>
 
                 <motion.p
@@ -37,7 +47,7 @@ export default function SplashScreen() {
                     transition={{ delay: 0.8, duration: 1 }}
                     className="text-slate-500 font-bold uppercase tracking-[0.3em] text-[10px] mt-4"
                 >
-                    Premium Ecommerce Experience
+                    Where Timeless Beauty Shines
                 </motion.p>
             </motion.div>
 

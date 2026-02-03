@@ -69,7 +69,7 @@ function App() {
 
   useEffect(() => {
     fetchExchangeRate();
-    const timer = setTimeout(() => setShowSplash(false), 1500);
+    const timer = setTimeout(() => setShowSplash(false), 3500);
     return () => clearTimeout(timer);
   }, []);
 
@@ -78,7 +78,7 @@ function App() {
   }
 
   return (
-    <div className={theme === 'midnight' ? '' : `theme-${theme}`}>
+    <div className={`theme-${theme}`}>
       <AnimatePresence>
         {showSplash && <SplashScreen />}
       </AnimatePresence>
