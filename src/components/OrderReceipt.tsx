@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Receipt, Printer, Send, X } from 'lucide-react';
 
 interface OrderReceiptProps {
@@ -27,6 +28,13 @@ const OrderReceipt = ({ order: rawOrder, formatPrice, onClose, onSendToDashboard
         const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
         window.open(whatsappUrl, '_blank');
     };
+
+    useEffect(() => {
+        document.body.style.overflow = 'hidden';
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, []);
 
     return (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">

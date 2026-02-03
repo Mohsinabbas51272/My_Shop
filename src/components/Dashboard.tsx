@@ -43,6 +43,17 @@ export default function Dashboard() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [q, sort, minPrice, maxPrice, metalCategory]);
 
+    useEffect(() => {
+        if (disputingOrder) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [disputingOrder]);
+
     const getImageUrl = (url: string) => {
         if (!url) return 'https://via.placeholder.com/400';
         if (url.startsWith('http')) return url;

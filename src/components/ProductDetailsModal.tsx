@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Plus, Minus, ShoppingCart, ZoomIn, ZoomOut, Info, ShoppingBag } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -48,6 +48,13 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
         toast.success(quantity + " item(s) added to Shopping Bag!");
         onClose();
     };
+
+    useEffect(() => {
+        document.body.style.overflow = 'hidden';
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, []);
 
     return (
         <div className="fixed inset-0 z-[150] flex items-center justify-center p-2 sm:p-4 bg-[var(--bg-main)]/95 backdrop-blur-md">

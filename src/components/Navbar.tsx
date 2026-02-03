@@ -7,7 +7,7 @@ import GoldCalculator from './GoldCalculator';
 import { useThemeStore } from '../store/useThemeStore';
 import type { ThemeType } from '../store/useThemeStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchStore } from '../store/useSearchStore';
 import { useWishlistStore } from '../store/useWishlistStore';
 import { Search, SlidersHorizontal, ChevronDown, Heart } from 'lucide-react';
@@ -34,6 +34,17 @@ export default function Navbar() {
         maxPrice, setMaxPrice,
         metalCategory, setMetalCategory
     } = useSearchStore();
+
+    useEffect(() => {
+        if (isMenuOpen || isCalcOpen || showSearch || showFilters || showThemes) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [isMenuOpen, isCalcOpen, showSearch, showFilters, showThemes]);
 
     const themes: { id: ThemeType; label: string; color: string }[] = [
         { id: 'light', label: 'Light', color: '#ffffff' },

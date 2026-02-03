@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Plus, Calculator, RefreshCcw, Info } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
@@ -47,6 +47,17 @@ export default function GoldCalculator({ isOpen, onClose }: GoldCalculatorProps)
     };
 
     const breakdown = getPriceBreakdown(parsedWeights, metalRate);
+
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [isOpen]);
 
     if (!isOpen) return null;
 

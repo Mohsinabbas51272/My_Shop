@@ -23,6 +23,13 @@ export default function PolicyModal({ onAccepted, onClose }: PolicyModalProps) {
             .catch(() => setLoading(false));
     }, []);
 
+    useEffect(() => {
+        document.body.style.overflow = 'hidden';
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, []);
+
     const handleAccept = async () => {
         if (!agreed) return;
         setSubmitting(true);
