@@ -310,7 +310,8 @@ export default function SuperAdminDashboard() {
                                                 <th className="p-4 text-left text-[11px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Products (To Prepare)</th>
                                                 <th className="p-4 text-left text-[11px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Total Amount</th>
                                                 <th className="p-4 text-left text-[11px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Status</th>
-                                                <th className="p-4 text-left text-[11px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Payment Status</th>
+                                                <th className="p-4 text-left text-[11px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Payment</th>
+                                                <th className="p-4 text-left text-[11px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Method</th>
                                                 <th className="p-4 text-right text-[11px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Actions</th>
                                             </tr>
                                         </thead>
@@ -389,12 +390,17 @@ export default function SuperAdminDashboard() {
                                                         </span>
                                                     </td>
                                                     <td className="p-4">
+                                                        <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase border ${o.paymentStatus === 'Paid'
+                                                            ? 'bg-green-500/10 text-green-500 border-green-500/20'
+                                                            : 'bg-orange-500/10 text-orange-500 border-orange-500/20'
+                                                            }`}>
+                                                            {o.paymentStatus || 'Pending'}
+                                                        </span>
+                                                    </td>
+                                                    <td className="p-4">
                                                         <div className="flex items-center gap-2">
-                                                            <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase border ${o.paymentStatus === 'Paid'
-                                                                ? 'bg-green-500/10 text-green-500 border-green-500/20'
-                                                                : 'bg-orange-500/10 text-orange-500 border-orange-500/20'
-                                                                }`}>
-                                                                {o.paymentStatus || 'Pending'}
+                                                            <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-wider">
+                                                                {o.paymentMethod || 'N/A'}
                                                             </span>
                                                             {o.paymentReceipt && (
                                                                 <a
@@ -405,7 +411,6 @@ export default function SuperAdminDashboard() {
                                                                     title="View Receipt"
                                                                 >
                                                                     <Receipt className="w-3.5 h-3.5" />
-                                                                    View
                                                                 </a>
                                                             )}
                                                         </div>
@@ -468,6 +473,7 @@ export default function SuperAdminDashboard() {
                                                     <p className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1">Customer</p>
                                                     <p className="text-sm font-bold text-[var(--text-main)] truncate">{o.customerName || 'N/A'}</p>
                                                     <p className="text-[10px] text-[var(--text-muted)] truncate">{o.customerPhone || 'N/A'}</p>
+                                                    <p className="text-[8px] font-black text-[var(--primary)] uppercase mt-1">Method: {o.paymentMethod || 'N/A'}</p>
                                                 </div>
                                                 <div className="bg-[var(--bg-input)]/50 p-3 rounded-xl border border-[var(--border)]/50">
                                                     <p className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1">Financials</p>

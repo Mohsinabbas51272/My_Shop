@@ -626,12 +626,17 @@ export default function Dashboard() {
                                                             </div>
                                                             <div className="text-right">
                                                                 <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)] mb-1 opacity-60">Payment</label>
-                                                                <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider border shadow-sm ${order.paymentStatus === 'Paid'
-                                                                    ? 'bg-green-500/10 text-green-500 border-green-500/20'
-                                                                    : 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
-                                                                    } `}>
-                                                                    {order.paymentStatus || 'Unpaid'}
-                                                                </span>
+                                                                <div className="flex flex-col items-end gap-1">
+                                                                    <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider border shadow-sm ${order.paymentStatus === 'Paid'
+                                                                        ? 'bg-green-500/10 text-green-500 border-green-500/20'
+                                                                        : 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
+                                                                        } `}>
+                                                                        {order.paymentStatus || 'Unpaid'}
+                                                                    </span>
+                                                                    <span className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-tighter opacity-50">
+                                                                        {order.paymentMethod ? (order.paymentMethod.length > 15 ? order.paymentMethod.substring(0, 15) + '...' : order.paymentMethod) : 'Not Set'}
+                                                                    </span>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>

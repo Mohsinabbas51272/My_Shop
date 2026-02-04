@@ -14,7 +14,6 @@ const registerSchema = z.object({
     address: z.string().min(5, 'Address must be at least 5 characters'),
     phone: z.string().min(10, 'Phone must be at least 10 characters'),
     role: z.enum(['USER', 'ADMIN']),
-    paymentMethod: z.string().optional(),
 });
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
@@ -33,7 +32,6 @@ export default function Register() {
         resolver: zodResolver(registerSchema),
         defaultValues: {
             role: 'USER',
-            paymentMethod: 'Cash on Shop'
         }
     });
 
@@ -184,19 +182,7 @@ export default function Register() {
                             )}
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-[var(--text-muted)] mb-1.5">
-                                Preferred Payment Method
-                            </label>
-                            <select
-                                {...register('paymentMethod')}
-                                disabled={loading}
-                                className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg py-2.5 px-4 text-sm text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 transition-all disabled:opacity-50 cursor-pointer"
-                            >
-                                <option value="Cash on Shop">Cash on Shop</option>
-                                <option value="Online">Online</option>
-                            </select>
-                        </div>
+
                     </div>
 
                     <button

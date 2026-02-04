@@ -183,7 +183,10 @@ export default function Checkout() {
 
                 <div className="space-y-4">
                   <div className="space-y-1">
-                    <label className="text-[8px] font-black uppercase tracking-widest text-[var(--text-muted)] ml-1">Full Name</label>
+                    <div className="flex items-center justify-between px-1">
+                      <label className="text-[8px] font-black uppercase tracking-widest text-[var(--text-muted)]">Full Name</label>
+                      {user?.name && <span className="text-[7px] font-bold text-green-500 uppercase tracking-tighter">Verified</span>}
+                    </div>
                     <input
                       value={checkoutDetails.customerName}
                       onChange={(e) => setCheckoutDetails({ ...checkoutDetails, customerName: e.target.value })}
@@ -192,7 +195,10 @@ export default function Checkout() {
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[8px] font-black uppercase tracking-widest text-[var(--text-muted)] ml-1">CNIC</label>
+                    <div className="flex items-center justify-between px-1">
+                      <label className="text-[8px] font-black uppercase tracking-widest text-[var(--text-muted)]">CNIC</label>
+                      {user?.cnic && <span className="text-[7px] font-bold text-green-500 uppercase tracking-tighter">Verified</span>}
+                    </div>
                     <input
                       value={checkoutDetails.customerCnic}
                       onChange={(e) => setCheckoutDetails({ ...checkoutDetails, customerCnic: e.target.value })}
@@ -201,7 +207,10 @@ export default function Checkout() {
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[8px] font-black uppercase tracking-widest text-[var(--text-muted)] ml-1">Phone</label>
+                    <div className="flex items-center justify-between px-1">
+                      <label className="text-[8px] font-black uppercase tracking-widest text-[var(--text-muted)]">Phone</label>
+                      {user?.phone && <span className="text-[7px] font-bold text-green-500 uppercase tracking-tighter">Verified</span>}
+                    </div>
                     <input
                       value={checkoutDetails.customerPhone}
                       onChange={(e) => setCheckoutDetails({ ...checkoutDetails, customerPhone: e.target.value })}
@@ -210,7 +219,10 @@ export default function Checkout() {
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[8px] font-black uppercase tracking-widest text-[var(--text-muted)] ml-1">Address</label>
+                    <div className="flex items-center justify-between px-1">
+                      <label className="text-[8px] font-black uppercase tracking-widest text-[var(--text-muted)]">Address</label>
+                      {user?.address && <span className="text-[7px] font-bold text-green-500 uppercase tracking-tighter">Verified</span>}
+                    </div>
                     <textarea
                       rows={3}
                       value={checkoutDetails.customerAddress}

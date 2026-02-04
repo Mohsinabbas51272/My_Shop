@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import api from '../lib/api';
 import Navbar from './Navbar';
-import { User, Mail, CreditCard, MapPin, BadgeCheck, Loader2, Save, Phone, X, ShieldAlert, ShieldCheck, AlertOctagon } from 'lucide-react';
+import { User, Mail, MapPin, BadgeCheck, Loader2, Save, Phone, X, ShieldAlert, ShieldCheck, AlertOctagon } from 'lucide-react';
 import { toast } from '../store/useToastStore';
 
 export default function Profile() {
@@ -15,7 +15,6 @@ export default function Profile() {
         cnic: user?.cnic || '',
         address: user?.address || '',
         phone: user?.phone || '',
-        paymentMethod: user?.paymentMethod || 'Cash on Shop',
     });
 
     useEffect(() => {
@@ -29,7 +28,6 @@ export default function Profile() {
                     cnic: latestUser.cnic || '',
                     address: latestUser.address || '',
                     phone: latestUser.phone || '',
-                    paymentMethod: latestUser.paymentMethod || 'Cash on Shop',
                 });
             } catch (err) {
                 console.error('Failed to sync profile:', err);
@@ -174,19 +172,7 @@ export default function Profile() {
                                 />
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] ml-1">
-                                    <CreditCard className="w-3 h-3 text-[var(--primary)]" /> Preferred Settlement
-                                </label>
-                                <select
-                                    value={formData.paymentMethod}
-                                    onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
-                                    className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-4 text-sm font-black appearance-none outline-none focus:ring-4 focus:ring-[var(--primary)]/5 transition-all cursor-pointer"
-                                >
-                                    <option value="Cash on Shop">Physical Collection (Shop)</option>
-                                    <option value="Online">Digital Transmission (Online)</option>
-                                </select>
-                            </div>
+
 
                             <div className="space-y-2 md:col-span-2">
                                 <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] ml-1">
