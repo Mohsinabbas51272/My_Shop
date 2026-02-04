@@ -21,12 +21,12 @@ export const useCurrencyStore = create<CurrencyState>()(
                     ? parseFloat(priceInPkr.replace(/,/g, ''))
                     : Number(priceInPkr);
 
-                if (isNaN(numPrice)) return '0.00';
+                if (isNaN(numPrice)) return '0';
 
                 if (currency === 'USD') {
                     return (numPrice / exchangeRate).toFixed(2);
                 }
-                return numPrice.toLocaleString();
+                return Math.round(numPrice).toLocaleString();
             },
             formatPrice: (priceInPkr: number | string) => {
                 const { currency, convertPrice } = get(); // convertPrice handles logic

@@ -31,7 +31,7 @@ export default function Checkout() {
   });
 
   const subtotal = useMemo(() => getSubtotal(), [getSubtotal, items]);
-  const userFee = subtotal * 0.02;
+  const userFee = Math.round(subtotal * 0.02);
   const shippingFee = 1000;
   const grandTotal = subtotal + userFee + shippingFee;
 
@@ -305,7 +305,7 @@ export default function Checkout() {
 
                 <div className="grid grid-cols-3 gap-4 mb-8">
                   <div className="flex flex-col text-center p-3 bg-[var(--bg-input)]/30 rounded-2xl border border-[var(--border)]/50">
-                    <span className="text-[8px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1">Items</span>
+                    <span className="text-[8px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1">Subtotal</span>
                     <span className="text-[11px] font-bold text-[var(--text-main)]">{formatPrice(subtotal)}</span>
                   </div>
                   <div className="flex flex-col text-center p-3 bg-[var(--bg-input)]/30 rounded-2xl border border-[var(--border)]/50">

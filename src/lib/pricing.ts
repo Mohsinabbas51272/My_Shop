@@ -26,11 +26,9 @@ export const calculateDynamicPrice = (product: ProductWeights, goldRate: GoldRat
     if (isNaN(ratePerTola)) return product.price;
 
     // Weight conversions:
-    // 1 Tola = 12 Masha
-    // 1 Masha = 8 Rati -> 1 Tola = 96 Rati
-    const tola = product.weightTola || 0;
-    const masha = product.weightMasha || 0;
-    const rati = product.weightRati || 0;
+    const tola = Number(product.weightTola || 0);
+    const masha = Number(product.weightMasha || 0);
+    const rati = Number(product.weightRati || 0);
 
     const totalTola = tola + (masha / 12) + (rati / 96);
 
@@ -38,24 +36,28 @@ export const calculateDynamicPrice = (product: ProductWeights, goldRate: GoldRat
     const goldValue = totalTola * ratePerTola;
 
     // Total = Gold Value + Making Charges
-    return Math.round(goldValue + product.price);
+    return Math.round(goldValue + Number(product.price || 0));
 };
 
 export const getPriceBreakdown = (product: ProductWeights, goldRate: GoldRate | null) => {
     if (!goldRate || goldRate.error || !goldRate.price) {
-        return { goldValue: 0, makingCharges: product.price, total: product.price };
+        return { goldValue: 0, makingCharges: Number(product.price || 0), total: Number(product.price || 0) };
     }
 
     const ratePerTola = typeof goldRate.price === 'string'
         ? parseFloat(goldRate.price.replace(/,/g, ''))
-        : goldRate.price;
+        : Number(goldRate.price);
 
-    const totalTola = (product.weightTola || 0) + (product.weightMasha || 0) / 12 + (product.weightRati || 0) / 96;
+    const tola = Number(product.weightTola || 0);
+    const masha = Number(product.weightMasha || 0);
+    const rati = Number(product.weightRati || 0);
+
+    const totalTola = tola + (masha / 12) + (rati / 96);
     const goldValue = Math.round(totalTola * ratePerTola);
 
     return {
         goldValue,
-        makingCharges: Math.round(product.price || 0),
-        total: Math.round(goldValue + (product.price || 0))
+        makingCharges: Math.round(Number(product.price || 0)),
+        total: Math.round(goldValue + Number(product.price || 0))
     };
 };

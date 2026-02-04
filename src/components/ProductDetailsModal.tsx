@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Plus, Minus, ShoppingCart, ZoomIn, ZoomOut, Info, ShoppingBag } from 'lucide-react';
+import { X, Plus, Minus, ShoppingCart, ZoomIn, ZoomOut, Info, ShoppingBag, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import api, { IMAGE_BASE_URL } from '../lib/api';
@@ -20,17 +20,48 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
     const [zoom, setZoom] = useState(1);
     const [quantity, setQuantity] = useState(1);
 
-    const { data: goldRate, isLoading: goldLoading } = useQuery({
-        queryKey: ['gold-rate'],
-        queryFn: async () => (await api.get('/commodity/gold-rate')).data,
+    const { data: rates, isLoading: ratesLoading } = useQuery({
+        queryKey: ['product-details-rates'],
+        queryFn: async () => {
+            try {
+                const [goldRes, silverRes, detailedRes] = await Promise.all([
+                    api.get('/commodity/gold-rate'),
+                    api.get('/commodity/silver-rate'),
+                    api.get('/commodity/detailed-rates'),
+                ]);
+
+                // Helper to safely parse rates from any source
+                const parsePrice = (p: any) => {
+                    if (typeof p === 'string') return parseFloat(p.replace(/,/g, ''));
+                    return typeof p === 'number' ? p : 0;
+                };
+
+                const goldSources = detailedRes.data?.gold || [];
+                const silverSources = detailedRes.data?.silver || [];
+
+                const peakGold = goldSources.length > 0
+                    ? Math.max(...goldSources.map((s: any) => parsePrice(s.price)), parsePrice(goldRes.data?.price))
+                    : parsePrice(goldRes.data?.price);
+
+                const peakSilver = silverSources.length > 0
+                    ? Math.max(...silverSources.map((s: any) => parsePrice(s.price)), parsePrice(silverRes.data?.price))
+                    : parsePrice(silverRes.data?.price);
+
+                return {
+                    gold: { ...goldRes.data, price: peakGold || 0 },
+                    silver: { ...silverRes.data, price: peakSilver || 0 },
+                };
+            } catch (err) {
+                console.error('Modal price fetch error:', err);
+                return null;
+            }
+        },
+        refetchInterval: 10000,
     });
 
-    const { data: silverRate, isLoading: silverLoading } = useQuery({
-        queryKey: ['silver-rate'],
-        queryFn: async () => (await api.get('/commodity/silver-rate')).data,
-    });
-
-    const breakdown = getPriceBreakdown(product, product.category === 'Silver' ? silverRate : goldRate);
+    const activeRate = product.category === 'Silver' ? rates?.silver : rates?.gold;
+    const breakdown = getPriceBreakdown(product, activeRate || null);
+    const isLoading = ratesLoading || !activeRate;
 
     const getImageUrl = (url: string) => {
         if (!url) return 'https://via.placeholder.com/800';
@@ -112,11 +143,13 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
                                 </h2>
                                 <div className="flex items-center gap-4">
                                     <span className="text-xl font-black text-[var(--primary)]">
-                                        {formatPrice(breakdown.total)}
+                                        {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : formatPrice(breakdown.total)}
                                     </span>
-                                    <span className="text-sm text-[var(--text-muted)] font-bold line-through opacity-40">
-                                        {formatPrice(breakdown.total * 1.5)}
-                                    </span>
+                                    {!isLoading && (
+                                        <span className="text-sm text-[var(--text-muted)] font-bold line-through opacity-40">
+                                            {formatPrice(breakdown.total * 1.5)}
+                                        </span>
+                                    )}
                                 </div>
                             </div>
 
@@ -128,12 +161,20 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <p className="text-[9px] text-[var(--text-muted)] uppercase font-black tracking-widest mb-1">Metal Value</p>
-                                        <p className="text-[12px] font-black text-[var(--text-main)]">{formatPrice(breakdown.goldValue)}</p>
+                                        <p className="text-[12px] font-black text-[var(--text-main)]">
+                                            {isLoading ? "Fetching..." : formatPrice(breakdown.goldValue)}
+                                        </p>
+                                        {!isLoading && (
+                                            <p className="text-[8px] font-bold text-[var(--primary)] uppercase tracking-tighter mt-0.5">
+                                                @ {formatPrice(activeRate?.price || 0)} / Tola
+                                            </p>
+                                        )}
                                     </div>
                                     <div>
                                         <p className="text-[9px] text-[var(--text-muted)] uppercase font-black tracking-widest mb-1">Craftsmanship</p>
-                                        <p className="text-[12px] font-black text-[var(--text-main)]">{formatPrice(breakdown.makingCharges)}</p>
+                                        <p className="text-[12px] font-black text-[var(--text-main)]">
+                                            {isLoading ? "Calculating..." : formatPrice(breakdown.makingCharges)}
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -184,7 +225,9 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
                             </div>
                             <div className="text-right">
                                 <p className="text-[8px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-0.5">Subtotal</p>
-                                <p className="text-md md:text-lg font-black text-[var(--primary)]">{formatPrice(breakdown.total * quantity)}</p>
+                                <p className="text-md md:text-lg font-black text-[var(--primary)]">
+                                    {isLoading ? "..." : formatPrice(breakdown.total * quantity)}
+                                </p>
                             </div>
                         </div>
 
@@ -194,7 +237,7 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
                                     for (let i = 0; i < quantity; i++) addItem({ ...product, price: breakdown.total });
                                     navigate('/checkout');
                                 }}
-                                disabled={product.category === 'Silver' ? silverLoading : goldLoading}
+                                disabled={isLoading}
                                 className="flex-1 h-11 md:h-12 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-black rounded-2xl transition-all shadow-lg shadow-[var(--primary)]/10 flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50 uppercase tracking-widest text-[9px]"
                             >
                                 <ShoppingBag className="w-3.5 h-3.5" />
@@ -202,7 +245,7 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
                             </button>
                             <button
                                 onClick={handleAddToCart}
-                                disabled={product.category === 'Silver' ? silverLoading : goldLoading}
+                                disabled={isLoading}
                                 className="w-11 md:w-12 h-11 md:h-12 bg-[var(--bg-input)] hover:bg-[var(--border)] text-[var(--text-main)] rounded-2xl transition-all border border-[var(--border)] flex items-center justify-center active:scale-95 disabled:opacity-50"
                             >
                                 <ShoppingCart className="w-3.5 h-3.5" />

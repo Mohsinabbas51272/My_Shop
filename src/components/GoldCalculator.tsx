@@ -15,22 +15,43 @@ export default function GoldCalculator({ isOpen, onClose }: GoldCalculatorProps)
     const { formatPrice, currency } = useCurrencyStore();
     const [metalCategory, setMetalCategory] = useState<'Gold' | 'Silver'>('Gold');
 
-    const { data: goldRate, isLoading: goldLoading, refetch: refetchGold, isFetching: isFetchingGold } = useQuery({
-        queryKey: ['gold-rate'],
-        queryFn: async () => (await api.get('/commodity/gold-rate')).data,
+    const { data: rates, isLoading: ratesLoading, refetch } = useQuery({
+        queryKey: ['calculator-peak-rates'],
+        queryFn: async () => {
+            try {
+                const [goldRes, silverRes, detailedRes] = await Promise.all([
+                    api.get('/commodity/gold-rate'),
+                    api.get('/commodity/silver-rate'),
+                    api.get('/commodity/detailed-rates'),
+                ]);
+
+                const peakGold = detailedRes.data?.gold?.length > 0
+                    ? [...detailedRes.data.gold].filter((s: any) => s.price > 0).sort((a: any, b: any) => b.price - a.price)[0]?.price
+                    : goldRes.data?.price;
+
+                const peakSilver = detailedRes.data?.silver?.length > 0
+                    ? [...detailedRes.data.silver].filter((s: any) => s.price > 0).sort((a: any, b: any) => b.price - a.price)[0]?.price
+                    : silverRes.data?.price;
+
+                const parsePrice = (p: any) => {
+                    if (typeof p === 'string') return parseFloat(p.replace(/,/g, ''));
+                    return Number(p || 0);
+                };
+
+                return {
+                    gold: { ...goldRes.data, price: parsePrice(peakGold || goldRes.data?.price || 0) },
+                    silver: { ...silverRes.data, price: parsePrice(peakSilver || silverRes.data?.price || 0) },
+                };
+            } catch (err) {
+                console.error('Calculator rate fetch error:', err);
+                return null;
+            }
+        },
         refetchInterval: 60000,
     });
 
-    const { data: silverRate, isLoading: silverLoading, refetch: refetchSilver, isFetching: isFetchingSilver } = useQuery({
-        queryKey: ['silver-rate'],
-        queryFn: async () => (await api.get('/commodity/silver-rate')).data,
-        refetchInterval: 60000,
-    });
-
-    const metalRate = metalCategory === 'Gold' ? goldRate : silverRate;
-    const isLoading = metalCategory === 'Gold' ? goldLoading : silverLoading;
-    const isFetching = metalCategory === 'Gold' ? isFetchingGold : isFetchingSilver;
-    const refetch = metalCategory === 'Gold' ? refetchGold : refetchSilver;
+    const metalRate = metalCategory === 'Gold' ? rates?.gold : rates?.silver;
+    const isLoading = ratesLoading || !metalRate;
 
     const [weights, setWeights] = useState({
         weightTola: '1',
@@ -124,8 +145,7 @@ export default function GoldCalculator({ isOpen, onClose }: GoldCalculatorProps)
                             </div>
                             <button
                                 onClick={() => refetch()}
-                                disabled={isFetching}
-                                className={`p-1.5 ${metalCategory === 'Gold' ? 'hover:bg-yellow-500/10 text-yellow-600' : 'hover:bg-slate-500/10 text-slate-600'} rounded-lg transition-all ${isFetching ? 'animate-spin' : ''}`}
+                                className={`p-1.5 ${metalCategory === 'Gold' ? 'hover:bg-yellow-500/10 text-yellow-600' : 'hover:bg-slate-500/10 text-slate-600'} rounded-lg transition-all ${ratesLoading ? 'animate-spin' : ''}`}
                             >
                                 <RefreshCcw className="w-4 h-4" />
                             </button>
@@ -186,7 +206,14 @@ export default function GoldCalculator({ isOpen, onClose }: GoldCalculatorProps)
                         <div className="bg-gradient-to-br from-yellow-500 via-amber-600 to-yellow-700 p-[1px] rounded-[2rem]">
                             <div className="bg-[var(--bg-card)] rounded-[2rem] p-6 space-y-4">
                                 <div className="flex items-center justify-between text-[var(--text-muted)]">
-                                    <span className="text-xs font-bold uppercase tracking-widest">Base Gold Value</span>
+                                    <div className="flex flex-col">
+                                        <span className="text-xs font-bold uppercase tracking-widest">Base {metalCategory} Value</span>
+                                        {!isLoading && metalRate && (
+                                            <span className="text-[8px] font-black text-[var(--primary)] uppercase tracking-tighter">
+                                                @ {formatPrice(metalRate.price)} / Tola
+                                            </span>
+                                        )}
+                                    </div>
                                     <span className="font-bold">{formatPrice(breakdown.goldValue)}</span>
                                 </div>
                                 <div className="flex items-center justify-between text-[var(--text-muted)]">
