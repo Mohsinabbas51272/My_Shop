@@ -58,7 +58,7 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
 
     return (
         <div className="fixed inset-0 z-[150] flex items-center justify-center p-2 sm:p-4 bg-[var(--bg-main)]/95 backdrop-blur-md">
-            <div className="bg-[var(--bg-card)] border border-[var(--border)] w-full max-w-6xl h-full md:h-[90vh] rounded-t-[2rem] md:rounded-[2rem] overflow-hidden shadow-2xl flex flex-col md:flex-row relative">
+            <div className="bg-[var(--bg-card)] border border-[var(--border)] w-full max-w-5xl h-full md:h-[90vh] rounded-t-[2rem] md:rounded-[2rem] overflow-hidden shadow-2xl flex flex-col md:flex-row relative">
                 <button
                     onClick={onClose}
                     className="absolute top-4 right-4 md:top-8 md:right-8 z-[160] p-2 bg-[var(--bg-card)]/80 hover:bg-red-500 text-[var(--text-main)] hover:text-white rounded-full transition-all backdrop-blur-md border border-[var(--border)] shadow-xl"
@@ -99,19 +99,19 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
                 <div className="flex-1 flex flex-col min-h-0 bg-[var(--bg-card)] relative">
                     {/* Scrollable Body */}
                     <div className="flex-grow overflow-y-auto custom-scrollbar">
-                        <div className="p-6 md:p-10 space-y-8">
+                        <div className="p-5 md:p-6 space-y-4">
                             {/* Header Info */}
                             <div>
                                 <div className="flex items-center gap-3 mb-4">
-                                    <span className="px-3 py-1 bg-[var(--primary)]/10 text-[var(--primary)] text-[9px] font-black uppercase tracking-[0.2em] rounded-full border border-[var(--primary)]/20">
+                                    <span className="px-2 py-0.5 bg-[var(--primary)]/10 text-[var(--primary)] text-[8px] font-black uppercase tracking-[0.2em] rounded-full border border-[var(--primary)]/20">
                                         Premium Collection
                                     </span>
                                 </div>
-                                <h2 className="text-2xl md:text-3xl font-black text-[var(--text-main)] mb-4 leading-tight tracking-tight">
+                                <h2 className="text-lg md:text-xl font-black text-[var(--text-main)] mb-2 leading-tight tracking-tight">
                                     {product.name}
                                 </h2>
                                 <div className="flex items-center gap-4">
-                                    <span className="text-3xl font-black text-[var(--primary)]">
+                                    <span className="text-xl font-black text-[var(--primary)]">
                                         {formatPrice(breakdown.total)}
                                     </span>
                                     <span className="text-sm text-[var(--text-muted)] font-bold line-through opacity-40">
@@ -121,7 +121,7 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
                             </div>
 
                             {/* Info Box */}
-                            <div className="p-5 bg-[var(--bg-input)]/50 rounded-2xl border border-[var(--border)] space-y-4 shadow-sm">
+                            <div className="p-4 bg-[var(--bg-input)]/50 rounded-2xl border border-[var(--border)] space-y-3 shadow-sm">
                                 <div className="flex items-center gap-2 text-[9px] font-black text-[var(--primary)] uppercase tracking-[0.2em]">
                                     <Info className="w-3.5 h-3.5" />
                                     Pricing Breakdown
@@ -129,11 +129,11 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <p className="text-[9px] text-[var(--text-muted)] uppercase font-black tracking-widest mb-1">Metal Value</p>
-                                        <p className="text-sm font-black text-[var(--text-main)]">{formatPrice(breakdown.goldValue)}</p>
+                                        <p className="text-[12px] font-black text-[var(--text-main)]">{formatPrice(breakdown.goldValue)}</p>
                                     </div>
                                     <div>
                                         <p className="text-[9px] text-[var(--text-muted)] uppercase font-black tracking-widest mb-1">Craftsmanship</p>
-                                        <p className="text-sm font-black text-[var(--text-main)]">{formatPrice(breakdown.makingCharges)}</p>
+                                        <p className="text-[12px] font-black text-[var(--text-main)]">{formatPrice(breakdown.makingCharges)}</p>
                                     </div>
                                 </div>
                             </div>
@@ -141,14 +141,14 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
                             {/* Weights */}
                             {(product.weightTola > 0 || product.weightMasha > 0 || product.weightRati > 0) && (
                                 <div className="flex flex-wrap gap-2">
-                                    {product.weightTola > 0 && <span className="px-3 py-1.5 bg-[var(--bg-input)] border border-[var(--border)] rounded-xl text-[10px] font-black text-[var(--text-main)] uppercase tracking-wider">{product.weightTola} TOLA</span>}
-                                    {product.weightMasha > 0 && <span className="px-3 py-1.5 bg-[var(--bg-input)] border border-[var(--border)] rounded-xl text-[10px] font-black text-[var(--text-main)] uppercase tracking-wider">{product.weightMasha} MASHA</span>}
-                                    {product.weightRati > 0 && <span className="px-3 py-1.5 bg-[var(--bg-input)] border border-[var(--border)] rounded-xl text-[10px] font-black text-[var(--text-main)] uppercase tracking-wider">{product.weightRati} RATI</span>}
+                                    {product.weightTola > 0 && <span className="px-2 py-1 bg-[var(--bg-input)] border border-[var(--border)] rounded-lg text-[9px] font-black text-[var(--text-main)] uppercase tracking-wider">{product.weightTola} TOLA</span>}
+                                    {product.weightMasha > 0 && <span className="px-2 py-1 bg-[var(--bg-input)] border border-[var(--border)] rounded-lg text-[9px] font-black text-[var(--text-main)] uppercase tracking-wider">{product.weightMasha} MASHA</span>}
+                                    {product.weightRati > 0 && <span className="px-2 py-1 bg-[var(--bg-input)] border border-[var(--border)] rounded-lg text-[9px] font-black text-[var(--text-main)] uppercase tracking-wider">{product.weightRati} RATI</span>}
                                 </div>
                             )}
 
                             {/* Description */}
-                            <p className="text-[var(--text-muted)] leading-relaxed text-sm md:text-base font-medium">
+                            <p className="text-[var(--text-muted)] leading-relaxed text-[12px] md:text-[13px] font-medium">
                                 {product.description || "Indulge in the perfect blend of style and substance..."}
                             </p>
 
@@ -165,47 +165,47 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
                     </div>
 
                     {/* Footer Actions */}
-                    <div className="p-6 md:p-8 bg-[var(--bg-card)] border-t border-[var(--border)]/50 mt-auto shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)]">
-                        <div className="flex flex-row items-center justify-between gap-4 mb-6">
+                    <div className="p-4 md:p-5 bg-[var(--bg-card)] border-t border-[var(--border)]/50 mt-auto shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)]">
+                        <div className="flex flex-row items-center justify-between gap-4 mb-3">
                             <div className="flex items-center bg-[var(--bg-input)] border border-[var(--border)] rounded-2xl p-1 shrink-0">
                                 <button
                                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                                    className="p-3 hover:bg-[var(--bg-card)] text-[var(--text-muted)] rounded-xl transition-all active:scale-90"
+                                    className="p-1.5 hover:bg-[var(--bg-card)] text-[var(--text-muted)] rounded-xl transition-all active:scale-90"
                                 >
-                                    <Minus className="w-4 h-4 md:w-5 h-5" />
+                                    <Minus className="w-3 h-3 md:w-3.5 h-3.5" />
                                 </button>
-                                <span className="w-8 md:w-10 text-center font-black text-base md:text-lg text-[var(--text-main)]">{quantity}</span>
+                                <span className="w-6 md:w-8 text-center font-black text-xs md:text-sm text-[var(--text-main)]">{quantity}</span>
                                 <button
                                     onClick={() => setQuantity(quantity + 1)}
-                                    className="p-3 hover:bg-[var(--bg-card)] text-[var(--text-muted)] rounded-xl transition-all active:scale-90"
+                                    className="p-1.5 hover:bg-[var(--bg-card)] text-[var(--text-muted)] rounded-xl transition-all active:scale-90"
                                 >
-                                    <Plus className="w-4 h-4 md:w-5 h-5" />
+                                    <Plus className="w-3 h-3 md:w-3.5 h-3.5" />
                                 </button>
                             </div>
                             <div className="text-right">
-                                <p className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">Subtotal</p>
-                                <p className="text-xl md:text-2xl font-black text-[var(--primary)]">{formatPrice(breakdown.total * quantity)}</p>
+                                <p className="text-[8px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-0.5">Subtotal</p>
+                                <p className="text-md md:text-lg font-black text-[var(--primary)]">{formatPrice(breakdown.total * quantity)}</p>
                             </div>
                         </div>
 
-                        <div className="flex gap-3">
+                        <div className="flex gap-2">
                             <button
                                 onClick={() => {
                                     for (let i = 0; i < quantity; i++) addItem({ ...product, price: breakdown.total });
                                     navigate('/checkout');
                                 }}
                                 disabled={product.category === 'Silver' ? silverLoading : goldLoading}
-                                className="flex-1 h-14 md:h-16 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-black rounded-2xl transition-all shadow-lg shadow-[var(--primary)]/10 flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50 uppercase tracking-widest text-xs"
+                                className="flex-1 h-11 md:h-12 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-black rounded-2xl transition-all shadow-lg shadow-[var(--primary)]/10 flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50 uppercase tracking-widest text-[9px]"
                             >
-                                <ShoppingBag className="w-5 h-5" />
+                                <ShoppingBag className="w-3.5 h-3.5" />
                                 Buy Now
                             </button>
                             <button
                                 onClick={handleAddToCart}
                                 disabled={product.category === 'Silver' ? silverLoading : goldLoading}
-                                className="w-14 md:w-16 h-14 md:h-16 bg-[var(--bg-input)] hover:bg-[var(--border)] text-[var(--text-main)] rounded-2xl transition-all border border-[var(--border)] flex items-center justify-center active:scale-95 disabled:opacity-50"
+                                className="w-11 md:w-12 h-11 md:h-12 bg-[var(--bg-input)] hover:bg-[var(--border)] text-[var(--text-main)] rounded-2xl transition-all border border-[var(--border)] flex items-center justify-center active:scale-95 disabled:opacity-50"
                             >
-                                <ShoppingCart className="w-5 h-5" />
+                                <ShoppingCart className="w-3.5 h-3.5" />
                             </button>
                         </div>
                     </div>

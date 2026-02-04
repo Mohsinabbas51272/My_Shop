@@ -71,7 +71,7 @@ export default function Cart() {
                             <ShoppingBag className="w-16 h-16 opacity-20" />
                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 bg-[var(--primary)]/10 rounded-full blur-2xl -z-10" />
                         </div>
-                        <h2 className="text-2xl font-black mb-2 text-[var(--text-main)]">Your vault is empty</h2>
+                        <h2 className="text-2xl font-black mb-2 text-[var(--text-main)]">Your collection is empty</h2>
                         <p className="mb-8 font-medium opacity-60">Looks like you haven't added any treasures yet.</p>
                         <Link
                             to="/dashboard"

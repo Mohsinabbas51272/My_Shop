@@ -109,7 +109,7 @@ export default function AdminDashboard() {
     const { data: detailedRates, isLoading: detailedLoading } = useQuery({
         queryKey: ['detailed-rates'],
         queryFn: async () => (await api.get('/commodity/detailed-rates')).data,
-        enabled: activeTab === 'local',
+        enabled: true,
         refetchInterval: 10000,
     });
 
@@ -342,7 +342,7 @@ export default function AdminDashboard() {
                                     <div>
                                         <span className="text-[10px] font-bold uppercase tracking-widest text-yellow-600 block">Gold ({goldRate.purity})</span>
                                         <p className="text-lg font-black text-yellow-600 leading-none">
-                                            {goldRate.currency} {goldRate.price}
+                                            {formatPrice(detailedRates?.gold ? [...detailedRates.gold].sort((a: any, b: any) => b.price - a.price)[0]?.price : goldRate.price)}
                                         </p>
                                     </div>
                                 </div>
@@ -354,6 +354,11 @@ export default function AdminDashboard() {
                                             <span className="opacity-30">•</span>
                                             <span>{new Date(goldRate.sourceUpdatedAt || goldRate.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                         </span>
+                                        {detailedRates?.gold && (
+                                            <span className="block mt-1 text-yellow-700 font-black">
+                                                Peak: {[...detailedRates.gold].sort((a: any, b: any) => b.price - a.price)[0]?.name || '---'}
+                                            </span>
+                                        )}
                                     </p>
                                 </div>
                             </div>
@@ -371,7 +376,7 @@ export default function AdminDashboard() {
                                     <div>
                                         <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 block">Silver ({silverRate.purity})</span>
                                         <p className="text-lg font-black text-slate-500 leading-none">
-                                            {silverRate.currency} {silverRate.price}
+                                            {formatPrice(detailedRates?.silver ? [...detailedRates.silver].sort((a: any, b: any) => b.price - a.price)[0]?.price : silverRate.price)}
                                         </p>
                                     </div>
                                 </div>
@@ -383,6 +388,11 @@ export default function AdminDashboard() {
                                             <span className="opacity-30">•</span>
                                             <span>{new Date(silverRate.sourceUpdatedAt || silverRate.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                         </span>
+                                        {detailedRates?.silver && (
+                                            <span className="block mt-1 text-slate-700 font-black">
+                                                Peak: {[...detailedRates.silver].sort((a: any, b: any) => b.price - a.price)[0]?.name || '---'}
+                                            </span>
+                                        )}
                                     </p>
                                 </div>
                             </div>

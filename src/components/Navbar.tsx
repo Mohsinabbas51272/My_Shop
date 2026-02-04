@@ -81,7 +81,7 @@ export default function Navbar() {
                                     "/user/dashboard"
                         } className="flex items-center gap-3 text-[var(--primary)] font-bold text-xl hover:opacity-80 transition-opacity shrink-0">
                             <img src="/logo_3d.png" alt="" className="w-10 h-10 object-contain rounded-full border border-[var(--primary)]/30 shadow-lg" />
-                            <span className="truncate hidden lg:inline uppercase tracking-tighter">Alamgir<span className="text-[var(--text-main)]"> Jewellers</span></span>
+                            <span className="truncate hidden lg:inline uppercase tracking-tighter font-serif">Alamgir<span className="text-[var(--text-main)]"> Jewellers</span></span>
                         </Link>
 
                         {/* Navigation Links - Desktop */}

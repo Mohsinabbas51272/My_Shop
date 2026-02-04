@@ -104,11 +104,18 @@ export default function Dashboard() {
             try {
                 const gold = await api.get('/commodity/gold-rate');
                 const silver = await api.get('/commodity/silver-rate');
+                const detailed = await api.get('/commodity/detailed-rates');
+
+                // Extract peak rates from detailed sources
+                const peakGold = detailed.data?.gold ? [...detailed.data.gold].sort((a: any, b: any) => b.price - a.price)[0]?.price : (gold.data?.price || 0);
+                const peakSilver = detailed.data?.silver ? [...detailed.data.silver].sort((a: any, b: any) => b.price - a.price)[0]?.price : (silver.data?.price || 0);
+
                 return {
-                    gold: gold.data?.price || 0,
-                    silver: silver.data?.price || 0,
-                    goldRaw: gold.data,
-                    silverRaw: silver.data
+                    gold: peakGold,
+                    silver: peakSilver,
+                    goldRaw: { ...gold.data, price: peakGold },
+                    silverRaw: { ...silver.data, price: peakSilver },
+                    detailedResult: detailed.data
                 };
             } catch (error) {
                 console.error('Failed to fetch rates', error);
@@ -120,7 +127,7 @@ export default function Dashboard() {
                 };
             }
         },
-        refetchInterval: 5000, // 5 seconds (backend caches so no extra scraping)
+        refetchInterval: 5000,
         retry: 2,
     });
 
@@ -171,7 +178,7 @@ export default function Dashboard() {
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8">
                     <div className="space-y-1">
                         <h1 className="text-3xl md:text-4xl font-black text-[var(--text-main)] tracking-tight">
-                            Digital <span className="text-[var(--primary)]">Vault</span>
+                            Our <span className="text-[var(--primary)]">Collection</span>
                         </h1>
                         <p className="text-sm md:text-base text-[var(--text-muted)] font-medium">Manage your assets and explore the market.</p>
                     </div>
@@ -219,12 +226,6 @@ export default function Dashboard() {
                                                 <div className="h-2 w-10 bg-[var(--text-muted)]/20 animate-pulse rounded ml-auto" />
                                             ) : (
                                                 <div className="flex items-center gap-1">
-                                                    {rates?.goldRaw?.source && (
-                                                        <span className="text-[7px] font-black opacity-70 uppercase tracking-tighter">
-                                                            {rates.goldRaw.source.replace('average', 'avg').replace('sources', 'src')}
-                                                        </span>
-                                                    )}
-                                                    <span className="text-[7px] opacity-40">•</span>
                                                     <span>
                                                         {new Date(rates?.goldRaw?.sourceUpdatedAt || rates?.goldRaw?.updatedAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
                                                     </span>
@@ -249,12 +250,6 @@ export default function Dashboard() {
                                                 <div className="h-2 w-10 bg-[var(--text-muted)]/20 animate-pulse rounded ml-auto" />
                                             ) : (
                                                 <div className="flex items-center gap-1">
-                                                    {rates?.silverRaw?.source && (
-                                                        <span className="text-[7px] font-black opacity-70 uppercase tracking-tighter">
-                                                            {rates.silverRaw.source.replace('average', 'avg').replace('sources', 'src')}
-                                                        </span>
-                                                    )}
-                                                    <span className="text-[7px] opacity-40">•</span>
                                                     <span>
                                                         {new Date(rates?.silverRaw?.sourceUpdatedAt || rates?.silverRaw?.updatedAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
                                                     </span>
@@ -576,7 +571,7 @@ export default function Dashboard() {
                             {ordersLoading ? (
                                 <div className="flex flex-col items-center justify-center py-32 bg-[var(--bg-card)]/20 rounded-[2.5rem] border border-[var(--border)]/50 backdrop-blur-sm">
                                     <Loader2 className="w-16 h-16 text-[var(--primary)] animate-spin mb-6" />
-                                    <p className="text-xl font-black text-gradient-primary">Accessing your vault...</p>
+                                    <p className="text-xl font-black text-gradient-primary">Accessing our collection...</p>
                                     <p className="text-[var(--text-muted)] mt-2 font-medium">Retrieving your order history.</p>
                                 </div>
                             ) : !orders || orders.length === 0 ? (
@@ -584,7 +579,7 @@ export default function Dashboard() {
                                     <div className="p-8 bg-[var(--bg-input)]/50 rounded-full mb-6">
                                         <ShoppingBag className="w-16 h-16 opacity-20" />
                                     </div>
-                                    <p className="text-2xl font-black text-[var(--text-main)]">Your vault is empty</p>
+                                    <p className="text-2xl font-black text-[var(--text-main)]">Your collection is empty</p>
                                     <p className="text-sm mt-2 font-medium max-w-xs text-center">You haven't placed any orders yet. Start your journey with our collection.</p>
                                     <button
                                         onClick={() => setSearchParams({ tab: 'shop' })}
@@ -601,16 +596,16 @@ export default function Dashboard() {
                                             layout
                                             className="glass-card bg-[var(--bg-card)]/30 border border-[var(--border)]/50 rounded-[2.5rem] overflow-hidden hover:border-[var(--primary)]/30 transition-all duration-500 shadow-xl"
                                         >
-                                            <div className="p-6 md:p-10 flex flex-col xl:flex-row gap-10">
+                                            <div className="p-5 md:p-7 flex flex-col xl:flex-row gap-7">
                                                 <div className="flex-1 space-y-8">
                                                     <div className="flex flex-wrap items-center justify-between gap-6">
                                                         <div className="flex items-center gap-6">
-                                                            <div className="p-4 bg-[var(--bg-input)]/50 rounded-[2rem] border border-[var(--border)]/50">
-                                                                <ShoppingBag className="w-8 h-8 text-[var(--primary)]" />
+                                                            <div className="p-3 bg-[var(--bg-input)]/50 rounded-2xl border border-[var(--border)]/50">
+                                                                <ShoppingBag className="w-6 h-6 text-[var(--primary)]" />
                                                             </div>
                                                             <div>
-                                                                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)] mb-1 opacity-60">Order Reference</label>
-                                                                <p className="font-mono text-xl font-black text-[var(--text-main)]">#{order.displayId || order.id}</p>
+                                                                <label className="block text-[9px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)] mb-0.5 opacity-60">Order Reference</label>
+                                                                <p className="font-mono text-lg font-black text-[var(--text-main)]">#{order.displayId || order.id}</p>
                                                             </div>
                                                         </div>
 
@@ -641,7 +636,7 @@ export default function Dashboard() {
                                                         </div>
                                                     </div>
 
-                                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-6 bg-[var(--bg-input)]/30 rounded-[2rem] border border-[var(--border)]/50">
+                                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-[var(--bg-input)]/30 rounded-3xl border border-[var(--border)]/50">
                                                         <div>
                                                             <label className="block text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] mb-2 opacity-60">Date</label>
                                                             <p className="text-sm font-bold text-[var(--text-main)]">{new Date(order.createdAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}</p>
@@ -672,12 +667,12 @@ export default function Dashboard() {
                                                             </div>
                                                         </div>
                                                         <div className="col-span-2 text-right">
-                                                            <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)] mb-1 opacity-60">Exquisite Total</label>
-                                                            <p className="text-3xl font-black text-gradient-primary">{formatPrice(order.total || 0)}</p>
+                                                            <label className="block text-[9px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)] mb-0.5 opacity-60">Exquisite Total</label>
+                                                            <p className="text-2xl font-black text-gradient-primary">{formatPrice(order.total || 0)}</p>
                                                         </div>
                                                     </div>
 
-                                                    <div className="space-y-4">
+                                                    <div className="space-y-3">
                                                         <label className="block text-[10px] font-black uppercase tracking-[0.3em] text-[var(--text-muted)] opacity-60">Secured Items ({(typeof order.items === 'string' ? JSON.parse(order.items) : order.items).length})</label>
                                                         <div className="flex flex-wrap gap-4">
                                                             {(typeof order.items === 'string' ? JSON.parse(order.items) : order.items).map((item: any, idx: number) => (
@@ -699,8 +694,8 @@ export default function Dashboard() {
                                                     </div>
                                                 </div>
 
-                                                <div className="w-full xl:w-72 bg-[var(--bg-input)]/20 rounded-[2rem] border border-[var(--border)]/50 p-8 flex flex-col">
-                                                    <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-[var(--text-muted)] mb-8 opacity-60">Order Management</h4>
+                                                <div className="w-full xl:w-60 bg-[var(--bg-input)]/20 rounded-[2rem] border border-[var(--border)]/50 p-5 flex flex-col">
+                                                    <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-[var(--text-muted)] mb-5 opacity-60 text-center">Order Management</h4>
                                                     <div className="space-y-4 mt-auto">
                                                         {editingOrderId === order.id ? (
                                                             <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
@@ -784,7 +779,7 @@ export default function Dashboard() {
                                                         ) : (
                                                             <div className="grid grid-cols-1 gap-4">
                                                                 {(order.status === 'Pending' && order.paymentStatus !== 'Paid') && (
-                                                                    <div className="flex flex-col gap-3">
+                                                                    <div className="flex flex-col gap-2.5">
                                                                         <button
                                                                             onClick={() => {
                                                                                 setEditingOrderId(order.id);
@@ -795,7 +790,7 @@ export default function Dashboard() {
                                                                                     items: typeof order.items === 'string' ? JSON.parse(order.items) : order.items,
                                                                                 });
                                                                             }}
-                                                                            className="w-full flex items-center justify-center gap-3 py-4 bg-[var(--primary)]/10 hover:bg-[var(--primary)] hover:text-white text-[var(--primary)] rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm active:scale-95 group"
+                                                                            className="w-full flex items-center justify-center gap-3 py-2.5 bg-[var(--primary)]/10 hover:bg-[var(--primary)] hover:text-white text-[var(--primary)] rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm active:scale-95 group"
                                                                         >
                                                                             <Edit2 className="w-3.5 h-3.5 group-hover:rotate-12 transition-transform" /> Edit Credentials
                                                                         </button>
@@ -805,7 +800,7 @@ export default function Dashboard() {
                                                                                     deleteOrderMutation.mutate(order.id);
                                                                                 }
                                                                             }}
-                                                                            className="w-full flex items-center justify-center gap-3 py-4 bg-red-500/5 hover:bg-red-500 hover:text-white text-red-500/80 hover:shadow-lg hover:shadow-red-500/20 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95"
+                                                                            className="w-full flex items-center justify-center gap-3 py-2.5 bg-red-500/5 hover:bg-red-500 hover:text-white text-red-500/80 hover:shadow-lg hover:shadow-red-500/20 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95"
                                                                         >
                                                                             <Trash2 className="w-3.5 h-3.5" /> Permanent Cancel
                                                                         </button>
@@ -818,7 +813,7 @@ export default function Dashboard() {
                                                                                 deleteOrderMutation.mutate(order.id);
                                                                             }
                                                                         }}
-                                                                        className="w-full flex items-center justify-center gap-3 py-4 bg-[var(--text-muted)]/5 hover:bg-[var(--text-muted)] hover:text-white text-[var(--text-muted)] rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95"
+                                                                        className="w-full flex items-center justify-center gap-3 py-2.5 bg-[var(--text-muted)]/5 hover:bg-[var(--text-muted)] hover:text-white text-[var(--text-muted)] rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95"
                                                                     >
                                                                         <Trash2 className="w-3.5 h-3.5" /> Delete from History
                                                                     </button>
@@ -828,7 +823,7 @@ export default function Dashboard() {
                                                                         setDisputingOrder(order);
                                                                         setDisputeData({ subject: `Dispute for Order #${order.displayId || order.id}`, message: '' });
                                                                     }}
-                                                                    className="w-full flex items-center justify-center gap-3 py-4 bg-yellow-500/10 hover:bg-yellow-500 hover:text-white text-yellow-600 rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-sm active:scale-95"
+                                                                    className="w-full flex items-center justify-center gap-3 py-2.5 bg-yellow-500/10 hover:bg-yellow-500 hover:text-white text-yellow-600 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm active:scale-95"
                                                                 >
                                                                     <Gavel className="w-4 h-4" /> Dispute Resolve
                                                                 </button>

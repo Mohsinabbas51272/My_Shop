@@ -8,6 +8,10 @@ export interface Toast {
   title?: string;
   message: string;
   createdAt: number;
+  action?: {
+    label: string;
+    onClick: () => void;
+  };
 }
 
 interface ToastState {
@@ -31,6 +35,7 @@ export const useToastStore = create<ToastState>((set, get) => ({
       title: toast.title,
       message: toast.message,
       createdAt: Date.now(),
+      action: toast.action,
     };
 
     set({ toasts: [next, ...get().toasts].slice(0, 4) });

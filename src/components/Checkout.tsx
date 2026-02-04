@@ -124,7 +124,7 @@ export default function Checkout() {
     <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] font-['Outfit']">
       <Navbar />
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center gap-4 mb-8">
           <Link to="/cart" className="p-2 hover:bg-[var(--bg-card)] rounded-full transition-colors text-[var(--text-muted)] hover:text-[var(--text-main)]">
             <ArrowLeft className="w-6 h-6" />
@@ -160,7 +160,7 @@ export default function Checkout() {
             <div className="p-8 bg-[var(--bg-input)]/50 rounded-full mb-6 relative">
               <ShoppingBag className="w-16 h-16 opacity-20" />
             </div>
-            <h2 className="text-2xl font-black mb-2 text-[var(--text-main)]">Your vault is empty</h2>
+            <h2 className="text-2xl font-black mb-2 text-[var(--text-main)]">Your collection is empty</h2>
             <p className="mb-8 font-medium opacity-60">Add items to your cart before checking out.</p>
             <Link
               to="/dashboard"
@@ -170,64 +170,67 @@ export default function Checkout() {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:items-start">
-            <div className="lg:col-span-7 space-y-6">
-              {/* Delivery Section */}
-              <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-[2rem] p-6 md:p-8 shadow-xl">
-                <div className="flex items-center gap-3 mb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-7 gap-6 lg:items-start">
+            {/* Delivery Section */}
+            <div className="lg:col-span-2 space-y-6">
+              <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-[2rem] p-5 shadow-xl h-full">
+                <div className="flex items-center gap-3 mb-6">
                   <div className="p-2 bg-[var(--primary)]/10 rounded-lg">
-                    <ShieldAlert className="w-5 h-5 text-[var(--primary)]" />
+                    <ShieldAlert className="w-4 h-4 text-[var(--primary)]" />
                   </div>
-                  <h2 className="text-xl font-black text-[var(--text-main)] tracking-tight">Delivery Identity</h2>
+                  <h2 className="text-sm font-black text-[var(--text-main)] tracking-tight">Delivery Identity</h2>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] ml-1">Full Name</label>
+                <div className="space-y-4">
+                  <div className="space-y-1">
+                    <label className="text-[8px] font-black uppercase tracking-widest text-[var(--text-muted)] ml-1">Full Name</label>
                     <input
                       value={checkoutDetails.customerName}
                       onChange={(e) => setCheckoutDetails({ ...checkoutDetails, customerName: e.target.value })}
-                      className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-4 text-sm font-bold focus:ring-4 focus:ring-[var(--primary)]/5 outline-none transition-all placeholder:opacity-30"
+                      className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-3 text-[13px] font-bold focus:ring-4 focus:ring-[var(--primary)]/5 outline-none transition-all"
                       placeholder="Recipient Name"
                     />
                   </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] ml-1">Identity Card (CNIC)</label>
+                  <div className="space-y-1">
+                    <label className="text-[8px] font-black uppercase tracking-widest text-[var(--text-muted)] ml-1">CNIC</label>
                     <input
                       value={checkoutDetails.customerCnic}
                       onChange={(e) => setCheckoutDetails({ ...checkoutDetails, customerCnic: e.target.value })}
-                      className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-4 text-sm font-bold focus:ring-4 focus:ring-[var(--primary)]/5 outline-none transition-all placeholder:opacity-30"
+                      className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-3 text-[13px] font-bold focus:ring-4 focus:ring-[var(--primary)]/5 outline-none transition-all"
                       placeholder="42101-XXXXXXX-X"
                     />
                   </div>
-                  <div className="sm:col-span-2 space-y-1.5">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] ml-1">Physical Address</label>
-                    <input
-                      value={checkoutDetails.customerAddress}
-                      onChange={(e) => setCheckoutDetails({ ...checkoutDetails, customerAddress: e.target.value })}
-                      className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-4 text-sm font-bold focus:ring-4 focus:ring-[var(--primary)]/5 outline-none transition-all placeholder:opacity-30"
-                      placeholder="Verified delivery location"
-                    />
-                  </div>
-                  <div className="sm:col-span-2 space-y-1.5">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] ml-1">Contact Protocol</label>
+                  <div className="space-y-1">
+                    <label className="text-[8px] font-black uppercase tracking-widest text-[var(--text-muted)] ml-1">Phone</label>
                     <input
                       value={checkoutDetails.customerPhone}
                       onChange={(e) => setCheckoutDetails({ ...checkoutDetails, customerPhone: e.target.value })}
-                      className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-4 text-sm font-bold focus:ring-4 focus:ring-[var(--primary)]/5 outline-none transition-all placeholder:opacity-30"
+                      className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-3 text-[13px] font-bold focus:ring-4 focus:ring-[var(--primary)]/5 outline-none transition-all"
                       placeholder="03xx-xxxxxxx"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[8px] font-black uppercase tracking-widest text-[var(--text-muted)] ml-1">Address</label>
+                    <textarea
+                      rows={3}
+                      value={checkoutDetails.customerAddress}
+                      onChange={(e) => setCheckoutDetails({ ...checkoutDetails, customerAddress: e.target.value })}
+                      className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-3 text-[13px] font-bold focus:ring-4 focus:ring-[var(--primary)]/5 outline-none transition-all resize-none"
+                      placeholder="Verified delivery location"
                     />
                   </div>
                 </div>
               </div>
+            </div>
 
-              {/* Payment Section */}
+            {/* Payment Section */}
+            <div className="lg:col-span-2 space-y-6">
               <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-[2rem] p-6 md:p-8 shadow-xl">
                 <div className="flex items-center gap-3 mb-8">
                   <div className="p-2 bg-[var(--primary)]/10 rounded-lg">
                     <CreditCard className="w-5 h-5 text-[var(--primary)]" />
                   </div>
-                  <h2 className="text-xl font-black text-[var(--text-main)] tracking-tight">Payment Settlement</h2>
+                  <h2 className="text-lg font-black text-[var(--text-main)] tracking-tight">Payment Settlement</h2>
                 </div>
 
                 <div className="space-y-6">
@@ -246,19 +249,19 @@ export default function Checkout() {
 
                   {selectedMethod?.type === 'online' && (
                     <div className="p-6 bg-[var(--bg-input)] border border-[var(--border)] rounded-2xl space-y-4 animate-in fade-in slide-in-from-top-4">
-                      <div className="p-4 bg-[var(--bg-card)] rounded-xl border border-[var(--border)] space-y-3">
-                        <div className="text-[10px] font-black text-[var(--primary)] uppercase tracking-widest mb-1 opacity-60">Merchant Credentials</div>
-                        <div className="grid grid-cols-2 gap-4">
+                      <div className="p-4 bg-[var(--bg-card)] rounded-xl border border-[var(--border)] space-y-4">
+                        <div className="text-[10px] font-black text-[var(--primary)] uppercase tracking-widest mb-1 opacity-60 text-center">Merchant Credentials</div>
+                        <div className="grid grid-cols-2 lg:grid-cols-2 gap-6 text-center">
                           <div>
-                            <span className="block text-[8px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-0.5">Institution</span>
+                            <span className="block text-[8px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1">Institution</span>
                             <span className="text-xs font-bold text-[var(--text-main)]">{selectedMethod.details.bankName}</span>
                           </div>
                           <div>
-                            <span className="block text-[8px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-0.5">Title</span>
+                            <span className="block text-[8px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1">Title</span>
                             <span className="text-xs font-bold text-[var(--text-main)]">{selectedMethod.details.accountTitle}</span>
                           </div>
                           <div className="col-span-2">
-                            <span className="block text-[8px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-0.5">Account Code</span>
+                            <span className="block text-[8px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1">Account Code</span>
                             <span className="text-sm font-mono font-black text-[var(--primary)] tracking-wider selection:bg-[var(--primary)] selection:text-white">{selectedMethod.details.accountNumber}</span>
                           </div>
                         </div>
@@ -280,7 +283,7 @@ export default function Checkout() {
                               </div>
                             </div>
                           ) : (
-                            <span className="text-xs font-black text-[var(--text-muted)] uppercase tracking-widest">{uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Attach Receipt'}</span>
+                            <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-tight text-center px-1">{uploading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'Attach Receipt'}</span>
                           )}
                           <input type="file" className="hidden" accept="image/*" onChange={handleFileUpload} disabled={uploading} />
                         </label>
@@ -291,51 +294,52 @@ export default function Checkout() {
               </div>
             </div>
 
-            <div className="lg:col-span-5">
-              <div className="bg-[var(--bg-card)] border border-[var(--border)] p-8 rounded-[2.5rem] lg:sticky lg:top-28 shadow-2xl relative overflow-hidden">
+            {/* Collection Summary Section */}
+            <div className="lg:col-span-3">
+              <div className="bg-[var(--bg-card)] border border-[var(--border)] p-6 md:p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden h-full">
                 <div className="absolute top-0 right-0 p-8 opacity-5">
-                  <ShieldAlert className="w-32 h-32" />
+                  <ShieldAlert className="w-24 h-24" />
                 </div>
 
-                <h2 className="text-2xl font-black mb-8 text-[var(--text-main)] tracking-tight">Vault Summary</h2>
+                <h2 className="text-2xl font-black mb-6 text-[var(--text-main)] tracking-tight">Collection Summary</h2>
 
-                <div className="space-y-4 mb-10">
-                  <div className="flex justify-between items-center px-4">
-                    <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">Artifacts Value</span>
-                    <span className="font-bold text-[var(--text-main)]">{formatPrice(subtotal)}</span>
+                <div className="grid grid-cols-3 gap-4 mb-8">
+                  <div className="flex flex-col text-center p-3 bg-[var(--bg-input)]/30 rounded-2xl border border-[var(--border)]/50">
+                    <span className="text-[8px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1">Items</span>
+                    <span className="text-[11px] font-bold text-[var(--text-main)]">{formatPrice(subtotal)}</span>
                   </div>
-                  <div className="flex justify-between items-center px-4">
-                    <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">Protocol Fee (2%)</span>
-                    <span className="font-bold text-[var(--text-main)]">{formatPrice(userFee)}</span>
+                  <div className="flex flex-col text-center p-3 bg-[var(--bg-input)]/30 rounded-2xl border border-[var(--border)]/50">
+                    <span className="text-[8px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1">Fee (2%)</span>
+                    <span className="text-[11px] font-bold text-[var(--text-main)]">{formatPrice(userFee)}</span>
                   </div>
-                  <div className="flex justify-between items-center px-4">
-                    <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">Logistics</span>
-                    <span className="font-bold text-[var(--text-main)]">{formatPrice(shippingFee)}</span>
+                  <div className="flex flex-col text-center p-3 bg-[var(--bg-input)]/30 rounded-2xl border border-[var(--border)]/50">
+                    <span className="text-[8px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1">Shipping</span>
+                    <span className="text-[11px] font-bold text-[var(--text-main)]">{formatPrice(shippingFee)}</span>
                   </div>
+                </div>
 
-                  <div className="my-8 h-px bg-gradient-to-r from-transparent via-[var(--border)] to-transparent" />
-
-                  <div className="flex justify-between items-end px-4">
+                <div className="space-y-6">
+                  <div className="flex justify-between items-end bg-[var(--bg-input)]/20 p-5 rounded-3xl border border-[var(--border)]/30">
                     <div className="flex flex-col">
-                      <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1">Total Settlement</span>
+                      <span className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1">Total Settlement</span>
                       <span className="text-3xl font-black text-[var(--primary)]">{formatPrice(grandTotal)}</span>
                     </div>
                   </div>
-                </div>
 
-                <div className="space-y-4">
-                  <button
-                    onClick={handleCheckoutClick}
-                    disabled={loading || uploading || user?.isFrozen || user?.isBlocked}
-                    className="w-full bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-black py-5 rounded-2xl transition-all shadow-xl shadow-[var(--primary)]/20 flex items-center justify-center gap-3 disabled:opacity-50 active:scale-[0.98] uppercase tracking-[0.2em] text-xs"
-                  >
-                    {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <CreditCard className="w-5 h-5" />}
-                    {loading ? 'Processing Protocol…' : 'Finalize & Place Order'}
-                  </button>
+                  <div className="space-y-4">
+                    <button
+                      onClick={handleCheckoutClick}
+                      disabled={loading || uploading || user?.isFrozen || user?.isBlocked}
+                      className="w-full bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-black py-5 rounded-2xl transition-all shadow-xl shadow-[var(--primary)]/20 flex items-center justify-center gap-3 disabled:opacity-50 active:scale-[0.98] uppercase tracking-[0.2em] text-xs"
+                    >
+                      {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <CreditCard className="w-5 h-5" />}
+                      {loading ? 'Processing…' : 'Finalize & Place Order'}
+                    </button>
 
-                  <p className="text-[9px] font-bold text-[var(--text-muted)] text-center uppercase tracking-widest leading-relaxed">
-                    By proceeding, you agree to our <span className="text-[var(--primary)]">Vault Transmission</span> policies.
-                  </p>
+                    <p className="text-[9px] font-bold text-[var(--text-muted)] text-center uppercase tracking-widest leading-relaxed">
+                      By proceeding, you agree to our <span className="text-[var(--primary)]">Collection Transmission</span> policies.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
