@@ -20,7 +20,6 @@ import {
     MessageSquare,
     ExternalLink,
     Gavel,
-    Calculator,
     Pencil,
     Plus,
     X,
