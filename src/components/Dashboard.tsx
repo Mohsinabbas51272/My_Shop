@@ -102,33 +102,28 @@ export default function Dashboard() {
         queryKey: ['commodity-rates'],
         queryFn: async () => {
             try {
-                const gold = await api.get('/commodity/gold-rate');
-                const silver = await api.get('/commodity/silver-rate');
-                const detailed = await api.get('/commodity/detailed-rates');
-
-                // Extract peak rates from detailed sources
-                const peakGold = detailed.data?.gold ? [...detailed.data.gold].sort((a: any, b: any) => b.price - a.price)[0]?.price : (gold.data?.price || 0);
-                const peakSilver = detailed.data?.silver ? [...detailed.data.silver].sort((a: any, b: any) => b.price - a.price)[0]?.price : (silver.data?.price || 0);
+                // Fetch all in parallel
+                const [goldRes, silverRes, detailedRes] = await Promise.all([
+                    api.get('/commodity/gold-rate'),
+                    api.get('/commodity/silver-rate'),
+                    api.get('/commodity/detailed-rates')
+                ]);
 
                 return {
-                    gold: peakGold,
-                    silver: peakSilver,
-                    goldRaw: { ...gold.data, price: peakGold },
-                    silverRaw: { ...silver.data, price: peakSilver },
-                    detailedResult: detailed.data
+                    gold: goldRes.data?.price ? parseFloat(goldRes.data.price.toString().replace(/,/g, '')) : 0,
+                    silver: silverRes.data?.price ? parseFloat(silverRes.data.price.toString().replace(/,/g, '')) : 0,
+                    goldRaw: goldRes.data,
+                    silverRaw: silverRes.data,
+                    detailedResult: detailedRes.data
                 };
             } catch (error) {
                 console.error('Failed to fetch rates', error);
-                return {
-                    gold: 0,
-                    silver: 0,
-                    goldRaw: { price: 0, error: 'Network Error' },
-                    silverRaw: { price: 0, error: 'Network Error' }
-                };
+                return { gold: 0, silver: 0, goldRaw: { price: 0 }, silverRaw: { price: 0 } };
             }
         },
-        refetchInterval: 5000,
-        retry: 2,
+        refetchInterval: 60000, // 1 minute
+        staleTime: 30000,
+        retry: 3,
     });
 
     // Keeping separate aliases for compatibility if used elsewhere in the component
@@ -343,11 +338,14 @@ export default function Dashboard() {
                                                         </h3>
 
                                                         <div className="flex items-center justify-between gap-2 mb-4">
-                                                            <div className="classic-price !text-xl !mb-0">
-                                                                {product.category === 'Silver'
-                                                                    ? formatPrice(calculateDynamicPrice(product, silverRate))
-                                                                    : formatPrice(calculateDynamicPrice(product, goldRate))
-                                                                }
+                                                            <div className="classic-price !text-xl !mb-0 min-h-[28px]">
+                                                                {rates?.gold && rates?.gold !== 0 ? (
+                                                                    product.category === 'Silver'
+                                                                        ? formatPrice(calculateDynamicPrice(product, silverRate))
+                                                                        : formatPrice(calculateDynamicPrice(product, goldRate))
+                                                                ) : (
+                                                                    <div className="h-6 w-24 bg-[var(--bg-input)] animate-pulse rounded" />
+                                                                )}
                                                             </div>
 
                                                             {(product.weightTola > 0 || product.weightMasha > 0 || product.weightRati > 0) && (

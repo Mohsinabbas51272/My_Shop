@@ -19,19 +19,10 @@ export default function GoldCalculator({ isOpen, onClose }: GoldCalculatorProps)
         queryKey: ['calculator-peak-rates'],
         queryFn: async () => {
             try {
-                const [goldRes, silverRes, detailedRes] = await Promise.all([
+                const [goldRes, silverRes] = await Promise.all([
                     api.get('/commodity/gold-rate'),
                     api.get('/commodity/silver-rate'),
-                    api.get('/commodity/detailed-rates'),
                 ]);
-
-                const peakGold = detailedRes.data?.gold?.length > 0
-                    ? [...detailedRes.data.gold].filter((s: any) => s.price > 0).sort((a: any, b: any) => b.price - a.price)[0]?.price
-                    : goldRes.data?.price;
-
-                const peakSilver = detailedRes.data?.silver?.length > 0
-                    ? [...detailedRes.data.silver].filter((s: any) => s.price > 0).sort((a: any, b: any) => b.price - a.price)[0]?.price
-                    : silverRes.data?.price;
 
                 const parsePrice = (p: any) => {
                     if (typeof p === 'string') return parseFloat(p.replace(/,/g, ''));
@@ -39,8 +30,8 @@ export default function GoldCalculator({ isOpen, onClose }: GoldCalculatorProps)
                 };
 
                 return {
-                    gold: { ...goldRes.data, price: parsePrice(peakGold || goldRes.data?.price || 0) },
-                    silver: { ...silverRes.data, price: parsePrice(peakSilver || silverRes.data?.price || 0) },
+                    gold: { ...goldRes.data, price: parsePrice(goldRes.data?.price || 0) },
+                    silver: { ...silverRes.data, price: parsePrice(silverRes.data?.price || 0) },
                 };
             } catch (err) {
                 console.error('Calculator rate fetch error:', err);

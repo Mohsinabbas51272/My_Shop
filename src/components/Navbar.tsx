@@ -76,9 +76,8 @@ export default function Navbar() {
                         </button>
 
                         <Link to={
-                            user?.role === 'SUPER_ADMIN' ? "/super-admin/dashboard" :
-                                user?.role === 'ADMIN' ? "/admin/dashboard" :
-                                    "/user/dashboard"
+                            user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN' ? "/admin/dashboard" :
+                                "/user/dashboard"
                         } className="flex items-center gap-3 text-[var(--primary)] font-bold text-xl hover:opacity-80 transition-opacity shrink-0">
                             <img src="/logo_3d.png" alt="" className="w-10 h-10 object-contain rounded-full border border-[var(--primary)]/30 shadow-lg" />
                             <span className="truncate hidden lg:inline uppercase tracking-tighter font-serif">Alamgir<span className="text-[var(--text-main)]"> Jewellers</span></span>
@@ -86,14 +85,7 @@ export default function Navbar() {
 
                         {/* Navigation Links - Desktop */}
                         <div className="hidden md:flex items-center gap-0.5 lg:gap-1 ml-1 lg:ml-2">
-                            {user?.role === 'SUPER_ADMIN' ? (
-                                <Link
-                                    to="/super-admin/dashboard"
-                                    className="text-[10px] lg:text-sm font-bold uppercase tracking-widest text-[var(--primary)] hover:opacity-80 transition-opacity"
-                                >
-                                    Command Center
-                                </Link>
-                            ) : user?.role === 'ADMIN' ? (
+                            {user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN' ? (
                                 <Link
                                     to="/admin/dashboard"
                                     className="text-[10px] lg:text-sm font-bold uppercase tracking-widest text-[var(--primary)] hover:opacity-80 transition-opacity"
@@ -412,15 +404,7 @@ export default function Navbar() {
 
                             {/* Mobile Nav Links */}
                             <div className="grid grid-cols-2 gap-3">
-                                {user?.role === 'SUPER_ADMIN' ? (
-                                    <Link
-                                        to="/super-admin/dashboard"
-                                        onClick={() => setIsMenuOpen(false)}
-                                        className="col-span-2 text-center py-4 bg-[var(--primary)] text-white font-black uppercase tracking-widest rounded-2xl shadow-lg"
-                                    >
-                                        Command Center
-                                    </Link>
-                                ) : user?.role === 'ADMIN' ? (
+                                {user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN' ? (
                                     <Link
                                         to="/admin/dashboard"
                                         onClick={() => setIsMenuOpen(false)}

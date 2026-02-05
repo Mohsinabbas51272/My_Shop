@@ -25,7 +25,7 @@ export default function Checkout() {
     customerCnic: user?.cnic || '',
     customerAddress: user?.address || '',
     customerPhone: user?.phone || '',
-    paymentMethod: user?.paymentMethod || 'cash_on_shop',
+    paymentMethod: 'cash_on_shop',
     transactionId: '',
     paymentReceipt: '',
   });
@@ -51,9 +51,9 @@ export default function Checkout() {
       customerCnic: prev.customerCnic || user?.cnic || '',
       customerAddress: prev.customerAddress || user?.address || '',
       customerPhone: prev.customerPhone || user?.phone || '',
-      paymentMethod: prev.paymentMethod || user?.paymentMethod || 'cash_on_shop',
+      paymentMethod: prev.paymentMethod || 'cash_on_shop',
     }));
-  }, [user?.name, user?.cnic, user?.address, user?.phone, user?.paymentMethod]);
+  }, [user?.name, user?.cnic, user?.address, user?.phone]);
 
 
 
@@ -100,11 +100,29 @@ export default function Checkout() {
   const completeCheckout = async () => {
     setShowPolicy(false);
     setLoading(true);
+    // Normalize payment method to handle technical IDs or legacy display strings
+    let normalizedMethodId = checkoutDetails.paymentMethod;
+    if (normalizedMethodId === 'Cash on Shop' || normalizedMethodId === 'offline') {
+      normalizedMethodId = 'cash_on_shop';
+    } else if (normalizedMethodId === 'online' && !paymentMethods.find(m => m.id === 'online')) {
+      // If it's just "online" but no method with ID "online" exists, default to cash_on_shop or first online method
+      const firstOnline = paymentMethods.find(m => m.type === 'online');
+      normalizedMethodId = firstOnline ? firstOnline.id : 'cash_on_shop';
+    }
+
+    const selectedMethod = paymentMethods.find((m) => m.id === normalizedMethodId);
+
+    // Improve label formatting: e.g. "Cash on Shop (Offline)"
+    const methodDesc = selectedMethod
+      ? `${selectedMethod.name} (${selectedMethod.type.charAt(0).toUpperCase() + selectedMethod.type.slice(1)})`
+      : (normalizedMethodId === 'cash_on_shop' ? 'Cash on Shop (Offline)' : normalizedMethodId);
+
     try {
       await api.post('/user/orders', {
         items,
         total: grandTotal,
         ...checkoutDetails,
+        paymentMethod: methodDesc,
         paymentDetails: checkoutDetails.transactionId ? { transactionId: checkoutDetails.transactionId } : null,
         paymentReceipt: checkoutDetails.paymentReceipt,
       });
