@@ -57,7 +57,7 @@ export default function Register() {
                     <div className="flex items-center justify-center mb-4 sm:mb-6">
                         <div className="relative">
                             <div className="absolute inset-0 bg-[var(--primary)] blur-2xl opacity-20 rounded-full animate-pulse" />
-                            <img src="/logo_3d.png" alt="Alamgir Jewellers" className="w-24 h-24 sm:w-32 sm:h-32 object-contain relative z-10 rounded-full shadow-2xl border border-[var(--primary)]/20" />
+                            <img src="/logo_az.png?v=2" alt="Alamgir Jewellers" className="w-24 h-24 sm:w-32 sm:h-32 object-cover relative z-10 rounded-full shadow-2xl border border-[var(--primary)]/20" />
                         </div>
                     </div>
                     <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-[var(--text-main)] text-center">Join the Elite</h1>

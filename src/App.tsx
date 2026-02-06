@@ -22,7 +22,7 @@ const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  userRole?: 'USER' | 'ADMIN' | 'SUPER_ADMIN';
+  userRole?: 'USER' | 'ADMIN';
 }
 
 function ProtectedRoute({ children, userRole }: ProtectedRouteProps) {
@@ -38,7 +38,7 @@ function ProtectedRoute({ children, userRole }: ProtectedRouteProps) {
   if (userRole && user?.role !== userRole) {
     // If Admin tries to access User route -> Global Redirect
     // If User tries to access Admin route -> Global Redirect
-    if (user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN') return <Navigate to="/admin/dashboard" replace />;
+    if (user?.role === 'ADMIN') return <Navigate to="/admin/dashboard" replace />;
     return <Navigate to="/user/dashboard" replace />;
   }
 
@@ -51,7 +51,7 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   if (!hasHydrated) return null;
 
   if (token && user) {
-    if (user.role === 'SUPER_ADMIN' || user.role === 'ADMIN') return <Navigate to="/admin/dashboard" replace />;
+    if (user.role === 'ADMIN') return <Navigate to="/admin/dashboard" replace />;
     return <Navigate to="/user/dashboard" replace />;
   }
 
@@ -147,30 +147,19 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/super-admin/dashboard"
-            element={
-              <ProtectedRoute userRole="SUPER_ADMIN">
-                <Suspense fallback={<div className="min-h-screen bg-[var(--bg-main)] flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-[var(--primary)] border-t-transparent rounded-full" /></div>}>
-                  <AdminDashboard />
-                </Suspense>
-              </ProtectedRoute>
-            }
-          />
 
           {/* Root & Redirects */}
           <Route path="/dashboard" element={
             <ProtectedRoute>
               {(() => {
                 const { user } = useAuthStore.getState();
-                if (user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN') return <Navigate to="/admin/dashboard" replace />;
+                if (user?.role === 'ADMIN') return <Navigate to="/admin/dashboard" replace />;
                 return <Navigate to="/user/dashboard" replace />;
               })()}
             </ProtectedRoute>
           } />
 
           <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-          <Route path="/super-admin" element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="/" element={<PublicRoute><Login /></PublicRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

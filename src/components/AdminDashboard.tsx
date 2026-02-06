@@ -192,7 +192,7 @@ export default function AdminDashboard() {
         onError: () => toast.error('Failed to update order status'),
     });
 
-    // Removed updatePaymentStatusMutation as only SUPER_ADMIN can confirm payments now
+    // Admin can now confirm payments
 
     const deleteOrderMutation = useMutation({
         mutationFn: (id: number) => api.delete(`/orders/${id}`),
@@ -1324,7 +1324,8 @@ export default function AdminDashboard() {
                                                 <tr>
                                                     <th className="p-4">User</th>
                                                     <th className="p-4">Email</th>
-                                                    <th className="p-4">Orders</th>
+                                                    <th className="p-4 text-center">Orders</th>
+                                                    <th className="p-4 text-center">Status</th>
                                                     <th className="p-4 text-right">Actions</th>
                                                 </tr>
                                             </thead>
@@ -1352,10 +1353,28 @@ export default function AdminDashboard() {
                                                                 </div>
                                                             </td>
                                                             <td className="p-4 text-[var(--text-muted)] font-medium">{u.email}</td>
-                                                            <td className="p-4">
+                                                            <td className="p-4 text-center">
                                                                 <span className="bg-[var(--primary)]/10 text-[var(--primary)] px-2 py-1 rounded text-xs font-black">
                                                                     {u._count?.orders || 0}
                                                                 </span>
+                                                            </td>
+                                                            <td className="p-4 text-center">
+                                                                {u.isBlocked ? (
+                                                                    <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-red-500/10 text-red-500 text-[10px] font-bold uppercase border border-red-500/20">
+                                                                        <AlertOctagon className="w-3 h-3" />
+                                                                        Blocked
+                                                                    </span>
+                                                                ) : u.isFrozen ? (
+                                                                    <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-orange-500/10 text-orange-500 text-[10px] font-bold uppercase border border-orange-500/20">
+                                                                        <Loader2 className="w-3 h-3 animate-spin" />
+                                                                        Frozen
+                                                                    </span>
+                                                                ) : (
+                                                                    <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-green-500/10 text-green-500 text-[10px] font-bold uppercase border border-green-500/20">
+                                                                        <CheckCircle className="w-3 h-3" />
+                                                                        Active
+                                                                    </span>
+                                                                )}
                                                             </td>
                                                             <td className="p-4 text-right">
                                                                 <div className="flex items-center justify-end gap-2">
@@ -1762,30 +1781,62 @@ function UserDetailsModal({ userId, onClose, getImageUrl, onViewReceipt }: { use
                     ) : (
                         <div className="space-y-12">
                             {/* User Info */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                                <div className="bg-[var(--bg-input)]/50 p-4 md:p-6 rounded-2xl border border-[var(--border)]/50">
-                                    <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1">Full Name</label>
-                                    <p className="text-base md:text-lg font-bold text-[var(--text-main)]">{user.name || 'Anonymous'}</p>
+                            <div className="flex flex-col md:flex-row items-center gap-8 bg-[var(--bg-input)]/30 p-8 rounded-3xl border border-[var(--border)]/50">
+                                <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-[var(--primary)] shadow-xl shrink-0">
+                                    {user.image ? (
+                                        <img src={user.image} alt={user.name} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <div className="w-full h-full bg-gradient-to-br from-[var(--primary)]/20 to-[var(--primary-hover)]/20 flex items-center justify-center">
+                                            <User className="w-10 h-10 text-[var(--primary)]" />
+                                        </div>
+                                    )}
                                 </div>
-                                <div className="bg-[var(--bg-input)]/50 p-4 md:p-6 rounded-2xl border border-[var(--border)]/50">
-                                    <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1">Email Address</label>
-                                    <p className="text-base md:text-lg font-bold text-[var(--text-main)]">{user.email}</p>
-                                </div>
-                                <div className="bg-[var(--bg-input)]/50 p-4 md:p-6 rounded-2xl border border-[var(--border)]/50">
-                                    <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1">CNIC Number</label>
-                                    <p className="text-base md:text-lg font-bold text-[var(--text-main)]">{user.cnic || 'Not Provided'}</p>
-                                </div>
-                                <div className="bg-[var(--bg-input)]/50 p-4 md:p-6 rounded-2xl border border-[var(--border)]/50">
-                                    <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1">Contact Number</label>
-                                    <p className="text-base md:text-lg font-bold text-[var(--text-main)]">{user.phone || 'Not Provided'}</p>
-                                </div>
-                                <div className="bg-[var(--bg-input)]/50 p-4 md:p-6 rounded-2xl border border-[var(--border)]/50 lg:col-span-2">
-                                    <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1">Home Address</label>
-                                    <p className="text-base md:text-lg font-bold text-[var(--text-main)]">{user.address || 'No Address Saved'}</p>
-                                </div>
-                                <div className="bg-[var(--bg-input)]/50 p-4 md:p-6 rounded-2xl border border-[var(--border)]/50">
-                                    <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1">Customer Since</label>
-                                    <p className="text-base md:text-lg font-bold text-[var(--text-main)]">{new Date(user.createdAt).toLocaleDateString()}</p>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 flex-1">
+                                    <div className="bg-[var(--bg-input)]/50 p-4 md:p-6 rounded-2xl border border-[var(--border)]/50">
+                                        <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1">Full Name</label>
+                                        <p className="text-base md:text-lg font-bold text-[var(--text-main)]">{user.name || 'Anonymous'}</p>
+                                    </div>
+                                    <div className="bg-[var(--bg-input)]/50 p-4 md:p-6 rounded-2xl border border-[var(--border)]/50">
+                                        <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1">Email Address</label>
+                                        <p className="text-base md:text-lg font-bold text-[var(--text-main)]">{user.email}</p>
+                                    </div>
+                                    <div className="bg-[var(--bg-input)]/50 p-4 md:p-6 rounded-2xl border border-[var(--border)]/50">
+                                        <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1">CNIC Number</label>
+                                        <p className="text-base md:text-lg font-bold text-[var(--text-main)]">{user.cnic || 'Not Provided'}</p>
+                                    </div>
+                                    <div className="bg-[var(--bg-input)]/50 p-4 md:p-6 rounded-2xl border border-[var(--border)]/50">
+                                        <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1">Contact Number</label>
+                                        <p className="text-base md:text-lg font-bold text-[var(--text-main)]">{user.phone || 'Not Provided'}</p>
+                                    </div>
+                                    <div className="bg-[var(--bg-input)]/50 p-4 md:p-6 rounded-2xl border border-[var(--border)]/50 lg:col-span-1">
+                                        <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1">Customer Since</label>
+                                        <p className="text-base md:text-lg font-bold text-[var(--text-main)]">{new Date(user.createdAt).toLocaleDateString()}</p>
+                                    </div>
+                                    <div className="bg-[var(--bg-input)]/50 p-4 md:p-6 rounded-2xl border border-[var(--border)]/50">
+                                        <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1">Account Status</label>
+                                        <div className="mt-1">
+                                            {user.isBlocked ? (
+                                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500/10 text-red-500 text-xs font-bold uppercase border border-red-500/20">
+                                                    <AlertOctagon className="w-3.5 h-3.5" />
+                                                    Blocked
+                                                </span>
+                                            ) : user.isFrozen ? (
+                                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-500/10 text-orange-500 text-xs font-bold uppercase border border-orange-500/20">
+                                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                                    Frozen
+                                                </span>
+                                            ) : (
+                                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-500/10 text-green-500 text-xs font-bold uppercase border border-green-500/20">
+                                                    <CheckCircle className="w-3.5 h-3.5" />
+                                                    Active
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="bg-[var(--bg-input)]/50 p-4 md:p-6 rounded-2xl border border-[var(--border)]/50 lg:col-span-3">
+                                        <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1">Home Address</label>
+                                        <p className="text-base md:text-lg font-bold text-[var(--text-main)]">{user.address || 'No Address Saved'}</p>
+                                    </div>
                                 </div>
                             </div>
 

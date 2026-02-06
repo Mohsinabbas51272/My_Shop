@@ -9,7 +9,8 @@ interface User {
     address?: string;
     phone?: string;
     paymentMethod?: string;
-    role: 'USER' | 'ADMIN' | 'SUPER_ADMIN';
+    image?: string;
+    role: 'USER' | 'ADMIN';
     isVerified: boolean;
     isFrozen: boolean;
     isBlocked: boolean;

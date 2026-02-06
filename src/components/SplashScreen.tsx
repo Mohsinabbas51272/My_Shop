@@ -7,7 +7,7 @@ export default function SplashScreen() {
             {/* Full Background Logo Image */}
             <div className="absolute inset-0 z-0">
                 <img
-                    src="/logo_3d.png"
+                    src="/logo_az.png?v=2"
                     alt=""
                     className="w-full h-full object-cover opacity-20 blur-sm scale-105"
                 />
@@ -28,7 +28,7 @@ export default function SplashScreen() {
                 <div className="relative mb-8">
                     <div className="absolute inset-0 bg-yellow-500 blur-3xl opacity-20 animate-splash-ping rounded-full" />
                     <div className="relative p-2 bg-gradient-to-b from-yellow-500/20 to-transparent rounded-full border border-yellow-500/30 shadow-2xl">
-                        <img src="/logo_3d.png" alt="Alamgir Jewellers" className="w-32 h-32 sm:w-48 sm:h-48 md:w-64 md:h-64 object-contain rounded-full shadow-[0_0_50px_rgba(234,179,8,0.3)]" />
+                        <img src="/logo_az.png?v=2" alt="Alamgir Jewellers" className="w-32 h-32 sm:w-48 sm:h-48 md:w-64 md:h-64 object-cover rounded-full shadow-[0_0_50px_rgba(234,179,8,0.3)]" />
                     </div>
                 </div>
 
@@ -38,7 +38,7 @@ export default function SplashScreen() {
                     transition={{ delay: 0.5, duration: 1 }}
                     className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tighter text-white uppercase text-center px-4"
                 >
-                    ALAMGIR<span className="text-[var(--primary)]"> JEWELLERS</span>
+                    ALAMGIR<span className="text-[var(--primary)]"> ZARGRI SHOP</span>
                 </motion.h1>
 
                 <motion.p

@@ -15,7 +15,9 @@ export default function Profile() {
         cnic: user?.cnic || '',
         address: user?.address || '',
         phone: user?.phone || '',
+        image: user?.image || '',
     });
+    const [uploading, setUploading] = useState(false);
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -28,6 +30,7 @@ export default function Profile() {
                     cnic: latestUser.cnic || '',
                     address: latestUser.address || '',
                     phone: latestUser.phone || '',
+                    image: latestUser.image || '',
                 });
             } catch (err) {
                 console.error('Failed to sync profile:', err);
@@ -49,6 +52,34 @@ export default function Profile() {
             toast.error(err.response?.data?.message || 'Failed to update profile');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setUploading(true);
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const uploadRes = await api.post('/upload', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            const imageUrl = uploadRes.data.url;
+
+            // Update profile with new image immediately
+            if (user?.id) {
+                const response = await api.patch(`/users/${user.id}`, { image: imageUrl });
+                updateUser(response.data);
+                setFormData(prev => ({ ...prev, image: imageUrl }));
+                toast.success('Profile image updated!');
+            }
+        } catch (err: any) {
+            toast.error(err.response?.data?.message || 'Upload failed');
+        } finally {
+            setUploading(false);
         }
     };
 
@@ -96,8 +127,31 @@ export default function Profile() {
                         </button>
 
                         <div className="flex flex-col md:flex-row items-center md:items-start gap-6 text-center md:text-left">
-                            <div className="w-24 h-24 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-hover)] rounded-3xl flex items-center justify-center shadow-xl shadow-[var(--primary)]/20 shrink-0">
-                                <User className="w-12 h-12 text-white" />
+                            <div className="relative group cursor-pointer" onClick={() => document.getElementById('avatar-upload')?.click()}>
+                                <div className={`w-28 h-28 rounded-full overflow-hidden shadow-2xl relative transition-all group-hover:scale-[1.02] active:scale-95 ${uploading ? 'animate-pulse' : ''}`}>
+                                    {user?.image ? (
+                                        <img
+                                            src={user.image}
+                                            alt={user.name}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        <div className="w-full h-full bg-gradient-to-br from-[var(--primary)] to-[var(--primary-hover)] flex items-center justify-center">
+                                            <User className="w-14 h-14 text-white" />
+                                        </div>
+                                    )}
+                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity rounded-full">
+                                        {uploading ? <Loader2 className="w-8 h-8 text-white animate-spin" /> : <Save className="w-8 h-8 text-white" />}
+                                    </div>
+                                </div>
+                                <input
+                                    type="file"
+                                    id="avatar-upload"
+                                    className="hidden"
+                                    accept="image/*"
+                                    onChange={handleImageUpload}
+                                    disabled={uploading}
+                                />
                             </div>
                             <div className="flex-1 space-y-2">
                                 <div className="flex flex-col md:flex-row items-center gap-3">

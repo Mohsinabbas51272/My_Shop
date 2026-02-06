@@ -76,16 +76,16 @@ export default function Navbar() {
                         </button>
 
                         <Link to={
-                            user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN' ? "/admin/dashboard" :
+                            user?.role === 'ADMIN' ? "/admin/dashboard" :
                                 "/user/dashboard"
                         } className="flex items-center gap-3 text-[var(--primary)] font-bold text-xl hover:opacity-80 transition-opacity shrink-0">
-                            <img src="/logo_3d.png" alt="" className="w-10 h-10 object-contain rounded-full border border-[var(--primary)]/30 shadow-lg" />
-                            <span className="truncate hidden lg:inline uppercase tracking-tighter font-serif">Alamgir<span className="text-[var(--text-main)]"> Jewellers</span></span>
+                            <img src="/logo_az.png?v=2" alt="" className="w-10 h-10 object-cover rounded-full border border-[var(--primary)]/30 shadow-lg" />
+                            <span className="truncate hidden lg:inline uppercase tracking-tighter font-serif">AZ<span className="text-[var(--text-main)]"> Shop</span></span>
                         </Link>
 
                         {/* Navigation Links - Desktop */}
                         <div className="hidden md:flex items-center gap-0.5 lg:gap-1 ml-1 lg:ml-2">
-                            {user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN' ? (
+                            {user?.role === 'ADMIN' ? (
                                 <Link
                                     to="/admin/dashboard"
                                     className="text-[10px] lg:text-sm font-bold uppercase tracking-widest text-[var(--primary)] hover:opacity-80 transition-opacity"
@@ -304,7 +304,7 @@ export default function Navbar() {
                             </div>
 
                             {/* Wishlist */}
-                            {user?.role !== 'ADMIN' && user?.role !== 'SUPER_ADMIN' && (
+                            {user?.role !== 'ADMIN' && (
                                 <Link
                                     to="/wishlist"
                                     className="relative p-1.5 sm:p-2 text-[var(--text-muted)] hover:text-red-500 hover:bg-[var(--bg-input)] rounded-full transition-all"
@@ -320,7 +320,7 @@ export default function Navbar() {
                             )}
 
                             {/* Cart */}
-                            {user?.role !== 'ADMIN' && user?.role !== 'SUPER_ADMIN' && (
+                            {user?.role !== 'ADMIN' && (
                                 <Link
                                     to="/cart"
                                     className="relative p-1.5 sm:p-2 text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-input)] rounded-full transition-all"
@@ -345,8 +345,14 @@ export default function Navbar() {
                                 to="/profile"
                                 className="flex items-center gap-3 group"
                             >
-                                <div className="w-9 h-9 rounded-full bg-[var(--bg-input)] flex items-center justify-center text-[var(--primary)] border border-[var(--border)] group-hover:border-[var(--primary)] transition-all overflow-hidden shrink-0">
-                                    <User className="w-4 h-4" />
+                                <div className="w-10 h-10 rounded-full overflow-hidden border border-[var(--primary)]/30 group-hover:border-[var(--primary)] shadow-lg transition-all">
+                                    {user?.image ? (
+                                        <img src={user.image} alt="" className="w-full h-full object-cover" />
+                                    ) : (
+                                        <div className="w-full h-full bg-gradient-to-br from-[var(--primary)]/20 to-[var(--primary-hover)]/20 flex items-center justify-center">
+                                            <User className="w-5 h-5 text-[var(--primary)]" />
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="hidden lg:flex flex-col justify-center">
                                     <p className="font-bold leading-[1.1] text-[var(--text-main)] group-hover:text-[var(--primary)] transition-colors">{user?.name?.split(' ')[0]}</p>
@@ -384,8 +390,12 @@ export default function Navbar() {
                                     onClick={() => setIsMenuOpen(false)}
                                     className="flex flex-col items-center justify-center p-4 bg-[var(--bg-input)] rounded-2xl border border-[var(--border)] active:scale-95 transition-all group"
                                 >
-                                    <div className="w-10 h-10 rounded-full bg-[var(--bg-card)] flex items-center justify-center text-[var(--primary)] mb-2 border border-[var(--border)] group-hover:border-[var(--primary)]">
-                                        <User className="w-5 h-5" />
+                                    <div className="w-10 h-10 rounded-full bg-[var(--bg-card)] flex items-center justify-center text-[var(--primary)] mb-2 border border-[var(--border)] group-hover:border-[var(--primary)] overflow-hidden">
+                                        {user?.image ? (
+                                            <img src={user.image} alt="" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <User className="w-5 h-5" />
+                                        )}
                                     </div>
                                     <span className="text-[10px] font-black uppercase tracking-widest text-[var(--text-main)]">Profile</span>
                                 </Link>
@@ -404,7 +414,7 @@ export default function Navbar() {
 
                             {/* Mobile Nav Links */}
                             <div className="grid grid-cols-2 gap-3">
-                                {user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN' ? (
+                                {user?.role === 'ADMIN' ? (
                                     <Link
                                         to="/admin/dashboard"
                                         onClick={() => setIsMenuOpen(false)}
