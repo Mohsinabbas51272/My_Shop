@@ -257,7 +257,7 @@ export default function Dashboard() {
                         </div>
 
                         {/* Admin Badge */}
-                        {(user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') && (
+                        {user?.role === 'ADMIN' && (
                             <div className="px-4 py-3 bg-[var(--primary)]/10 border border-[var(--primary)]/20 rounded-2xl flex items-center gap-2 shadow-lg shadow-[var(--primary)]/5">
                                 <ShieldCheck className="w-4 h-4 text-[var(--primary)]" />
                                 <span className="text-[10px] font-black text-[var(--primary)] uppercase tracking-widest">Operator Access</span>

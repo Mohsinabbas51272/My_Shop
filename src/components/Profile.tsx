@@ -117,8 +117,7 @@ export default function Profile() {
 
                         <button
                             onClick={() => {
-                                if (user?.role === 'SUPER_ADMIN') navigate('/super-admin/dashboard');
-                                else if (user?.role === 'ADMIN') navigate('/admin/dashboard');
+                                if (user?.role === 'ADMIN') navigate('/admin/dashboard');
                                 else navigate('/user/dashboard');
                             }}
                             className="absolute top-6 right-6 p-2.5 bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-red-500 rounded-xl border border-[var(--border)] transition-all active:scale-90 z-10"
