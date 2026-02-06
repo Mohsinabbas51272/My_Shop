@@ -31,13 +31,15 @@ import {
     FileText,
     Phone,
     MapPin,
-    User
+    User,
+    Menu
 } from 'lucide-react';
 import { toast } from '../store/useToastStore';
 
 export default function AdminDashboard() {
     const queryClient = useQueryClient();
     const { currency, formatPrice } = useCurrencyStore();
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [newProduct, setNewProduct] = useState({
         name: '',
         price: '',
@@ -368,9 +370,17 @@ export default function AdminDashboard() {
         <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] font-['Outfit']">
             <Navbar />
 
-            <div className="flex flex-col lg:flex-row min-h-[calc(100vh-64px)]">
+            <div className="flex flex-col lg:flex-row min-h-[calc(100vh-64px)] relative">
+                {/* Mobile Menu Overlay */}
+                {isMobileMenuOpen && (
+                    <div
+                        className="fixed inset-0 z-[90] bg-black/50 lg:hidden backdrop-blur-sm transition-opacity"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                    />
+                )}
+
                 {/* Sidebar Navigation */}
-                <aside className="lg:w-72 lg:fixed lg:h-[calc(100vh-64px)] lg:overflow-y-auto bg-[var(--bg-card)] border-r border-[var(--border)]/50 z-[80] transition-all">
+                <aside className={`fixed inset-y-0 left-0 z-[100] w-72 bg-[var(--bg-card)] border-r border-[var(--border)]/50 transition-transform duration-300 ease-in-out lg:translate-x-0 lg:fixed lg:top-[64px] lg:h-[calc(100vh-64px)] lg:overflow-y-auto lg:z-[80] ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
                     <div className="p-6 space-y-8">
                         <div>
                             <h3 className="px-4 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-4">Command Center</h3>
@@ -414,31 +424,39 @@ export default function AdminDashboard() {
                     {/* Top Stats/Rates Bar */}
                     <div className="sticky top-16 z-[70] bg-[var(--bg-main)]/80 backdrop-blur-xl border-b border-[var(--border)]/30 px-4 sm:px-8 py-4">
                         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-                            <div className="flex items-center gap-6 overflow-x-auto w-full no-scrollbar">
-                                {/* Gold Pill */}
-                                {goldRate && !goldLoading && (
-                                    <div className="flex items-center gap-3 shrink-0 bg-[var(--bg-card)]/50 border border-yellow-500/20 px-4 py-2 rounded-2xl shadow-sm">
-                                        <div className="p-1.5 bg-yellow-500/10 rounded-lg">
-                                            <Gavel className="w-4 h-4 text-yellow-500" />
+                            <div className="flex items-center gap-4 w-full">
+                                <button
+                                    onClick={() => setIsMobileMenuOpen(true)}
+                                    className="lg:hidden p-2 -ml-2 rounded-lg hover:bg-[var(--bg-input)] shrink-0 transition-colors"
+                                >
+                                    <Menu className="w-5 h-5 text-[var(--text-main)]" />
+                                </button>
+                                <div className="flex items-center gap-6 overflow-x-auto w-full no-scrollbar">
+                                    {/* Gold Pill */}
+                                    {goldRate && !goldLoading && (
+                                        <div className="flex items-center gap-3 shrink-0 bg-[var(--bg-card)]/50 border border-yellow-500/20 px-4 py-2 rounded-2xl shadow-sm">
+                                            <div className="p-1.5 bg-yellow-500/10 rounded-lg">
+                                                <Gavel className="w-4 h-4 text-yellow-500" />
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <span className="text-[8px] font-black text-yellow-600 uppercase tracking-widest leading-none">GOLD {goldRate.purity}</span>
+                                                <span className="text-sm font-black text-[var(--text-main)]">{formatPrice(goldRate.price)}</span>
+                                            </div>
                                         </div>
-                                        <div className="flex flex-col">
-                                            <span className="text-[8px] font-black text-yellow-600 uppercase tracking-widest leading-none">GOLD {goldRate.purity}</span>
-                                            <span className="text-sm font-black text-[var(--text-main)]">{formatPrice(goldRate.price)}</span>
+                                    )}
+                                    {/* Silver Pill */}
+                                    {silverRate && !silverLoading && (
+                                        <div className="flex items-center gap-3 shrink-0 bg-[var(--bg-card)]/50 border border-slate-400/20 px-4 py-2 rounded-2xl shadow-sm">
+                                            <div className="p-1.5 bg-slate-400/10 rounded-lg">
+                                                <Gavel className="w-4 h-4 text-slate-500" />
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest leading-none">SILVER {silverRate.purity}</span>
+                                                <span className="text-sm font-black text-[var(--text-main)]">{formatPrice(silverRate.price)}</span>
+                                            </div>
                                         </div>
-                                    </div>
-                                )}
-                                {/* Silver Pill */}
-                                {silverRate && !silverLoading && (
-                                    <div className="flex items-center gap-3 shrink-0 bg-[var(--bg-card)]/50 border border-slate-400/20 px-4 py-2 rounded-2xl shadow-sm">
-                                        <div className="p-1.5 bg-slate-400/10 rounded-lg">
-                                            <Gavel className="w-4 h-4 text-slate-500" />
-                                        </div>
-                                        <div className="flex flex-col">
-                                            <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest leading-none">SILVER {silverRate.purity}</span>
-                                            <span className="text-sm font-black text-[var(--text-main)]">{formatPrice(silverRate.price)}</span>
-                                        </div>
-                                    </div>
-                                )}
+                                    )}
+                                </div>
                             </div>
 
                             <div className="hidden md:flex items-center gap-2">

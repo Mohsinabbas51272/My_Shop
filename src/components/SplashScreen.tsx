@@ -28,7 +28,7 @@ export default function SplashScreen() {
                 <div className="relative mb-8">
                     <div className="absolute inset-0 bg-yellow-500 blur-3xl opacity-20 animate-splash-ping rounded-full" />
                     <div className="relative p-2 bg-gradient-to-b from-yellow-500/20 to-transparent rounded-full border border-yellow-500/30 shadow-2xl">
-                        <img src="/logo_3d.png" alt="Alamgir Jewellers" className="w-56 h-56 md:w-64 md:h-64 object-contain rounded-full shadow-[0_0_50px_rgba(234,179,8,0.3)]" />
+                        <img src="/logo_3d.png" alt="Alamgir Jewellers" className="w-32 h-32 sm:w-48 sm:h-48 md:w-64 md:h-64 object-contain rounded-full shadow-[0_0_50px_rgba(234,179,8,0.3)]" />
                     </div>
                 </div>
 
@@ -36,7 +36,7 @@ export default function SplashScreen() {
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ delay: 0.5, duration: 1 }}
-                    className="text-4xl font-black tracking-tighter text-white uppercase"
+                    className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tighter text-white uppercase text-center px-4"
                 >
                     ALAMGIR<span className="text-[var(--primary)]"> JEWELLERS</span>
                 </motion.h1>
@@ -45,14 +45,14 @@ export default function SplashScreen() {
                     initial={{ y: 10, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ delay: 0.8, duration: 1 }}
-                    className="text-slate-500 font-bold uppercase tracking-[0.3em] text-[10px] mt-4"
+                    className="text-slate-500 font-bold uppercase tracking-[0.3em] text-[8px] sm:text-[10px] mt-4 text-center"
                 >
                     Where Timeless Beauty Shines
                 </motion.p>
             </motion.div>
 
             {/* Loading Bar */}
-            <div className="absolute bottom-20 left-1/2 -translate-x-1/2 w-48 h-1 bg-slate-900 rounded-full overflow-hidden">
+            <div className="absolute bottom-20 left-1/2 -translate-x-1/2 w-32 sm:w-48 h-1 bg-slate-900 rounded-full overflow-hidden">
                 <motion.div
                     initial={{ x: "-100%" }}
                     animate={{ x: "0%" }}
