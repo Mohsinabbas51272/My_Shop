@@ -8,7 +8,7 @@ export default function ChatWidget() {
   const { user } = useAuthStore();
   const [isOpen, setIsOpen] = useState(false);
   const [inputText, setInputText] = useState('');
-  const [adminId] = useState<number | null>(3); // Set to active admin ID (3)
+  const [adminId] = useState<number | null>(4); // Updated to active admin ID (4)
   const { messages, sendMessage, isConnected, messagesEndRef } = useChat(adminId || undefined);
 
   const handleSend = (e: React.FormEvent) => {

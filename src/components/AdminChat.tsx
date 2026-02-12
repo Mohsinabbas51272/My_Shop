@@ -25,7 +25,7 @@ export default function AdminChat() {
     }
   };
 
-  const { messages, sendMessage, isConnected, messagesEndRef } = useChat(selectedChat?.user.id);
+  const { messages, sendMessage, messagesEndRef } = useChat(selectedChat?.user.id);
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();

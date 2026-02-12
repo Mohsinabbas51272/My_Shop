@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useAuthStore } from '../store/useAuthStore';
+import api from '../lib/api';
 
 const getSocketUrl = () => {
   // Try to get URL from VITE_API_URL or fallback to current window origin
@@ -162,9 +163,14 @@ export const useChat = (receiverId?: number) => {
     async (content: string) => {
       console.log('🔘 ChatHook: sendMessage Function Triggered', { content, isConnected, receiverId });
 
+      if (!receiverId) {
+        console.error('❌ ChatHook: No receiverId provided!');
+        return;
+      }
+
       // try socket first if connected
       if (socket && isConnected) {
-        console.log('🚀 ChatHook: Emitting via Socket...');
+        console.log('🚀 ChatHook: Emitting via Socket to:', receiverId);
         socket.emit('sendMessage', { receiverId: Number(receiverId), content });
         return;
       }
