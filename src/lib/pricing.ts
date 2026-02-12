@@ -13,6 +13,8 @@ export interface GoldRate {
     error?: string;
 }
 
+export const TOLA_TO_GRAMS = 11.6638038;
+
 export const calculateDynamicPrice = (product: ProductWeights, goldRate: GoldRate | null): number => {
     if (!goldRate || goldRate.error || !goldRate.price) {
         return Math.round(product.price || 0);
@@ -37,6 +39,22 @@ export const calculateDynamicPrice = (product: ProductWeights, goldRate: GoldRat
 
     // Total = Gold Value + Making Charges
     return Math.round(goldValue + Number(product.price || 0));
+};
+
+export const convertTolaToGrams = (tola: number, masha: number, rati: number): number => {
+    const totalTola = Number(tola || 0) + (Number(masha || 0) / 12) + (Number(rati || 0) / 96);
+    return totalTola * TOLA_TO_GRAMS;
+};
+
+export const convertGramsToTola = (grams: number) => {
+    const totalTola = Number(grams || 0) / TOLA_TO_GRAMS;
+    const tola = Math.floor(totalTola);
+    const remainingMasha = (totalTola - tola) * 12;
+    const masha = Math.floor(remainingMasha);
+    const remainingRati = (remainingMasha - masha) * 8; // Masha to Rati is 8, but some systems use 96 rati per tola. 12 masha * 8 rati = 96.
+    const rati = parseFloat(remainingRati.toFixed(2));
+
+    return { tola, masha, rati };
 };
 
 export const getPriceBreakdown = (product: ProductWeights, goldRate: GoldRate | null) => {

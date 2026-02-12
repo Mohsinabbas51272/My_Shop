@@ -1,281 +1,369 @@
-import { useState, useEffect } from 'react';
-import { X, Plus, Minus, ShoppingCart, ZoomIn, ZoomOut, Info, ShoppingBag, Loader2 } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { X, Plus, Minus, ShoppingCart, ZoomIn, ZoomOut, Info, ShoppingBag, Loader2, Scale, ShieldCheck, QrCode, FileCheck, Star, BadgeCheck, Truck, Rotate3d, Heart, Share2, MapPin, ChevronRight, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import api, { IMAGE_BASE_URL } from '../lib/api';
 import { useCartStore } from '../store/useCartStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
 import { toast } from '../store/useToastStore';
-import { getPriceBreakdown } from '../lib/pricing';
+import { getPriceBreakdown, convertTolaToGrams } from '../lib/pricing';
+import { useWeightStore } from '../store/useWeightStore';
+import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion';
 
 interface ProductDetailsModalProps {
     product: any;
     onClose: () => void;
 }
 
+const getImageUrl = (url: string) => {
+    if (!url) return 'https://via.placeholder.com/800';
+    if (url.startsWith('http')) return url;
+    return IMAGE_BASE_URL + url;
+};
+
 export default function ProductDetailsModal({ product, onClose }: ProductDetailsModalProps) {
     const addItem = useCartStore((state) => state.addItem);
     const navigate = useNavigate();
     const { formatPrice } = useCurrencyStore();
+    const { unit } = useWeightStore();
     const [zoom, setZoom] = useState(1);
     const [quantity, setQuantity] = useState(1);
+    const [isExpanded, setIsExpanded] = useState(false);
+    const [showCertificate, setShowCertificate] = useState(false);
+
+    // 3D Tilt Logic
+    const mouseX = useMotionValue(0);
+    const mouseY = useMotionValue(0);
+    const rotateX = useTransform(mouseY, [0, typeof window !== 'undefined' ? window.innerHeight : 1000], [25, -25]);
+    const rotateY = useTransform(mouseX, [0, typeof window !== 'undefined' ? window.innerWidth : 1000], [-25, 25]);
+
+    const springConfig = { damping: 25, stiffness: 100 };
+    const rotateXSpring = useSpring(rotateX, springConfig);
+    const rotateYSpring = useSpring(rotateY, springConfig);
+
+    const handleMouseMove = (e: any) => {
+        mouseX.set(e.clientX);
+        mouseY.set(e.clientY);
+    };
+
+    // Amazon-style: Track selected image/thumbnail
+    const [activeImage, setActiveImage] = useState(getImageUrl(product.image));
 
     const { data: rates, isLoading: ratesLoading } = useQuery({
         queryKey: ['product-details-rates'],
         queryFn: async () => {
             try {
-                const [goldRes, silverRes, detailedRes] = await Promise.all([
+                const [goldRes, silverRes] = await Promise.all([
                     api.get('/commodity/gold-rate'),
                     api.get('/commodity/silver-rate'),
-                    api.get('/commodity/detailed-rates'),
                 ]);
-
-                // Helper to safely parse rates from any source
-                const parsePrice = (p: any) => {
-                    if (typeof p === 'string') return parseFloat(p.replace(/,/g, ''));
-                    return typeof p === 'number' ? p : 0;
-                };
-
-                const goldSources = detailedRes.data?.gold || [];
-                const silverSources = detailedRes.data?.silver || [];
-
-                const peakGold = goldSources.length > 0
-                    ? Math.max(...goldSources.map((s: any) => parsePrice(s.price)), parsePrice(goldRes.data?.price))
-                    : parsePrice(goldRes.data?.price);
-
-                const peakSilver = silverSources.length > 0
-                    ? Math.max(...silverSources.map((s: any) => parsePrice(s.price)), parsePrice(silverRes.data?.price))
-                    : parsePrice(silverRes.data?.price);
-
+                const parsePrice = (p: any) => p ? parseFloat(p.toString().replace(/,/g, '')) : 0;
                 return {
-                    gold: { ...goldRes.data, price: peakGold || 0 },
-                    silver: { ...silverRes.data, price: peakSilver || 0 },
+                    gold: { price: parsePrice(goldRes.data?.price) },
+                    silver: { price: parsePrice(silverRes.data?.price) },
                 };
             } catch (err) {
-                console.error('Modal price fetch error:', err);
                 return null;
             }
         },
-        refetchInterval: 10000,
+        refetchInterval: 30000,
+    });
+
+    const { data: reviews = [], isLoading: reviewsLoading } = useQuery({
+        queryKey: ['product-reviews', product.id],
+        queryFn: async () => (await api.get(`/reviews/product/${product.id}`)).data,
     });
 
     const activeRate = product.category === 'Silver' ? rates?.silver : rates?.gold;
     const breakdown = getPriceBreakdown(product, activeRate || null);
     const isLoading = ratesLoading || !activeRate;
 
-    const getImageUrl = (url: string) => {
-        if (!url) return 'https://via.placeholder.com/800';
-        if (url.startsWith('http')) return url;
-        return IMAGE_BASE_URL + url;
+    const handleAddToCart = () => {
+        addItem({ ...product, price: breakdown.total, quantity });
+        toast.success(`${quantity} item(s) added to cart`);
     };
 
-    const handleZoomIn = () => setZoom(prev => Math.min(prev + 0.25, 3));
-    const handleZoomOut = () => setZoom(prev => Math.max(prev - 0.25, 1));
-
-    const handleAddToCart = () => {
-        for (let i = 0; i < quantity; i++) {
-            addItem({ ...product, price: breakdown.total });
-        }
-        toast.success(quantity + " item(s) added to Shopping Bag!");
-        onClose();
+    const handleBuyNow = () => {
+        addItem({ ...product, price: breakdown.total, quantity });
+        navigate('/checkout');
     };
 
     useEffect(() => {
         document.body.style.overflow = 'hidden';
-        return () => {
-            document.body.style.overflow = 'unset';
-        };
+        return () => { document.body.style.overflow = 'unset'; };
     }, []);
 
     return (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center p-2 sm:p-4 bg-[var(--bg-main)]/95 backdrop-blur-md">
-            <div className="bg-[var(--bg-card)] border border-[var(--border)] w-full max-w-5xl h-full md:h-[90vh] rounded-t-[2rem] md:rounded-[2rem] overflow-hidden shadow-2xl flex flex-col md:flex-row relative">
-                <button
-                    onClick={onClose}
-                    className="absolute top-4 right-4 md:top-8 md:right-8 z-[160] p-2 bg-[var(--bg-card)]/80 hover:bg-red-500 text-[var(--text-main)] hover:text-white rounded-full transition-all backdrop-blur-md border border-[var(--border)] shadow-xl"
-                >
-                    <X className="w-5 h-5 md:w-6 h-6" />
+        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/60 backdrop-blur-sm p-2 md:p-4 overflow-hidden">
+            <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-[var(--bg-main)] w-full max-w-[1000px] max-h-[90vh] md:rounded-xl shadow-2xl overflow-hidden flex flex-col relative border border-[var(--border)]"
+            >
+                {/* Close Button */}
+                <button onClick={onClose} className="absolute top-3 right-3 z-50 p-1.5 hover:bg-[var(--bg-input)] rounded-full transition-all text-[var(--text-muted)]">
+                    <X className="w-5 h-5" />
                 </button>
 
-                {/* Left: Image Box */}
-                <div className="w-full md:w-[55%] h-[45vh] md:h-full bg-[var(--bg-input)] relative overflow-hidden flex items-center justify-center group shrink-0">
-                    <div
-                        className="w-full h-full transition-transform duration-500 ease-out"
-                        style={{ transform: `scale(${zoom})` }}
-                    >
-                        <img
-                            src={getImageUrl(product.image)}
-                            alt={product.name}
-                            className="w-full h-full object-cover"
-                        />
-                    </div>
+                <div className="flex-1 overflow-y-auto custom-scrollbar">
+                    {/* Compact Layout: Left (Gallery), Center (Details), Right (Buy Box) */}
+                    <div className="flex flex-col lg:flex-row px-5 pb-5 pt-12 gap-6">
 
-                    {/* Zoom Overlay Controls - Hidden on very small screens for simplicity */}
-                    <div className="absolute bottom-6 md:bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-[var(--bg-card)]/90 backdrop-blur-xl border border-[var(--border)] p-2 rounded-2xl opacity-0 md:group-hover:opacity-100 transition-all shadow-2xl">
-                        <button onClick={handleZoomOut} className="p-2 hover:bg-[var(--bg-input)] rounded-xl text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors">
-                            <ZoomOut className="w-4 h-4 md:w-5 h-5" />
-                        </button>
-                        <div className="h-4 w-px bg-[var(--border)] mx-1" />
-                        <span className="text-[10px] font-black w-12 md:w-14 text-center text-[var(--text-main)] uppercase tracking-widest">
-                            {Math.round(zoom * 100)}%
-                        </span>
-                        <div className="h-4 w-px bg-[var(--border)] mx-1" />
-                        <button onClick={handleZoomIn} className="p-2 hover:bg-[var(--bg-input)] rounded-xl text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors">
-                            <ZoomIn className="w-4 h-4 md:w-5 h-5" />
-                        </button>
-                    </div>
-                </div>
+                        {/* 1. LEFT COLUMN: Main Image Area */}
+                        <div className="w-full lg:w-[40%] flex flex-col gap-3">
+                            <div className="flex-1 relative group bg-[var(--bg-card)] border border-[var(--border)]/50 rounded-lg overflow-hidden flex items-center justify-center min-h-[300px] h-[350px]">
+                                <img 
+                                    src={activeImage}
+                                    className="max-w-full max-h-full object-contain p-4 transition-transform duration-300 group-hover:scale-110 cursor-zoom-in"
+                                    onClick={() => setIsExpanded(true)}
+                                />
+                                <div className="absolute bottom-3 left-3 text-[9px] text-[var(--text-muted)] font-medium">Roll over to zoom</div>
+                            </div>
+                        </div>
 
-                {/* Right: Content Section */}
-                <div className="flex-1 flex flex-col min-h-0 bg-[var(--bg-card)] relative">
-                    {/* Scrollable Body */}
-                    <div className="flex-grow overflow-y-auto custom-scrollbar">
-                        <div className="p-5 md:p-6 space-y-4">
-                            {/* Header Info */}
+                        {/* 2. CENTER COLUMN: Product Title & Essential Info */}
+                        <div className="flex-1 space-y-3">
                             <div>
-                                <div className="flex items-center gap-3 mb-4">
-                                    <span className="px-2 py-0.5 bg-[var(--primary)]/10 text-[var(--primary)] text-[8px] font-black uppercase tracking-[0.2em] rounded-full border border-[var(--primary)]/20">
-                                        Premium Collection
-                                    </span>
-                                </div>
-                                <h2 className="text-lg md:text-xl font-black text-[var(--text-main)] mb-2 leading-tight tracking-tight">
+                                <h1 className="text-xl font-bold text-[var(--text-main)] leading-tight mb-1">
                                     {product.name}
-                                </h2>
-                                <div className="flex items-center gap-4">
-                                    <span className="text-xl font-black text-[var(--primary)]">
-                                        {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : formatPrice(breakdown.total)}
-                                    </span>
-                                    {!isLoading && (
-                                        <span className="text-sm text-[var(--text-muted)] font-bold line-through opacity-40">
-                                            {formatPrice(breakdown.total * 1.5)}
+                                </h1>
+                                {reviews.length > 0 && (
+                                    <div className="flex items-center gap-2 text-xs">
+                                        <div className="flex items-center text-[var(--primary)]">
+                                            {[...Array(5)].map((_, i) => {
+                                                const avgRating = reviews.reduce((acc: any, r: any) => acc + r.rating, 0) / reviews.length;
+                                                return <Star key={i} className={`w-3.5 h-3.5 ${i < Math.round(avgRating) ? 'fill-current' : 'opacity-30'}`} />;
+                                            })}
+                                        </div>
+                                        <span className="text-[var(--primary)] hover:opacity-80 cursor-pointer">{reviews.length} ratings</span>
+                                    </div>
+                                )}
+                            </div>
+
+                            <hr className="border-[var(--border)]" />
+
+                            {/* Price Section */}
+                            <div className="space-y-0.5">
+                                <div className="flex items-baseline gap-2">
+                                    <span className="text-xl font-light text-red-500">-35%</span>
+                                    <div className="flex items-start">
+                                        <span className="text-xs mt-1 font-medium italic text-[var(--text-main)]">{breakdown.currencySymbol || 'Rs'}</span>
+                                        <span className="text-2xl font-bold tracking-tight text-[var(--text-main)]">
+                                            {isLoading ? '...' : Math.floor(breakdown.total).toLocaleString()}
                                         </span>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Info Box */}
-                            <div className="p-4 bg-[var(--bg-input)]/50 rounded-2xl border border-[var(--border)] space-y-3 shadow-sm">
-                                <div className="flex items-center gap-2 text-[9px] font-black text-[var(--primary)] uppercase tracking-[0.2em]">
-                                    <Info className="w-3.5 h-3.5" />
-                                    Pricing Breakdown
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <p className="text-[12px] font-black text-[var(--text-main)]">
-                                            {isLoading ? "Fetching..." : formatPrice(breakdown.goldValue)}
-                                        </p>
-                                        {!isLoading && (
-                                            <p className="text-[8px] font-bold text-[var(--primary)] uppercase tracking-tighter mt-0.5">
-                                                @ {formatPrice(activeRate?.price || 0)} / Tola
-                                            </p>
-                                        )}
-                                    </div>
-                                    <div>
-                                        <p className="text-[9px] text-[var(--text-muted)] uppercase font-black tracking-widest mb-1">Craftsmanship</p>
-                                        <p className="text-[12px] font-black text-[var(--text-main)]">
-                                            {isLoading ? "Calculating..." : formatPrice(breakdown.makingCharges)}
-                                        </p>
                                     </div>
                                 </div>
+                                <div className="text-[10px] text-[var(--text-muted)]">
+                                    List Price: <span className="line-through">{formatPrice(breakdown.total * 1.5)}</span>
+                                </div>
                             </div>
 
-                            {/* Weights */}
-                            {(product.weightTola > 0 || product.weightMasha > 0 || product.weightRati > 0) && (
-                                <div className="flex flex-wrap gap-2">
-                                    {product.weightTola > 0 && <span className="px-2 py-1 bg-[var(--bg-input)] border border-[var(--border)] rounded-lg text-[9px] font-black text-[var(--text-main)] uppercase tracking-wider">{product.weightTola} TOLA</span>}
-                                    {product.weightMasha > 0 && <span className="px-2 py-1 bg-[var(--bg-input)] border border-[var(--border)] rounded-lg text-[9px] font-black text-[var(--text-main)] uppercase tracking-wider">{product.weightMasha} MASHA</span>}
-                                    {product.weightRati > 0 && <span className="px-2 py-1 bg-[var(--bg-input)] border border-[var(--border)] rounded-lg text-[9px] font-black text-[var(--text-main)] uppercase tracking-wider">{product.weightRati} RATI</span>}
-                                </div>
-                            )}
+                            {/* Highlights */}
+                            <div className="space-y-2">
+                                <h3 className="font-bold text-xs text-[var(--text-main)] uppercase tracking-wider">Highlights</h3>
+                                <ul className="list-disc pl-4 space-y-1 text-xs text-[var(--text-main)] opacity-90">
+                                    <li><strong>Authenticity:</strong> 100% Genuine {product.category}.</li>
+                                    <li><strong>Weight:</strong>
+                                        {unit === 'TMR' ?
+                                            ` ${product.weightTola} Tola, ${product.weightMasha} Masha, ${product.weightRati} Rati` :
+                                            ` ${convertTolaToGrams(product.weightTola, product.weightMasha, product.weightRati).toFixed(3)} Grams`
+                                        }
+                                    </li>
+                                    <li><strong>Certified:</strong> Includes Digital Certificate.</li>
+                                    <li><strong>Gifting:</strong> Premium packaging included.</li>
+                                </ul>
+                            </div>
+                        </div>
 
-                            {/* Description */}
-                            <p className="text-[var(--text-muted)] leading-relaxed text-[12px] md:text-[13px] font-medium">
-                                {product.description || "Indulge in the perfect blend of style and substance..."}
-                            </p>
-
-                            {/* Badges */}
-                            <div className="flex items-center gap-6 pt-2 text-[9px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] opacity-60">
-                                <div className="flex items-center gap-1.5">
-                                    <BadgeCheck className="w-3.5 h-3.5 text-green-500" /> 100% Authentic
+                        {/* 3. RIGHT COLUMN: Buy Box */}
+                        <div className="w-full lg:w-[220px] shrink-0">
+                            <div className="border border-[var(--border)] rounded-lg p-3 space-y-3 bg-[var(--bg-card)] md:sticky md:top-0 shadow-sm">
+                                <div className="text-lg font-bold text-[var(--text-main)]">
+                                    {isLoading ? '...' : formatPrice(breakdown.total)}
                                 </div>
-                                <div className="flex items-center gap-1.5">
-                                    <Truck className="w-3.5 h-3.5 text-blue-500" /> Global Shipping
+
+                                <div className="text-xs space-y-1">
+                                    <div className="text-green-600 font-bold">In Stock</div>
+                                    <div className="flex items-center gap-1">
+                                        <MapPin className="w-3 h-3 text-[var(--text-muted)]" />
+                                        <span className="text-[10px] text-[var(--primary)]">Deliver to location</span>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-bold text-[var(--text-main)]">Quantity:</label>
+                                    <select
+                                        value={quantity}
+                                        onChange={(e) => setQuantity(Number(e.target.value))}
+                                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded px-2 py-1 text-xs shadow-sm focus:border-[var(--primary)] outline-none text-[var(--text-main)]"
+                                    >
+                                        {[1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{n}</option>)}
+                                    </select>
+                                </div>
+
+                                <div className="space-y-2 pt-1">
+                                    <button 
+                                        onClick={handleAddToCart}
+                                        className="w-full bg-[var(--primary)] hover:opacity-90 text-white py-1.5 rounded-full text-xs font-bold shadow-sm transition-all active:scale-95"
+                                    >
+                                        Add to Cart
+                                    </button>
+                                    <button 
+                                        onClick={handleBuyNow}
+                                        className="w-full bg-[var(--text-main)] text-[var(--bg-main)] hover:opacity-90 py-1.5 rounded-full text-xs font-bold shadow-sm transition-all active:scale-95 border border-[var(--border)]"
+                                    >
+                                        Buy Now
+                                    </button>
+                                </div>
+
+                                <div className="pt-2 space-y-2 border-t border-[var(--border)]/50 mt-1">
+                                    <div className="flex items-center gap-2 text-[10px] text-[var(--text-muted)]">
+                                        <Lock className="w-3 h-3" />
+                                        <span>Secure transaction</span>
+                                    </div>
+                                    <button
+                                        onClick={() => setShowCertificate(true)}
+                                        className="w-full mt-1 py-1.5 border border-[var(--border)] rounded-md text-[10px] font-bold text-[var(--text-main)] hover:bg-[var(--bg-input)] transition-colors"
+                                    >
+                                        View Certificate
+                                    </button>
                                 </div>
                             </div>
                         </div>
+
                     </div>
 
-                    {/* Footer Actions */}
-                    <div className="p-4 md:p-5 bg-[var(--bg-card)] border-t border-[var(--border)]/50 mt-auto shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)]">
-                        <div className="flex flex-row items-center justify-between gap-4 mb-3">
-                            <div className="flex items-center bg-[var(--bg-input)] border border-[var(--border)] rounded-2xl p-1 shrink-0">
-                                <button
-                                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                                    className="p-1.5 hover:bg-[var(--bg-card)] text-[var(--text-muted)] rounded-xl transition-all active:scale-90"
-                                >
-                                    <Minus className="w-3 h-3 md:w-3.5 h-3.5" />
-                                </button>
-                                <span className="w-6 md:w-8 text-center font-black text-xs md:text-sm text-[var(--text-main)]">{quantity}</span>
-                                <button
-                                    onClick={() => setQuantity(quantity + 1)}
-                                    className="p-1.5 hover:bg-[var(--bg-card)] text-[var(--text-muted)] rounded-xl transition-all active:scale-90"
-                                >
-                                    <Plus className="w-3 h-3 md:w-3.5 h-3.5" />
-                                </button>
-                            </div>
-                            <div className="text-right">
-                                <p className="text-[8px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-0.5">Subtotal</p>
-                                <p className="text-md md:text-lg font-black text-[var(--primary)]">
-                                    {isLoading ? "..." : formatPrice(breakdown.total * quantity)}
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() => {
-                                    for (let i = 0; i < quantity; i++) addItem({ ...product, price: breakdown.total });
-                                    navigate('/checkout');
-                                }}
-                                disabled={isLoading}
-                                className="flex-1 h-11 md:h-12 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-black rounded-2xl transition-all shadow-lg shadow-[var(--primary)]/10 flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50 uppercase tracking-widest text-[9px]"
-                            >
-                                <ShoppingBag className="w-3.5 h-3.5" />
-                                Buy Now
-                            </button>
-                            <button
-                                onClick={handleAddToCart}
-                                disabled={isLoading}
-                                className="w-11 md:w-12 h-11 md:h-12 bg-[var(--bg-input)] hover:bg-[var(--border)] text-[var(--text-main)] rounded-2xl transition-all border border-[var(--border)] flex items-center justify-center active:scale-95 disabled:opacity-50"
-                            >
-                                <ShoppingCart className="w-3.5 h-3.5" />
-                            </button>
-                        </div>
-                    </div>
+                    <ProductReviewsSection reviews={reviews} isLoading={reviewsLoading} />
                 </div>
-            </div>
+            </motion.div>
+
+            {/* Full Screen 3D Tilt Image Modal */}
+            <AnimatePresence>
+                {isExpanded && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[200] bg-black/95 flex items-center justify-center p-8 cursor-zoom-out"
+                        onClick={() => setIsExpanded(false)}
+                        onMouseMove={handleMouseMove}
+                        style={{ perspective: 1200 }}
+                    >
+                        <button className="absolute top-6 right-6 text-white/50 hover:text-white transition-colors z-[210]">
+                            <X className="w-8 h-8" />
+                        </button>
+                        <motion.div
+                            style={{
+                                rotateX: rotateXSpring,
+                                rotateY: rotateYSpring,
+                                z: 0
+                            }}
+                            className="relative w-full h-full flex items-center justify-center pointer-events-none"
+                        >
+                            <motion.img
+                                src={activeImage}
+                                className="max-w-[90%] max-h-[90%] object-contain drop-shadow-2xl"
+                                initial={{ scale: 0.5, opacity: 0, y: 50 }}
+                                animate={{ scale: 1, opacity: 1, y: 0 }}
+                                exit={{ scale: 0.5, opacity: 0, y: 50 }}
+                                transition={{ type: "spring", stiffness: 200, damping: 25 }}
+                            />
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Certificate Modal Overlay */}
+            <AnimatePresence>
+                {showCertificate && (
+                    <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md" onClick={() => setShowCertificate(false)}>
+                        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-[var(--bg-main)] p-6 rounded-lg max-w-sm w-full shadow-2xl relative border border-[var(--border)]" onClick={e => e.stopPropagation()}>
+                            <button onClick={() => setShowCertificate(false)} className="absolute top-3 right-3 text-[var(--text-muted)] hover:text-[var(--text-main)]"><X className="w-5 h-5" /></button>
+                            <div className="text-center space-y-3">
+                                <div className="w-14 h-14 bg-[var(--primary)]/10 text-[var(--primary)] rounded-full mx-auto flex items-center justify-center border-4 border-[var(--primary)]/20">
+                                    <ShieldCheck className="w-8 h-8" />
+                                </div>
+                                <h2 className="text-lg font-bold uppercase tracking-wide text-[var(--text-main)]">Purity Certified</h2>
+                                <div className="bg-[var(--bg-input)] p-3 rounded-md space-y-1.5 text-xs text-left font-mono text-[var(--text-main)]">
+                                    <div className="flex justify-between border-b border-[var(--border)] pb-1"><span>Asset</span><span>{product.name}</span></div>
+                                    <div className="flex justify-between border-b border-[var(--border)] pb-1"><span>Metal</span><span>{product.category}</span></div>
+                                    <div className="flex justify-between border-b border-[var(--border)] pb-1"><span>Weight</span><span>{convertTolaToGrams(product.weightTola, product.weightMasha, product.weightRati).toFixed(3)}g</span></div>
+                                    <div className="flex justify-between"><span>Registry</span><span>#AZ-{product.id}</span></div>
+                                </div>
+                                <QrCode className="w-24 h-24 mx-auto mt-3 text-[var(--text-main)] opacity-80" />
+                                <p className="text-[9px] text-[var(--text-muted)] uppercase tracking-widest">Verified by AZ Collection Audits</p>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }
 
-function BadgeCheck({ className }: { className?: string }) {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-            <path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.74z" />
-            <path d="m9 12 2 2 4-4" />
-        </svg>
-    );
-}
+function ProductReviewsSection({ reviews, isLoading }: { reviews: any[], isLoading: boolean }) {
+    if (isLoading) return null;
+    if (!reviews || reviews.length === 0) return null;
 
-function Truck({ className }: { className?: string }) {
     return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-            <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" />
-            <path d="M15 18H9" />
-            <path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-2.235-2.794A1 1 0 0 0 18.765 9.5H15" />
-            <path d="M15 15h7" />
-            <circle cx="7" cy="18" r="2" />
-            <circle cx="17" cy="18" r="2" />
-        </svg>
+        <div className="p-4 bg-[var(--bg-card)]/30 border-t border-[var(--border)]">
+            <div className="max-w-[1000px] mx-auto">
+                <section>
+                    <div className="flex flex-col md:flex-row gap-6">
+                        {/* Ratings Summary */}
+                        <div className="w-full md:w-[200px] space-y-2">
+                            <h3 className="text-sm font-bold text-[var(--text-main)]">Customer Reviews</h3>
+                            <div className="flex items-center gap-1.5">
+                                <div className="flex text-[var(--primary)]">
+                                    {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
+                                </div>
+                                <span className="font-bold text-sm text-[var(--text-main)]">4.8 out of 5</span>
+                            </div>
+                            <span className="text-xs text-[var(--text-muted)] block">{reviews.length} global ratings</span>
+                            <div className="space-y-1 pt-1">
+                                {[5, 4, 3, 2, 1].map(n => (
+                                    <div key={n} className="flex items-center gap-2 group cursor-pointer">
+                                        <span className="text-[10px] text-[var(--primary)] w-6 hover:underline">{n} star</span>
+                                        <div className="flex-1 h-3 bg-[var(--bg-input)] rounded-sm border border-[var(--border)] overflow-hidden">
+                                            <div className="h-full bg-[var(--primary)]" style={{ width: `${n === 5 ? 85 : n === 4 ? 10 : 2}%` }} />
+                                        </div>
+                                        <span className="text-[10px] text-[var(--primary)] w-6 hover:underline text-right">{n === 5 ? '85' : n === 4 ? '10' : '2'}%</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Review Feed */}
+                        <div className="flex-1 space-y-4">
+                            <h4 className="font-bold text-xs text-[var(--text-main)] uppercase tracking-wide">Top reviews</h4>
+                            <div className="space-y-4">
+                                {reviews.map((review: any) => (
+                                    <div key={review.id} className="space-y-1">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-6 h-6 rounded-full bg-[var(--bg-input)] border border-[var(--border)] flex items-center justify-center text-[var(--text-muted)] text-[10px] font-bold uppercase">
+                                                {review.user?.name?.[0]}
+                                            </div>
+                                            <span className="text-xs font-medium text-[var(--text-main)]">{review.user?.name}</span>
+                                        </div>
+                                        <div className="flex items-center gap-1.5">
+                                            <div className="flex text-[var(--primary)]">
+                                                {[...Array(5)].map((_, i) => <Star key={i} className={`w-3 h-3 ${i < review.rating ? 'fill-current' : 'text-[var(--border)]'}`} />)}
+                                            </div>
+                                            <span className="text-[10px] font-bold text-[var(--primary)]">Verified Purchase</span>
+                                        </div>
+                                        <div className="text-[10px] text-[var(--text-muted)]">Reviewed on {new Date(review.createdAt).toLocaleDateString()}</div>
+                                        <p className="text-xs text-[var(--text-main)] leading-relaxed opacity-90">{review.comment}</p>
+                                        <div className="flex items-center gap-3 text-[10px] pt-0.5">
+                                            <span className="text-[var(--text-muted)] hover:text-[var(--primary)] cursor-pointer border px-2 py-0.5 rounded">Helpful</span>
+                                            <span className="text-[var(--text-muted)] hover:text-red-500 cursor-pointer">Report</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
     );
 }

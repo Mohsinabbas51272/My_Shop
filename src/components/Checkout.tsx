@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CreditCard, ArrowLeft, Loader2, ShieldAlert, AlertCircle, ShoppingBag } from 'lucide-react';
+import { CreditCard, ArrowLeft, Loader2, ShieldAlert, AlertCircle, ShoppingBag, ShieldCheck } from 'lucide-react';
+import { motion } from 'framer-motion';
 import Navbar from './Navbar';
 import PolicyModal from './PolicyModal';
 import api from '../lib/api';
@@ -127,14 +128,71 @@ export default function Checkout() {
         paymentReceipt: checkoutDetails.paymentReceipt,
       });
       clearCart();
-      toast.success('Order placed! Redirecting to orders…');
-      navigate('/user/dashboard?tab=orders');
+      setIsSuccess(true);
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Checkout failed');
     } finally {
       setLoading(false);
     }
   };
+
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  if (isSuccess) {
+    return (
+      <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] font-['Outfit'] flex flex-col">
+        <Navbar />
+        <main className="flex-1 flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="w-full max-w-lg bg-[var(--bg-card)] border border-[var(--border)] rounded-[3rem] p-10 text-center shadow-[0_30px_100px_rgba(0,0,0,0.5)] relative overflow-hidden"
+          >
+            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[var(--primary)] via-[var(--accent)] to-[var(--primary)] shadow-[0_0_20px_var(--primary)]" />
+
+            <motion.div
+              initial={{ rotate: -20, scale: 0 }}
+              animate={{ rotate: 0, scale: 1 }}
+              transition={{ delay: 0.3, type: 'spring', stiffness: 200 }}
+              className="w-24 h-24 bg-gradient-to-br from-[var(--primary)] to-[var(--accent)] rounded-full mx-auto mb-8 flex items-center justify-center shadow-2xl shadow-[var(--primary)]/40"
+            >
+              <ShieldCheck className="w-12 h-12 text-white" />
+            </motion.div>
+
+            <h1 className="text-4xl font-black text-[var(--text-main)] mb-4 tracking-tight uppercase">Masterpiece Secured</h1>
+            <p className="text-[var(--text-muted)] font-medium mb-10 leading-relaxed uppercase tracking-[0.1em] text-[10px]">Your order has been authorized and is now being processed in our vault. You will receive a certification shortly.</p>
+
+            <div className="bg-[var(--bg-input)]/50 border border-[var(--border)] rounded-3xl p-6 mb-10 space-y-4">
+              <div className="flex justify-between items-center px-2">
+                <span className="text-[9px] font-black uppercase tracking-widest opacity-40">Settlement Total</span>
+                <span className="text-xl font-black text-[var(--primary)]">{formatPrice(grandTotal)}</span>
+              </div>
+              <div className="h-px bg-[var(--border)] mx-2" />
+              <div className="flex justify-between items-center px-2">
+                <span className="text-[9px] font-black uppercase tracking-widest opacity-40">Recipient</span>
+                <span className="text-xs font-bold">{checkoutDetails.customerName}</span>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-4">
+              <button
+                onClick={() => navigate('/user/dashboard?tab=orders')}
+                className="w-full bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-black py-5 rounded-2xl transition-all shadow-xl shadow-[var(--primary)]/20 uppercase tracking-[0.2em] text-xs active:scale-95"
+              >
+                View My Vault
+              </button>
+              <Link
+                to="/user/dashboard?tab=shop"
+                className="w-full bg-[var(--bg-input)] text-[var(--text-main)] hover:bg-[var(--border)] font-black py-4 rounded-2xl transition-all uppercase tracking-[0.2em] text-xs"
+              >
+                Continue Discovery
+              </Link>
+            </div>
+          </motion.div>
+        </main>
+      </div>
+    );
+  }
 
   const selectedMethod = paymentMethods.find((m) => m.id === checkoutDetails.paymentMethod);
 

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Receipt, Printer, Send, X } from 'lucide-react';
+import { Receipt, Printer, Send, X, ShieldCheck, ShieldAlert } from 'lucide-react';
 
 interface OrderReceiptProps {
     order: any;
@@ -67,89 +67,129 @@ const OrderReceipt = ({ order: rawOrder, formatPrice, onClose, onSendToDashboard
                     </div>
                 </div>
 
-                <div id="printable-receipt" className="p-8 overflow-y-auto space-y-8 print:p-0">
-                    <div className="text-center space-y-2 pb-8 border-b border-slate-100">
-                        <h1 className="text-4xl font-black tracking-tighter text-slate-900 uppercase text-center">My Shop</h1>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em] text-center">Jewelry & Gems Enterprise</p>
-                        <div className="text-xs text-slate-500 font-medium text-center">
-                            Phathi Joyianwali, tehsil Piplan, District Mianwali<br />
-                            Contact: +923078520514 | testmyshop3@gmail.com
+                <div id="printable-receipt" className="p-12 overflow-y-auto space-y-10 print:p-0">
+                    {/* CERTIFICATE HEADER */}
+                    <div className="text-center space-y-4 pb-10 border-b-2 border-slate-900 relative">
+                        <div className="absolute top-0 right-0 opacity-10">
+                            <ShieldCheck className="w-24 h-24 text-slate-900" />
+                        </div>
+                        <h1 className="text-5xl font-black tracking-tighter text-slate-900 uppercase">A.Z Shop</h1>
+                        <div className="flex items-center justify-center gap-4">
+                            <div className="h-px w-10 bg-slate-300" />
+                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.5em]">Official Certification of Purchase</p>
+                            <div className="h-px w-10 bg-slate-300" />
+                        </div>
+                        <div className="text-[11px] text-slate-400 font-bold uppercase tracking-widest leading-relaxed">
+                            Boutique • Phathi Joyianwali, Piplan, Mianwali<br />
+                            Direct: +92 307 8520514 | contact@azshop.com
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-8 text-sm">
-                        <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-12 text-sm pt-4">
+                        <div className="space-y-6">
                             <div>
-                                <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Bill To:</h4>
-                                <p className="font-bold text-slate-900">{order.customerName}</p>
-                                <p className="text-slate-500 leading-relaxed text-xs">{order.customerAddress}</p>
-                                <p className="text-slate-500 text-xs">{order.customerPhone}</p>
+                                <h4 className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Authenticated Recipient:</h4>
+                                <div className="space-y-1">
+                                    <p className="text-lg font-black text-slate-900 leading-tight uppercase tracking-tight">{order.customerName}</p>
+                                    <p className="text-slate-500 font-medium text-xs max-w-[200px] leading-relaxed uppercase">{order.customerAddress}</p>
+                                    <p className="text-slate-400 text-[10px] font-bold tracking-widest">{order.customerPhone}</p>
+                                </div>
                             </div>
                         </div>
-                        <div className="space-y-4 text-right">
+                        <div className="space-y-6 text-right">
                             <div>
-                                <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Receipt Info:</h4>
-                                <p className="font-bold text-slate-900">Order ID: #{order.displayId || order.id}</p>
-                                <p className="text-slate-500 text-xs">Date: {new Date(order.createdAt).toLocaleDateString()}</p>
-                                <p className="text-slate-500 text-xs">Payment: {order.paymentMethod} ({order.paymentStatus})</p>
+                                <h4 className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Vault Reference:</h4>
+                                <div className="space-y-1">
+                                    <p className="text-sm font-black text-slate-900 uppercase tracking-tighter italic">Case ID: #{order.displayId || order.id}</p>
+                                    <p className="text-slate-500 text-[11px] font-bold uppercase tracking-widest">Date: {new Date(order.createdAt).toLocaleDateString(undefined, { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+                                    <div className="flex justify-end gap-2 mt-2">
+                                        <span className="px-2 py-0.5 bg-slate-100 text-[9px] font-black uppercase text-slate-500 border border-slate-200">{order.paymentMethod}</span>
+                                        <span className={`px-2 py-0.5 text-[9px] font-black uppercase border ${order.paymentStatus === 'Paid' ? 'bg-green-50 text-green-600 border-green-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>{order.paymentStatus}</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <table className="w-full text-left text-sm border-collapse">
-                        <thead>
-                            <tr className="border-b-2 border-slate-900">
-                                <th className="py-3 font-black uppercase text-[10px] tracking-widest">Detail</th>
-                                <th className="py-3 font-black uppercase text-[10px] tracking-widest text-center">Weight</th>
-                                <th className="py-3 font-black uppercase text-[10px] tracking-widest text-right">Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100">
-                            {order.items?.map((item: any, idx: number) => (
-                                <tr key={idx}>
-                                    <td className="py-4">
-                                        <div className="font-bold text-slate-900">{item.name}</div>
-                                        <div className="text-[10px] text-slate-400 uppercase">Qty: {item.quantity}</div>
-                                    </td>
-                                    <td className="py-4 text-center">
-                                        <div className="flex justify-center gap-1.5 text-[10px] font-bold text-slate-600">
-                                            {item.weightTola > 0 && <span>{item.weightTola}T</span>}
-                                            {item.weightMasha > 0 && <span>{item.weightMasha}M</span>}
-                                            {item.weightRati > 0 && <span>{item.weightRati}R</span>}
-                                        </div>
-                                    </td>
-                                    <td className="py-4 text-right font-bold text-slate-900">
-                                        {formatPrice(item.price * item.quantity)}
-                                    </td>
+                    <div className="pt-6">
+                        <table className="w-full text-left text-sm border-collapse">
+                            <thead>
+                                <tr className="border-b-2 border-slate-900">
+                                    <th className="py-4 font-black uppercase text-[10px] tracking-[0.2em] text-slate-400">Masterpiece Details</th>
+                                    <th className="py-4 font-black uppercase text-[10px] tracking-[0.2em] text-center text-slate-400">Weight Profile</th>
+                                    <th className="py-4 font-black uppercase text-[10px] tracking-[0.2em] text-right text-slate-400">Valuation</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100">
+                                {order.items?.map((item: any, idx: number) => (
+                                    <tr key={idx} className="group">
+                                        <td className="py-6">
+                                            <div className="font-black text-slate-900 uppercase tracking-tight text-base mb-1">{item.name}</div>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Qty: {item.quantity}</span>
+                                                <div className="h-1 w-1 rounded-full bg-slate-200" />
+                                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Unit Price: {formatPrice(item.price)}</span>
+                                            </div>
+                                        </td>
+                                        <td className="py-6 text-center">
+                                            <div className="inline-flex gap-2 text-[10px] font-black text-slate-700 uppercase tracking-tighter bg-slate-50 px-3 py-1 rounded-full border border-slate-100">
+                                                {item.weightTola > 0 && <span>{item.weightTola}T</span>}
+                                                {item.weightMasha > 0 && <span>{item.weightMasha}M</span>}
+                                                {item.weightRati > 0 && <span>{item.weightRati}R</span>}
+                                                {(item.weightTola === 0 && item.weightMasha === 0 && item.weightRati === 0) && <span className="text-slate-300">—</span>}
+                                            </div>
+                                        </td>
+                                        <td className="py-6 text-right font-black text-slate-900 text-base">
+                                            {formatPrice(item.price * item.quantity)}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
 
-                    <div className="space-y-2 border-t border-slate-900 pt-4">
-                        <div className="flex justify-between text-xs text-slate-500">
-                            <span>Platform Fee:</span>
-                            <span>{formatPrice(order.userFee || 0)}</span>
-                        </div>
-                        <div className="flex justify-between text-xs text-slate-500">
-                            <span>Shipping & Handling:</span>
-                            <span>{formatPrice(order.shippingFee || 0)}</span>
-                        </div>
-                        <div className="flex justify-between items-center pt-2">
-                            <span className="text-sm font-black uppercase tracking-widest">Grand Total</span>
-                            <span className="text-2xl font-black text-slate-900">{formatPrice(order.total || 0)}</span>
+                    <div className="space-y-4 border-t-2 border-slate-900 pt-8">
+                        <div className="flex justify-end">
+                            <div className="w-full max-w-[280px] space-y-3">
+                                <div className="flex justify-between text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                    <span>Boutique Service Fee:</span>
+                                    <span className="text-slate-600 font-bold">{formatPrice(order.userFee || 0)}</span>
+                                </div>
+                                <div className="flex justify-between text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                    <span>Courier & Insurance:</span>
+                                    <span className="text-slate-600 font-bold">{formatPrice(order.shippingFee || 0)}</span>
+                                </div>
+                                <div className="h-px bg-slate-100 my-2" />
+                                <div className="flex justify-between items-center">
+                                    <span className="text-xs font-black uppercase tracking-[0.3em] text-slate-900">Total Settlement</span>
+                                    <span className="text-3xl font-black text-slate-900 tracking-tighter">{formatPrice(order.total || 0)}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="bg-slate-50 p-4 border-l-4 border-slate-900 text-[10px] italic text-slate-500 space-y-2">
-                        <p className="font-bold text-slate-700 not-italic uppercase tracking-widest text-left">Gold Return Policy:</p>
-                        <p className="text-left">A deduction (Kat) of 3 Masha per 1 Tola will be applied on the current market gold rate at the time of return.</p>
-                        <p className="text-left">No refund for making/labor charges. Original receipt mandatory for all claims.</p>
+                    <div className="bg-slate-50 p-8 rounded-xl border border-slate-100 space-y-4">
+                        <div className="flex items-center gap-3">
+                            <ShieldAlert className="w-5 h-5 text-slate-900" />
+                            <p className="font-black text-slate-900 uppercase tracking-[0.2em] text-[10px]">Transmission & Return Protocol:</p>
+                        </div>
+                        <div className="grid grid-cols-2 gap-8 text-[9px] font-bold text-slate-500 uppercase tracking-tight leading-relaxed">
+                            <p>Upon return, a standard deduction (Kat) of 3 Masha per 1 Tola will be applied based on the prevailing market gold rate at the point of exchange.</p>
+                            <p>Craftsmanship and labor expenses are non-refundable. This official certification must be presented for all post-purchase inquiries or claims.</p>
+                        </div>
                     </div>
 
-                    <div className="pt-12 pb-8 flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                        <div className="border-t border-slate-300 w-32 pt-2 text-center">Customer Sign</div>
-                        <div className="border-t border-slate-300 w-32 pt-2 text-center">Authorized Stamp</div>
+                    <div className="pt-16 pb-12 flex justify-between items-end">
+                        <div className="space-y-8">
+                            <div className="text-[9px] font-black text-slate-300 uppercase tracking-[0.3em]">Authorized by My Shop</div>
+                            <div className="w-48 border-b-2 border-slate-900" />
+                            <div className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Director Signature</div>
+                        </div>
+                        <div className="text-right space-y-8">
+                            <div className="text-[9px] font-black text-slate-300 uppercase tracking-[0.3em]">Client Acceptance</div>
+                            <div className="w-48 border-b-2 border-slate-900 ml-auto" />
+                            <div className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Consignee Acknowledgment</div>
+                        </div>
                     </div>
                 </div>
             </div>

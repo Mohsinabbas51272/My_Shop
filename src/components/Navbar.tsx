@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../store/useAuthStore';
 import { useCartStore } from '../store/useCartStore';
-import { User, Palette, Menu, X, ShoppingCart, LogOut, Banknote, Calculator } from 'lucide-react';
+import { User, Palette, Menu, X, ShoppingCart, LogOut, Banknote, Calculator, Scale } from 'lucide-react';
 import GoldCalculator from './GoldCalculator';
 import { useThemeStore } from '../store/useThemeStore';
 import type { ThemeType } from '../store/useThemeStore';
@@ -10,6 +10,7 @@ import { useCurrencyStore } from '../store/useCurrencyStore';
 import { useState, useEffect } from 'react';
 import { useSearchStore } from '../store/useSearchStore';
 import { useWishlistStore } from '../store/useWishlistStore';
+import { useWeightStore } from '../store/useWeightStore';
 import { Search, SlidersHorizontal, ChevronDown, Heart } from 'lucide-react';
 
 export default function Navbar() {
@@ -25,6 +26,7 @@ export default function Navbar() {
     const [showSearch, setShowSearch] = useState(false);
     const [showFilters, setShowFilters] = useState(false);
     const [showThemes, setShowThemes] = useState(false);
+    const { unit, toggleUnit } = useWeightStore();
 
     // Destructure search store
     const {
@@ -32,8 +34,18 @@ export default function Navbar() {
         sort, setSort,
         minPrice, setMinPrice,
         maxPrice, setMaxPrice,
-        metalCategory, setMetalCategory
+        metalCategory, setMetalCategory,
+        occasion, setOccasion
     } = useSearchStore();
+
+    // const { data: notices } = useQuery({
+    //     queryKey: ['notices-me', user?.id],
+    //     queryFn: async () => (await api.get('/users/my-notices')).data,
+    //     enabled: !!user?.id,
+    //     refetchInterval: 30000, // Every 30s is enough for Navbar
+    // });
+
+    // const noticeCount = notices?.length || 0;
 
     useEffect(() => {
         if (isMenuOpen || isCalcOpen || showSearch || showFilters || showThemes) {
@@ -65,7 +77,7 @@ export default function Navbar() {
     return (
         <nav className="bg-[var(--bg-card)]/80 border-b border-[var(--border)] sticky top-0 z-[100] backdrop-blur-md w-full">
             <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center justify-between h-16">
+                <div className="flex items-center justify-between h-14">
                     {/* Left Section: Logo & Mobile Menu Toggle */}
                     <div className="flex items-center gap-2 sm:gap-4">
                         <button
@@ -79,8 +91,8 @@ export default function Navbar() {
                             user?.role === 'ADMIN' ? "/admin/dashboard" :
                                 "/user/dashboard"
                         } className="flex items-center gap-3 text-[var(--primary)] font-bold text-xl hover:opacity-80 transition-opacity shrink-0">
-                            <img src="/logo_az.png?v=2" alt="" className="w-10 h-10 object-cover rounded-full border border-[var(--primary)]/30 shadow-lg" />
-                            <span className="truncate hidden lg:inline uppercase tracking-tighter font-serif">AZ<span className="text-[var(--text-main)]"> Shop</span></span>
+                            <img src="/logo_az.png?v=2" alt="" className="w-9 h-9 object-cover rounded-full border border-[var(--primary)]/30 shadow-lg" />
+                            <span className="hidden lg:inline uppercase tracking-tight font-serif whitespace-nowrap pr-1">AZ<span className="text-[var(--text-main)]"> Shop</span></span>
                         </Link>
 
                         {/* Navigation Links - Desktop */}
@@ -155,6 +167,20 @@ export default function Navbar() {
                                 >
                                     <Banknote className="w-4 h-4 sm:w-5 h-5" />
                                     <span className="text-[10px] font-black hidden lg:inline">{currency}</span>
+                                </button>
+
+                                {/* Weight Unit Toggle */}
+                                <button
+                                    onClick={() => {
+                                        toggleUnit();
+                                        setShowThemes(false);
+                                        setShowFilters(false);
+                                        setShowSearch(false);
+                                    }}
+                                    className={`transition-all duration-300 rounded-full hover:bg-[var(--bg-input)]/50 flex items-center gap-1.5 px-3 py-1.5 sm:py-2 ${unit === 'GRAMS' ? 'text-[var(--primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-main)]'}`}
+                                >
+                                    <Scale className={`w-4 h-4 sm:w-5 h-5 ${unit === 'GRAMS' ? 'animate-pulse' : ''}`} />
+                                    <span className="text-[10px] font-black hidden lg:inline">{unit === 'GRAMS' ? 'GRAMS' : 'TOLA'}</span>
                                 </button>
 
                                 {/* Theme Picker */}
@@ -258,6 +284,31 @@ export default function Navbar() {
                                                     />
                                                 </div>
                                             </div>
+
+                                            {/* Occasion Filter */}
+                                            <div className="space-y-2 mt-4">
+                                                <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest block px-1">Occasion</label>
+                                                <div className="grid grid-cols-2 gap-2">
+                                                    {[
+                                                        { id: 'All', name: 'All' },
+                                                        { id: 'Wedding', name: 'Wedding' },
+                                                        { id: 'Engagement', name: 'Engagement' },
+                                                        { id: 'Gift', name: 'Gifts' },
+                                                        { id: 'Party', name: 'Party' },
+                                                    ].map((occ) => (
+                                                        <button
+                                                            key={occ.id}
+                                                            onClick={() => setOccasion(occ.id)}
+                                                            className={`px-3 py-2 rounded-xl text-[10px] font-bold uppercase transition-all border ${occasion === occ.id
+                                                                ? 'bg-[var(--primary)] text-white border-[var(--primary)] shadow-md'
+                                                                : 'bg-[var(--bg-input)] text-[var(--text-muted)] border-[var(--border)] hover:border-[var(--primary)]'
+                                                                }`}
+                                                        >
+                                                            {occ.name}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 )}
@@ -345,7 +396,7 @@ export default function Navbar() {
                                 to="/profile"
                                 className="flex items-center gap-3 group"
                             >
-                                <div className="w-10 h-10 rounded-full overflow-hidden border border-[var(--primary)]/30 group-hover:border-[var(--primary)] shadow-lg transition-all">
+                                <div className="w-9 h-9 rounded-full overflow-hidden border border-[var(--primary)]/30 group-hover:border-[var(--primary)] shadow-lg transition-all">
                                     {user?.image ? (
                                         <img src={user.image} alt="" className="w-full h-full object-cover" />
                                     ) : (
@@ -409,6 +460,18 @@ export default function Navbar() {
                                         <Banknote className="w-5 h-5" />
                                     </div>
                                     <span className="text-[10px] font-black uppercase tracking-widest text-[var(--text-main)]">{currency}</span>
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        toggleUnit();
+                                        setIsMenuOpen(false);
+                                    }}
+                                    className="flex flex-col items-center justify-center p-4 bg-[var(--bg-input)] rounded-2xl border border-[var(--border)] active:scale-95 transition-all text-[var(--text-muted)] hover:text-[var(--primary)]"
+                                >
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 border border-[var(--border)] transition-colors ${unit === 'GRAMS' ? 'bg-[var(--primary)] text-white' : 'bg-[var(--bg-card)] text-[var(--primary)]'}`}>
+                                        <Scale className="w-5 h-5" />
+                                    </div>
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-[var(--text-main)]">{unit === 'TMR' ? 'Tola' : 'Grams'}</span>
                                 </button>
                             </div>
 
@@ -555,6 +618,31 @@ export default function Navbar() {
                                             <option value="price_desc">Price: High to Low</option>
                                         </select>
                                         <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
+                                    </div>
+                                </div>
+
+                                {/* Mobile Occasion Filter */}
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest px-1">Occasion</label>
+                                    <div className="flex flex-wrap gap-2">
+                                        {[
+                                            { id: 'All', name: 'All' },
+                                            { id: 'Wedding', name: 'Wedding' },
+                                            { id: 'Engagement', name: 'Engagement' },
+                                            { id: 'Gift', name: 'Gifts' },
+                                            { id: 'Party', name: 'Party' },
+                                        ].map((occ) => (
+                                            <button
+                                                key={occ.id}
+                                                onClick={() => setOccasion(occ.id)}
+                                                className={`px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase transition-all border ${occasion === occ.id
+                                                    ? 'bg-[var(--primary)] text-white border-[var(--primary)]'
+                                                    : 'bg-[var(--bg-input)] border-[var(--border)] text-[var(--text-muted)]'
+                                                    }`}
+                                            >
+                                                {occ.name}
+                                            </button>
+                                        ))}
                                     </div>
                                 </div>
                             </div>

@@ -48,72 +48,69 @@ export default function Contact() {
         <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-main)]">
             <Navbar />
 
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="text-center mb-16"
+                    className="text-center mb-8"
                 >
-                    <h1 className="text-4xl font-bold mb-4">Get in Touch</h1>
-                    <p className="text-[var(--text-muted)] max-w-2xl mx-auto">
-                        Have questions about our products or need assistance? We're here to help.
-                        Reach out to us through any of the channels below.
+                    <h1 className="text-3xl font-black mb-2">Get in Touch</h1>
+                    <p className="text-[var(--text-muted)] max-w-xl mx-auto text-sm">
+                        Have questions? We're here to help. Reach out to us below.
                     </p>
                 </motion.div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Contact Info */}
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.1 }}
-                        className="space-y-8"
+                        className="space-y-4"
                     >
-                        <div className="bg-[var(--bg-card)] p-8 rounded-2xl border border-[var(--border)] shadow-xl">
-                            <h2 className="text-2xl font-bold mb-6">Contact Information</h2>
-                            <div className="space-y-6">
-                                <div className="flex items-start gap-4">
-                                    <div className="p-3 bg-[var(--primary)]/10 rounded-lg text-[var(--primary)]">
-                                        <MapPin className="w-6 h-6" />
+                        <div className="bg-[var(--bg-card)] p-5 rounded-2xl border border-[var(--border)] shadow-xl h-fit">
+                            <h2 className="text-xl font-bold mb-4">Contact Information</h2>
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-[var(--primary)]/10 rounded-lg text-[var(--primary)]">
+                                        <MapPin className="w-4 h-4" />
                                     </div>
                                     <div>
-                                        <h3 className="font-bold mb-1">Our Location</h3>
-                                        <p className="text-[var(--text-muted)]">
-                                            Phathi Joyianwali, tehsil Piplan<br />
-                                            District Mianwali, Punjab Pakistan
+                                        <h3 className="font-bold text-sm">Order Center</h3>
+                                        <p className="text-[var(--text-muted)] text-xs leading-tight">
+                                            Phathi Joyianwali, Piplan<br />
+                                            Mianwali, Punjab
                                         </p>
                                     </div>
                                 </div>
 
-                                <div className="flex items-start gap-4">
-                                    <div className="p-3 bg-[var(--primary)]/10 rounded-lg text-[var(--primary)]">
-                                        <Phone className="w-6 h-6" />
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-[var(--primary)]/10 rounded-lg text-[var(--primary)]">
+                                        <Phone className="w-4 h-4" />
                                     </div>
                                     <div>
-                                        <h3 className="font-bold mb-1">Phone Number</h3>
-                                        <p className="text-[var(--text-muted)]">+923078520514</p>
-                                        <p className="text-[var(--text-muted)] text-sm mt-1">Mon-Fri, 9am - 6pm</p>
+                                        <h3 className="font-bold text-sm">Phone</h3>
+                                        <p className="text-[var(--text-muted)] text-xs">+923078520514</p>
                                     </div>
                                 </div>
 
-                                <div className="flex items-start gap-4">
-                                    <div className="p-3 bg-[var(--primary)]/10 rounded-lg text-[var(--primary)]">
-                                        <Mail className="w-6 h-6" />
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-[var(--primary)]/10 rounded-lg text-[var(--primary)]">
+                                        <Mail className="w-4 h-4" />
                                     </div>
                                     <div>
-                                        <h3 className="font-bold mb-1">Email Address</h3>
-                                        <p className="text-[var(--text-muted)]">testmyshop3@gmail.com</p>
-                                        <p className="text-[var(--text-muted)] text-sm mt-1">We reply within 24 hours</p>
+                                        <h3 className="font-bold text-sm">Email</h3>
+                                        <p className="text-[var(--text-muted)] text-xs">testmyshop3@gmail.com</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="h-64 bg-[var(--bg-card)] rounded-2xl border border-[var(--border)] overflow-hidden shadow-lg relative group">
+                        <div className="h-40 bg-[var(--bg-card)] rounded-2xl border border-[var(--border)] overflow-hidden shadow-lg relative group">
                             {/* Placeholder for map - using an image or just a styled div */}
                             <div className="absolute inset-0 bg-[var(--bg-input)] flex items-center justify-center">
-                                <p className="text-[var(--text-muted)] font-bold flex items-center gap-2">
-                                    <MapPin className="w-5 h-5" />
+                                <p className="text-[var(--text-muted)] font-bold flex items-center gap-2 text-xs">
+                                    <MapPin className="w-4 h-4" />
                                     Map Integration Coming Soon
                                 </p>
                             </div>
@@ -125,22 +122,22 @@ export default function Contact() {
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="bg-[var(--bg-card)] p-8 rounded-2xl border border-[var(--border)] shadow-xl"
+                        className="bg-[var(--bg-card)] p-5 rounded-2xl border border-[var(--border)] shadow-xl"
                     >
-                        <h2 className="text-2xl font-bold mb-6">Send us a Message</h2>
-                        <form onSubmit={handleSubmit} className="space-y-6">
+                        <h2 className="text-xl font-bold mb-4">Send us a Message</h2>
+                        <form onSubmit={handleSubmit} className="space-y-4">
                             {user && (
                                 <div>
-                                    <label className="block text-sm font-bold text-[var(--text-muted)] mb-2 uppercase tracking-wide">Related Order (Optional)</label>
+                                    <label className="block text-xs font-bold text-[var(--text-muted)] mb-1 uppercase tracking-wide">Related Order</label>
                                     <select
                                         value={formData.orderId || ''}
                                         onChange={(e) => setFormData({ ...formData, orderId: e.target.value ? parseInt(e.target.value) : null })}
-                                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 transition-all"
+                                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 transition-all"
                                     >
-                                        <option value="">Select an order (if applicable)</option>
+                                        <option value="">Select Order (Optional)</option>
                                         {orders?.map((order: any) => (
                                             <option key={order.id} value={order.id}>
-                                                Order #{order.displayId || order.id} - {new Date(order.createdAt).toLocaleDateString()}
+                                                #{order.displayId || order.id} - {new Date(order.createdAt).toLocaleDateString()}
                                             </option>
                                         ))}
                                     </select>
@@ -148,42 +145,42 @@ export default function Contact() {
                             )}
 
                             <div>
-                                <label className="block text-sm font-bold text-[var(--text-muted)] mb-2 uppercase tracking-wide">Subject</label>
+                                <label className="block text-xs font-bold text-[var(--text-muted)] mb-1 uppercase tracking-wide">Subject</label>
                                 <input
                                     type="text"
                                     required
                                     value={formData.subject}
                                     onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                                    className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 transition-all"
+                                    className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 transition-all"
                                     placeholder="How can we help?"
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-bold text-[var(--text-muted)] mb-2 uppercase tracking-wide">Message</label>
+                                <label className="block text-xs font-bold text-[var(--text-muted)] mb-1 uppercase tracking-wide">Message</label>
                                 <textarea
                                     required
-                                    rows={4}
+                                    rows={3}
                                     value={formData.description}
                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                    className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 transition-all resize-none"
-                                    placeholder="Tell us more about your inquiry..."
+                                    className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 transition-all resize-none"
+                                    placeholder="Tell us more..."
                                 />
                             </div>
 
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-[var(--accent-glow)] flex items-center justify-center gap-2"
+                                className="w-full bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-bold py-2.5 rounded-xl transition-all shadow-lg shadow-[var(--accent-glow)] flex items-center justify-center gap-2 text-sm"
                             >
                                 {loading ? (
                                     <>
-                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                        <Loader2 className="w-4 h-4 animate-spin" />
                                         Sending...
                                     </>
                                 ) : (
                                     <>
-                                        <Send className="w-5 h-5" />
+                                            <Send className="w-4 h-4" />
                                         Send Message
                                     </>
                                 )}

@@ -34,7 +34,9 @@ export default function Login() {
         try {
             const response = await api.post('/auth/login', data);
             const user = response.data.user;
-            setAuth(user, response.data.access_token);
+            const token = response.data.access_token;
+            localStorage.setItem('token', token);
+            setAuth(user, token);
 
             if (user.role === 'ADMIN') {
                 navigate('/admin/dashboard');
@@ -61,30 +63,30 @@ export default function Login() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[var(--bg-main)] text-[var(--text-main)] p-4 sm:p-6">
-            <div className="w-full max-w-md bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--border)] p-6 sm:p-10 rounded-3xl shadow-2xl">
-                <div className="flex flex-col items-center mb-6 sm:mb-10">
-                    <div className="flex items-center justify-center mb-4 sm:mb-6">
+        <div className="min-h-[100dvh] flex items-center justify-center bg-[var(--bg-main)] text-[var(--text-main)] p-4 overflow-hidden">
+            <div className="w-full max-w-[360px] bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--border)] p-5 sm:p-8 rounded-[2rem] shadow-2xl flex flex-col justify-center my-auto transition-all duration-500">
+                <div className="flex flex-col items-center mb-5 sm:mb-8">
+                    <div className="flex items-center justify-center mb-3 sm:mb-4">
                         <div className="relative">
                             <div className="absolute inset-0 bg-[var(--primary)] blur-2xl opacity-20 rounded-full animate-pulse" />
-                            <img src="/logo_az.png?v=2" alt="Alamgir Jewellers" className="w-24 h-24 sm:w-32 sm:h-32 object-cover relative z-10 rounded-full shadow-2xl border border-[var(--primary)]/20" />
+                            <img src="/logo_az.png?v=2" alt="Alamgir Jewellers" className="w-20 h-20 sm:w-24 sm:h-24 object-cover relative z-10 rounded-full shadow-2xl border border-[var(--primary)]/20" />
                         </div>
                     </div>
-                    <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-[var(--text-main)] text-center">Welcome Back</h1>
-                    <p className="text-[var(--text-muted)] mt-2 text-center text-xs sm:text-sm font-medium opacity-70">
+                    <h1 className="text-xl sm:text-2xl font-black tracking-tight text-[var(--text-main)] text-center leading-tight">Welcome Back</h1>
+                    <p className="text-[var(--text-muted)] mt-1.5 text-center text-[10px] sm:text-xs font-medium opacity-70">
                         Sign in to explore our exquisite collection
                     </p>
                 </div>
 
                 {error && (
-                    <div className="mb-6 px-4 py-3 bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg text-sm">
+                    <div className="mb-4 px-4 py-2.5 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl text-[11px] sm:text-xs">
                         {error}
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-[var(--text-muted)] mb-1.5" htmlFor="email">
+                        <label className="block text-[11px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1.5 ml-1" htmlFor="email">
                             Email Address
                         </label>
                         <div className="relative">
@@ -94,17 +96,17 @@ export default function Login() {
                             <input
                                 {...register('email')}
                                 disabled={loading}
-                                className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg py-2.5 pl-10 pr-4 text-sm text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 transition-all disabled:opacity-50"
+                                className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl py-2.5 pl-10 pr-4 text-xs sm:text-sm text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 transition-all disabled:opacity-50"
                                 placeholder="name@example.com"
                             />
                         </div>
                         {errors.email && (
-                            <p className="mt-1 text-xs text-red-500 font-medium">{errors.email.message}</p>
+                            <p className="mt-1 text-[10px] text-red-500 font-medium ml-1">{errors.email.message}</p>
                         )}
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-[var(--text-muted)] mb-1.5" htmlFor="password">
+                        <label className="block text-[11px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1.5 ml-1" htmlFor="password">
                             Password
                         </label>
                         <div className="relative">
@@ -115,17 +117,17 @@ export default function Login() {
                                 {...register('password')}
                                 type="password"
                                 disabled={loading}
-                                className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg py-2.5 pl-10 pr-4 text-sm text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 transition-all disabled:opacity-50"
+                                className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl py-2.5 pl-10 pr-4 text-xs sm:text-sm text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50 transition-all disabled:opacity-50"
                                 placeholder="••••••••"
                             />
                         </div>
                         {errors.password && (
-                            <p className="mt-1 text-xs text-red-500 font-medium">{errors.password.message}</p>
+                            <p className="mt-1 text-[10px] text-red-500 font-medium ml-1">{errors.password.message}</p>
                         )}
                     </div>
 
-                    <div className="flex justify-end">
-                        <Link to="/forgot-password" className="text-sm font-medium text-[var(--primary)] hover:underline opacity-80 hover:opacity-100 transition-opacity">
+                    <div className="flex justify-end pr-1">
+                        <Link to="/forgot-password" className="text-[11px] font-bold text-[var(--primary)] hover:underline opacity-80 hover:opacity-100 transition-opacity">
                             Forgot password?
                         </Link>
                     </div>
@@ -133,7 +135,7 @@ export default function Login() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-semibold py-2.5 rounded-lg transition-all shadow-lg shadow-[var(--accent-glow)] flex items-center justify-center gap-2 group disabled:opacity-50"
+                        className="w-full bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-black uppercase tracking-widest py-3 rounded-xl transition-all shadow-lg shadow-[var(--accent-glow)] flex items-center justify-center gap-2 group disabled:opacity-50 active:scale-98"
                     >
                         {loading ? (
                             <Loader2 className="w-5 h-5 animate-spin" />
@@ -146,14 +148,12 @@ export default function Login() {
                     </button>
                 </form>
 
-                <p className="mt-8 text-center text-sm text-[var(--text-muted)]">
+                <p className="mt-6 text-center text-xs text-[var(--text-muted)]">
                     Don't have an account?{' '}
-                    <Link to="/register" className="text-[var(--primary)] hover:underline font-medium">
+                    <Link to="/register" className="text-[var(--primary)] hover:underline font-bold">
                         Create an account
                     </Link>
                 </p>
-
-
             </div>
         </div>
     );

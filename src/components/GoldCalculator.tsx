@@ -74,61 +74,55 @@ export default function GoldCalculator({ isOpen, onClose }: GoldCalculatorProps)
     if (!isOpen) return null;
 
     return createPortal(
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-[var(--bg-main)]/80 backdrop-blur-sm animate-in fade-in duration-300">
-            <div className="bg-[var(--bg-card)] border border-[var(--border)] w-full max-w-lg max-h-[85dvh] rounded-[2rem] shadow-2xl overflow-hidden flex flex-col relative scale-in-center">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+            <div className="bg-[var(--bg-card)] border border-[var(--border)] w-full max-w-sm max-h-[85dvh] rounded-2xl shadow-2xl overflow-hidden flex flex-col relative scale-in-center">
                 {/* Header */}
-                <div className={`p-5 sm:p-6 shrink-0 border-b border-[var(--border)] bg-gradient-to-r ${metalCategory === 'Gold' ? 'from-yellow-500/10 via-amber-500/10 to-yellow-500/10' : 'from-slate-400/10 via-slate-500/10 to-slate-400/10'} flex items-center justify-between`}>
-                    <div className="flex items-center gap-3 sm:gap-4">
-                        <div className={`p-2.5 sm:p-3 ${metalCategory === 'Gold' ? 'bg-yellow-500/20' : 'bg-slate-500/20'} rounded-2xl`}>
-                            <Calculator className={`w-6 h-6 sm:w-8 sm:h-8 ${metalCategory === 'Gold' ? 'text-yellow-600' : 'text-slate-600'}`} />
+                <div className={`p-4 shrink-0 border-b border-[var(--border)] bg-gradient-to-r ${metalCategory === 'Gold' ? 'from-yellow-500/10 via-amber-500/10 to-yellow-500/10' : 'from-slate-400/10 via-slate-500/10 to-slate-400/10'} flex items-center justify-between`}>
+                    <div className="flex items-center gap-3">
+                        <div className={`p-2 ${metalCategory === 'Gold' ? 'bg-yellow-500/20' : 'bg-slate-500/20'} rounded-xl`}>
+                            <Calculator className={`w-5 h-5 ${metalCategory === 'Gold' ? 'text-yellow-600' : 'text-slate-600'}`} />
                         </div>
                         <div>
-                            <h3 className="text-lg sm:text-xl font-black text-[var(--text-main)] w-max">{metalCategory} Calculator</h3>
-                            <p className={`text-[10px] font-bold ${metalCategory === 'Gold' ? 'text-yellow-600' : 'text-slate-600'} uppercase tracking-[0.2em]`}>Estimate Value</p>
+                            <h3 className="text-base font-black text-[var(--text-main)] w-max">{metalCategory} Calculator</h3>
+                            <p className={`text-[9px] font-bold ${metalCategory === 'Gold' ? 'text-yellow-600' : 'text-slate-600'} uppercase tracking-[0.2em]`}>Estimate Value</p>
                         </div>
                     </div>
-                    <div className="flex bg-[var(--bg-input)] p-1 rounded-xl border border-[var(--border)] mx-2 sm:mx-4 scale-90 shrink-0">
+                    <div className="flex bg-[var(--bg-input)] p-1 rounded-lg border border-[var(--border)] mx-2 scale-90 shrink-0">
                         <button
                             onClick={() => setMetalCategory('Gold')}
-                            className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all ${metalCategory === 'Gold' ? 'bg-yellow-600 text-white shadow-sm' : 'text-[var(--text-muted)]'}`}
+                            className={`px-2 py-1 rounded-md text-[9px] font-bold transition-all ${metalCategory === 'Gold' ? 'bg-yellow-600 text-white shadow-sm' : 'text-[var(--text-muted)]'}`}
                         >
                             Gold
                         </button>
                         <button
                             onClick={() => setMetalCategory('Silver')}
-                            className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all ${metalCategory === 'Silver' ? 'bg-slate-500 text-white shadow-sm' : 'text-[var(--text-muted)]'}`}
+                            className={`px-2 py-1 rounded-md text-[9px] font-bold transition-all ${metalCategory === 'Silver' ? 'bg-slate-500 text-white shadow-sm' : 'text-[var(--text-muted)]'}`}
                         >
                             Silver
                         </button>
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-xl transition-all active:scale-95 shadow-lg border border-white/20"
+                        className="p-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-all active:scale-95 shadow-lg border border-white/20"
                         title="Close Calculator"
                     >
-                        <Plus className="w-4 h-4 rotate-45" />
+                        <Plus className="w-3.5 h-3.5 rotate-45" />
                     </button>
                 </div>
 
-                <div className="p-5 sm:p-6 space-y-5 sm:space-y-6 overflow-y-auto custom-scrollbar">
+                <div className="p-4 space-y-4 overflow-y-auto custom-scrollbar">
                     {/* Live Rate Brief */}
-                    <div className="bg-[var(--bg-input)]/50 rounded-3xl p-5 border border-[var(--border)] flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <div className={`w-2 h-2 ${metalCategory === 'Gold' ? 'bg-yellow-500' : 'bg-slate-400'} rounded-full animate-pulse`} />
-                            <span className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest">Market Rate ({metalCategory === 'Gold' ? '24K' : metalRate?.purity || '99.9%'})</span>
+                    <div className="bg-[var(--bg-input)]/50 rounded-2xl p-3 border border-[var(--border)] flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <div className={`w-1.5 h-1.5 ${metalCategory === 'Gold' ? 'bg-yellow-500' : 'bg-slate-400'} rounded-full animate-pulse`} />
+                            <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">{metalCategory === 'Gold' ? '24K' : metalRate?.purity || '99.9%'} Rate</span>
                         </div>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
                             <div className="flex flex-col items-end">
-                                <span className={`text-sm font-black ${metalCategory === 'Gold' ? 'text-yellow-600' : 'text-slate-600'}`}>
+                                <span className={`text-xs font-black ${metalCategory === 'Gold' ? 'text-yellow-600' : 'text-slate-600'}`}>
                                     {isLoading ? '...' : (metalRate?.price ? `${metalRate.currency} ${metalRate.price}` : 'N/A')}
                                 </span>
-                                <div className="flex items-center gap-1.5 mt-0.5">
-                                    {!isLoading && metalRate?.source && (
-                                        <span className="text-[7px] font-black text-[var(--text-muted)] uppercase tracking-widest opacity-70">
-                                            {metalRate.source.replace('average', 'avg').replace('sources', 'src')}
-                                        </span>
-                                    )}
-                                    <span className="text-[7px] text-[var(--text-muted)] opacity-30">•</span>
+                                <div className="flex items-center gap-1 mt-0.5">
                                     <span className="text-[7px] font-bold text-[var(--text-muted)] uppercase">
                                         {new Date(metalRate?.sourceUpdatedAt || metalRate?.updatedAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </span>
@@ -136,40 +130,40 @@ export default function GoldCalculator({ isOpen, onClose }: GoldCalculatorProps)
                             </div>
                             <button
                                 onClick={() => refetch()}
-                                className={`p-1.5 ${metalCategory === 'Gold' ? 'hover:bg-yellow-500/10 text-yellow-600' : 'hover:bg-slate-500/10 text-slate-600'} rounded-lg transition-all ${ratesLoading ? 'animate-spin' : ''}`}
+                                className={`p-1 ${metalCategory === 'Gold' ? 'hover:bg-yellow-500/10 text-yellow-600' : 'hover:bg-slate-500/10 text-slate-600'} rounded-md transition-all ${ratesLoading ? 'animate-spin' : ''}`}
                             >
-                                <RefreshCcw className="w-4 h-4" />
+                                <RefreshCcw className="w-3.5 h-3.5" />
                             </button>
                         </div>
                     </div>
 
                     {/* Weight Inputs */}
-                    <div className="space-y-4">
-                        <label className="block text-xs font-black uppercase tracking-[0.2em] text-[var(--text-muted)] px-1">Specify Weight</label>
-                        <div className="grid grid-cols-3 gap-4">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-bold text-[var(--text-muted)] uppercase px-2">Tola</label>
+                    <div className="space-y-2">
+                        <label className="block text-[9px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)] px-1">Specify Weight</label>
+                        <div className="grid grid-cols-3 gap-3">
+                            <div className="space-y-1">
+                                <label className="text-[8px] font-bold text-[var(--text-muted)] uppercase px-1">Tola</label>
                                 <input
                                     type="number"
-                                    className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-2xl p-4 text-sm font-bold text-[var(--text-main)] outline-none focus:ring-2 focus:ring-yellow-500/50"
+                                    className={`w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-2.5 text-xs font-bold text-[var(--text-main)] outline-none focus:ring-2 ${metalCategory === 'Gold' ? 'focus:ring-yellow-500/50' : 'focus:ring-slate-400/50'}`}
                                     value={weights.weightTola}
                                     onChange={(e) => setWeights({ ...weights, weightTola: e.target.value })}
                                 />
                             </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-bold text-[var(--text-muted)] uppercase px-2">Masha</label>
+                            <div className="space-y-1">
+                                <label className="text-[8px] font-bold text-[var(--text-muted)] uppercase px-1">Masha</label>
                                 <input
                                     type="number"
-                                    className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-2xl p-4 text-sm font-bold text-[var(--text-main)] outline-none focus:ring-2 focus:ring-yellow-500/50"
+                                    className={`w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-2.5 text-xs font-bold text-[var(--text-main)] outline-none focus:ring-2 ${metalCategory === 'Gold' ? 'focus:ring-yellow-500/50' : 'focus:ring-slate-400/50'}`}
                                     value={weights.weightMasha}
                                     onChange={(e) => setWeights({ ...weights, weightMasha: e.target.value })}
                                 />
                             </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-bold text-[var(--text-muted)] uppercase px-2">Rati</label>
+                            <div className="space-y-1">
+                                <label className="text-[8px] font-bold text-[var(--text-muted)] uppercase px-1">Rati</label>
                                 <input
                                     type="number"
-                                    className={`w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-2xl p-4 text-sm font-bold text-[var(--text-main)] outline-none focus:ring-2 ${metalCategory === 'Gold' ? 'focus:ring-yellow-500/50' : 'focus:ring-slate-400/50'}`}
+                                    className={`w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-2.5 text-xs font-bold text-[var(--text-main)] outline-none focus:ring-2 ${metalCategory === 'Gold' ? 'focus:ring-yellow-500/50' : 'focus:ring-slate-400/50'}`}
                                     value={weights.weightRati}
                                     onChange={(e) => setWeights({ ...weights, weightRati: e.target.value })}
                                 />
@@ -178,52 +172,52 @@ export default function GoldCalculator({ isOpen, onClose }: GoldCalculatorProps)
                     </div>
 
                     {/* Making Charges */}
-                    <div className="space-y-2">
-                        <label className="block text-xs font-black uppercase tracking-[0.2em] text-[var(--text-muted)] px-1">Labour / Making Charges</label>
+                    <div className="space-y-1">
+                        <label className="block text-[9px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)] px-1">Labour Charges</label>
                         <div className="relative">
                             <input
                                 type="number"
-                                className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-2xl p-4 text-sm font-bold text-[var(--text-main)] outline-none focus:ring-2 focus:ring-yellow-500/50 pr-12"
+                                className={`w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl p-2.5 text-xs font-bold text-[var(--text-main)] outline-none focus:ring-2 pr-10 ${metalCategory === 'Gold' ? 'focus:ring-yellow-500/50' : 'focus:ring-slate-400/50'}`}
                                 placeholder="Optional"
                                 value={weights.price}
                                 onChange={(e) => setWeights({ ...weights, price: e.target.value })}
                             />
-                            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-[var(--text-muted)]">{currency}</span>
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-[var(--text-muted)]">{currency}</span>
                         </div>
                     </div>
 
                     {/* Result Breakdown */}
-                    <div className="pt-4 space-y-6">
-                        <div className="bg-gradient-to-br from-yellow-500 via-amber-600 to-yellow-700 p-[1px] rounded-[2rem]">
-                            <div className="bg-[var(--bg-card)] rounded-[2rem] p-6 space-y-4">
+                    <div className="pt-2 space-y-4">
+                        <div className={`bg-gradient-to-br ${metalCategory === 'Gold' ? 'from-yellow-500 via-amber-600 to-yellow-700' : 'from-slate-400 via-slate-500 to-slate-600'} p-[1px] rounded-2xl`}>
+                            <div className="bg-[var(--bg-card)] rounded-2xl p-4 space-y-3">
                                 <div className="flex items-center justify-between text-[var(--text-muted)]">
                                     <div className="flex flex-col">
-                                        <span className="text-xs font-bold uppercase tracking-widest">Base {metalCategory} Value</span>
+                                        <span className="text-[10px] font-bold uppercase tracking-widest">Base {metalCategory} Value</span>
                                         {!isLoading && metalRate && (
-                                            <span className="text-[8px] font-black text-[var(--primary)] uppercase tracking-tighter">
+                                            <span className="text-[7px] font-black text-[var(--primary)] uppercase tracking-tighter">
                                                 @ {formatPrice(metalRate.price)} / Tola
                                             </span>
                                         )}
                                     </div>
-                                    <span className="font-bold">{formatPrice(breakdown.goldValue)}</span>
+                                    <span className="font-bold text-sm">{formatPrice(breakdown.goldValue)}</span>
                                 </div>
                                 <div className="flex items-center justify-between text-[var(--text-muted)]">
-                                    <span className="text-xs font-bold uppercase tracking-widest">Making Charges</span>
-                                    <span className="font-bold">{formatPrice(breakdown.makingCharges)}</span>
+                                    <span className="text-[10px] font-bold uppercase tracking-widest">Making Charges</span>
+                                    <span className="font-bold text-sm">{formatPrice(breakdown.makingCharges)}</span>
                                 </div>
-                                <div className="pt-4 border-t border-[var(--border)] flex items-center justify-between">
-                                    <span className="text-lg font-black text-[var(--text-main)] uppercase tracking-tighter">Estimated Total</span>
-                                    <span className={`text-2xl font-black ${metalCategory === 'Gold' ? 'text-yellow-600' : 'text-slate-600'}`}>
+                                <div className="pt-3 border-t border-[var(--border)] flex items-center justify-between">
+                                    <span className="text-sm font-black text-[var(--text-main)] uppercase tracking-tighter">Estimated Total</span>
+                                    <span className={`text-lg font-black ${metalCategory === 'Gold' ? 'text-yellow-600' : 'text-slate-600'}`}>
                                         {formatPrice(breakdown.total)}
                                     </span>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="flex items-start gap-3 p-4 bg-yellow-500/5 border border-yellow-500/10 rounded-2xl">
-                            <Info className="w-4 h-4 text-yellow-600 shrink-0 mt-0.5" />
-                            <p className="text-[10px] leading-relaxed text-[var(--text-muted)] font-medium">
-                                * This is an automated estimation based on current market rates. Actual jewelery prices may vary depending on design complexity and wastage (Katt).
+                        <div className={`flex items-start gap-2 p-3 ${metalCategory === 'Gold' ? 'bg-yellow-500/5 border-yellow-500/10' : 'bg-slate-500/5 border-slate-500/10'} border rounded-xl`}>
+                            <Info className={`w-3 h-3 ${metalCategory === 'Gold' ? 'text-yellow-600' : 'text-slate-600'} shrink-0 mt-0.5`} />
+                            <p className="text-[9px] leading-relaxed text-[var(--text-muted)] font-medium">
+                                * Automated estimation based on current market rates. Actual prices vary by design and wastage (Katt).
                             </p>
                         </div>
                     </div>

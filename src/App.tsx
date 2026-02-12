@@ -16,6 +16,7 @@ import { useCurrencyStore } from './store/useCurrencyStore';
 import { useState, useEffect, Suspense, lazy } from 'react';
 import SplashScreen from './components/SplashScreen';
 import { AnimatePresence } from 'framer-motion';
+import ChatWidget from './components/ChatWidget';
 
 // Lazy load large admin components for better initial load
 const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
@@ -163,6 +164,7 @@ function App() {
           <Route path="/" element={<PublicRoute><Login /></PublicRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        <ChatWidget />
       </BrowserRouter>
     </div>
   );

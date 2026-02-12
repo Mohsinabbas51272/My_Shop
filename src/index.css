@@ -162,6 +162,23 @@
     }
 }
 
+.custom-scrollbar-light::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar-light::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+.custom-scrollbar-light::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+.custom-scrollbar-light::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
 /* Premium UI Utilities */
 .glass-card {
     background: rgba(255, 255, 255, 0.03);
@@ -401,3 +418,78 @@
     color: var(--primary);
     margin-right: 0.25rem;
 }
+/* Luxury Product Card V3 */
+.luxury-card { background: var(--bg-card); border-radius: 24px; border: 1px solid var(--border); overflow: hidden; transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1); height: 100%; display: flex; flex-direction: column; }
+.luxury-card:hover { transform: translateY(-12px) scale(1.02); box-shadow: 0 30px 60px -12px rgba(0,0,0,0.25); border-color: var(--primary); }
+.luxury-image-container { position: relative; aspect-ratio: 1/1; overflow: hidden; }
+.luxury-image-container img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.5s cubic-bezier(0.23, 1, 0.32, 1); }
+.luxury-card:hover .luxury-image-container img { transform: scale(1.1); }
+.luxury-info { padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; }
+.luxury-name { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.25rem; }
+.luxury-price { font-size: 1.75rem; font-weight: 900; color: var(--primary); }
+.luxury-badge { position: absolute; top: 1rem; right: 1rem; padding: 0.4rem 0.8rem; background: rgba(255,255,255,0.1); backdrop-filter: blur(8px); border-radius: 12px; font-size: 0.6rem; font-weight: 900; color: white; border: 1px solid rgba(255,255,255,0.2); z-index: 10; }
+.luxury-gold-pill { background: linear-gradient(135deg, #fbbf24, #d97706); color: #000; padding: 0.2rem 0.6rem; border-radius: 8px; font-size: 0.65rem; font-weight: 800; }
+.luxury-silver-pill { background: linear-gradient(135deg, #94a3b8, #475569); color: #fff; padding: 0.2rem 0.6rem; border-radius: 8px; font-size: 0.65rem; font-weight: 800; }
+.market-indicator { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); opacity: 0.7; display: flex; align-items: center; gap: 4px; }
+
+/* Luxury Card Height Optimization */
+.luxury-image-container { aspect-ratio: 1.1 / 1 !important; }
+.luxury-info { padding: 1rem !important; }
+.luxury-name { font-size: 1.1rem !important; }
+.luxury-price { font-size: 1.5rem !important; }
+.luxury-info .flex-col.gap-3 { gap: 0.5rem !important; }
+.luxury-info .mb-4 { margin-bottom: 0.5rem !important; }
+
+/* Luxury Card Compact V4 */
+.luxury-image-container { aspect-ratio: 4/3 !important; }
+.luxury-info { padding: 0.85rem !important; }
+.luxury-name { font-size: 0.95rem !important; margin-bottom: 0.15rem !important; }
+.luxury-price { font-size: 1.25rem !important; }
+.luxury-info .mb-4 { margin-bottom: 0.35rem !important; }
+.market-indicator { font-size: 0.55rem !important; }
+.luxury-info .flex-col.gap-3 { gap: 0.4rem !important; }
+.luxury-info button { py: 2.5 !important; font-size: 9px !important; }
+
+/* Ultra Compact Luxury Card V5 */
+.luxury-image-container { aspect-ratio: 16/10 !important; }
+.luxury-info { padding: 0.6rem 0.75rem !important; }
+.luxury-info span.text-[9px] { display: none !important; }
+.luxury-name { font-size: 0.85rem !important; margin-bottom: 0px !important; }
+.luxury-price { font-size: 1.15rem !important; }
+.luxury-info .mb-4 { margin-bottom: 0.2rem !important; }
+.luxury-info .gap-2 { gap: 0.35rem !important; }
+.luxury-info .gap-3 { gap: 0.25rem !important; }
+.luxury-info button { padding-top: 0.5rem !important; padding-bottom: 0.5rem !important; font-size: 8px !important; }
+
+/* Luxury Card Height Re-adjustment V6 */
+.luxury-image-container { aspect-ratio: 1 / 1 !important; }
+.luxury-info { padding: 1.15rem !important; }
+.luxury-name { font-size: 1.05rem !important; margin-bottom: 0.25rem !important; }
+.luxury-price { font-size: 1.35rem !important; }
+.luxury-info .mb-4 { margin-bottom: 0.75rem !important; }
+.luxury-info .gap-3 { gap: 0.4rem !important; }
+.luxury-info button { padding-top: 0.75rem !important; padding-bottom: 0.75rem !important; font-size: 10px !important; }
+
+/* Luxury Card Description Styling */
+.luxury-info p { min-height: 2.4em; }
+
+/* Luxury Card Custom Ratio V7 */
+.luxury-image-container { aspect-ratio: 1 / 0.8 !important; }
+.luxury-info { padding: 0.75rem 1rem !important; }
+.luxury-info p { min-height: unset !important; -webkit-line-clamp: 1 !important; margin-bottom: 0.5rem !important; }
+.luxury-name { font-size: 1rem !important; }
+.luxury-price { font-size: 1.25rem !important; }
+.luxury-info .mb-4 { margin-bottom: 0.5rem !important; }
+.luxury-info .gap-3 { gap: 0.3rem !important; }
+
+/* Premium Luxury Design Refinement V8 */
+.luxury-name { font-family: 'Playfair Display', serif !important; font-weight: 700 !important; letter-spacing: -0.01em !important; }
+.luxury-info { background: linear-gradient(to bottom, rgba(255,255,255,0.02), rgba(255,255,255,0)) !important; }
+.luxury-price { font-family: 'Outfit', sans-serif !important; font-weight: 800 !important; color: var(--primary) !important; }
+.luxury-card { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important; }
+.luxury-card:hover { transform: translateY(-8px) scale(1.01) !important; box-shadow: 0 30px 60px -12px rgba(0,0,0,0.5), 0 18px 36px -18px rgba(0,0,0,0.6) !important; }
+
+/* Layout Adjustment V8 */
+.luxury-info span.luxury-collection-tag { display: block !important; }
+.luxury-info h3.luxury-name { flex: 1; }
+.luxury-info .luxury-gold-pill, .luxury-info .luxury-silver-pill { align-self: center; }
