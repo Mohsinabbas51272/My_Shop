@@ -38,14 +38,12 @@ import {
 } from 'lucide-react';
 import { toast } from '../store/useToastStore';
 import AdminChat from './AdminChat';
-import { MessageCircle, Clock, Truck } from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+
 
 export default function AdminDashboard() {
     const { user } = useAuthStore();
-    const navigate = useNavigate();
-    const [searchParams, setSearchParams] = useSearchParams();
     const queryClient = useQueryClient();
     const { currency, formatPrice } = useCurrencyStore();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -1582,89 +1580,8 @@ export default function AdminDashboard() {
 
 
 
-                        {
-                            activeTab === 'audit' && (
-                                <div className="space-y-6">
-                                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                        <h2 className="text-xl font-bold flex items-center gap-2 text-[var(--text-main)]">
-                                            <History className="w-5 h-5 text-[var(--primary)]" />
-                                            System Audit Logs
-                                        </h2>
-                                        <button
-                                            onClick={() => confirm('Permanently clear ALL audit logs?') && deleteAllLogs.mutate()}
-                                            className="px-4 py-2 bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white rounded-lg transition-all text-xs font-black uppercase tracking-widest border border-red-500/20"
-                                        >
-                                            Clear Logs
-                                        </button>
-                                    </div>
-                                    <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl overflow-hidden shadow-xl">
-                                        <div className="max-h-[600px] overflow-y-auto">
-                                            <table className="w-full text-left text-sm">
-                                                <thead className="sticky top-0 bg-[var(--bg-input)] text-[var(--text-muted)] font-bold uppercase tracking-widest z-10">
-                                                    <tr>
-                                                        <th className="p-4">Timestamp</th>
-                                                        <th className="p-4">Action</th>
-                                                        <th className="p-4">Entity</th>
-                                                        <th className="p-4">Admin</th>
-                                                        <th className="p-4 text-right">Actions</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody className="divide-y divide-[var(--border)]">
-                                                    {logsLoading ? (
-                                                        <tr><td colSpan={4} className="p-8 text-center opacity-50 uppercase tracking-widest">Loading Logs...</td></tr>
-                                                    ) : logs?.length === 0 ? (
-                                                        <tr><td colSpan={4} className="p-8 text-center text-[var(--text-muted)]">No logs found.</td></tr>
-                                                    ) : logs?.map((log: any) => (
-                                                        <tr key={log.id} className="hover:bg-[var(--bg-input)]/30 transition-colors">
-                                                            <td className="p-4 text-[var(--text-muted)] text-[10px] whitespace-nowrap font-mono">
-                                                                {new Date(log.createdAt).toLocaleString()}
-                                                            </td>
-                                                            <td className="p-4">
-                                                                <span className="font-black text-[var(--text-main)] uppercase text-[11px] tracking-tight">{log.action}</span>
-                                                                <p className="text-[10px] text-[var(--text-muted)] normal-case mt-0.5">{log.details}</p>
-                                                            </td>
-                                                            <td className="p-4">
-                                                                <span className="px-2 py-0.5 bg-[var(--bg-input)] rounded text-[10px] font-bold text-[var(--text-muted)] border border-[var(--border)] uppercase">
-                                                                    {log.entityType} #{log.entityId}
-                                                                </span>
-                                                            </td>
-                                                            <td className="p-4">
-                                                                <div className="flex items-center gap-2">
-                                                                    <div className="w-6 h-6 rounded-full bg-[var(--primary)]/20 flex items-center justify-center text-[var(--primary)] text-[10px] font-black">
-                                                                        {log.admin?.name?.charAt(0) || 'A'}
-                                                                    </div>
-                                                                    <span className="text-xs font-bold text-[var(--text-main)]">{log.admin?.name || 'Admin'}</span>
-                                                                </div>
-                                                            </td>
-                                                            <td className="p-4 text-right">
-                                                                <div className="flex items-center justify-end gap-2 text-[var(--text-muted)]">
-                                                                    {log.action === 'FIR_REGISTERED' && (
-                                                                        <button
-                                                                            onClick={() => setViewingFirLog(log)}
-                                                                            className="p-1 hover:text-[var(--primary)] transition-colors"
-                                                                            title="View FIR Receipt"
-                                                                        >
-                                                                            <FileText className="w-4 h-4" />
-                                                                        </button>
-                                                                    )}
-                                                                    <button
-                                                                        onClick={() => confirm('Delete this log entry?') && deleteLogMutation.mutate(log.id)}
-                                                                        className="p-1 hover:text-red-500 transition-colors"
-                                                                        title="Delete Log"
-                                                                    >
-                                                                        <Trash2 className="w-4 h-4" />
-                                                                    </button>
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            )
-                        }
+
+
 
                         {
                             activeTab === 'orders' && (

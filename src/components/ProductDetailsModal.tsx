@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
-import { X, Plus, Minus, ShoppingCart, ZoomIn, ZoomOut, Info, ShoppingBag, Loader2, Scale, ShieldCheck, QrCode, FileCheck, Star, BadgeCheck, Truck, Rotate3d, Heart, Share2, MapPin, ChevronRight, Lock } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X, Plus, QrCode, Star, MapPin, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import api, { IMAGE_BASE_URL } from '../lib/api';
@@ -26,7 +26,6 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
     const navigate = useNavigate();
     const { formatPrice } = useCurrencyStore();
     const { unit } = useWeightStore();
-    const [zoom, setZoom] = useState(1);
     const [quantity, setQuantity] = useState(1);
     const [isExpanded, setIsExpanded] = useState(false);
     const [showCertificate, setShowCertificate] = useState(false);
@@ -47,7 +46,7 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
     };
 
     // Amazon-style: Track selected image/thumbnail
-    const [activeImage, setActiveImage] = useState(getImageUrl(product.image));
+    const [activeImage] = useState(getImageUrl(product.image));
 
     const { data: rates, isLoading: ratesLoading } = useQuery({
         queryKey: ['product-details-rates'],
@@ -59,8 +58,8 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
                 ]);
                 const parsePrice = (p: any) => p ? parseFloat(p.toString().replace(/,/g, '')) : 0;
                 return {
-                    gold: { price: parsePrice(goldRes.data?.price) },
-                    silver: { price: parsePrice(silverRes.data?.price) },
+                    gold: { price: parsePrice(goldRes.data?.price), currency: 'PKR', unit: 'Tola', purity: '24K' },
+                    silver: { price: parsePrice(silverRes.data?.price), currency: 'PKR', unit: 'Tola', purity: '999' },
                 };
             } catch (err) {
                 return null;
@@ -147,7 +146,6 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
                                 <div className="flex items-baseline gap-2">
                                     <span className="text-xl font-light text-red-500">-35%</span>
                                     <div className="flex items-start">
-                                        <span className="text-xs mt-1 font-medium italic text-[var(--text-main)]">{breakdown.currencySymbol || 'Rs'}</span>
                                         <span className="text-2xl font-bold tracking-tight text-[var(--text-main)]">
                                             {isLoading ? '...' : Math.floor(breakdown.total).toLocaleString()}
                                         </span>
@@ -281,7 +279,7 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
                             <button onClick={() => setShowCertificate(false)} className="absolute top-3 right-3 text-[var(--text-muted)] hover:text-[var(--text-main)]"><X className="w-5 h-5" /></button>
                             <div className="text-center space-y-3">
                                 <div className="w-14 h-14 bg-[var(--primary)]/10 text-[var(--primary)] rounded-full mx-auto flex items-center justify-center border-4 border-[var(--primary)]/20">
-                                    <ShieldCheck className="w-8 h-8" />
+                                    <Plus className="w-8 h-8" />
                                 </div>
                                 <h2 className="text-lg font-bold uppercase tracking-wide text-[var(--text-main)]">Purity Certified</h2>
                                 <div className="bg-[var(--bg-input)] p-3 rounded-md space-y-1.5 text-xs text-left font-mono text-[var(--text-main)]">

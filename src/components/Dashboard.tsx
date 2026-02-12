@@ -990,7 +990,7 @@ export default function Dashboard() {
                                                                         {/* DISPUTE ACTION */}
                                                                         <button onClick={() => {
                                                                             setDisputingOrder(order);
-                                                                            setDisputeData({ subject: `Dispute for Case #${order.displayId || order.id}`, message: '' });
+                                                                            setDisputeData({ subject: `Dispute for Case #${order.displayId || order.id}`, message: '', evidence: '' });
                                                                         }} className="w-full py-2.5 bg-yellow-500/5 hover:bg-yellow-500 hover:text-white text-yellow-600 border border-yellow-500/10 text-[9px] font-black uppercase tracking-[0.2em] transition-all rounded-xl flex items-center justify-center gap-2 group/action">
                                                                             <Gavel className="w-3.5 h-3.5 opacity-50 group-hover/action:opacity-100 transition-opacity" /> Open Dispute
                                                                         </button>
