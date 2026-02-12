@@ -138,7 +138,7 @@ export default function AdminChat() {
               />
               <button
                 type="submit"
-                disabled={!inputText.trim() || !isConnected}
+                disabled={!inputText.trim()}
                 className="px-8 bg-[var(--primary)] text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl hover:bg-[var(--primary-hover)] active:scale-95 transition-all flex items-center gap-2 disabled:opacity-50"
               >
                 <Send className="w-4 h-4" />

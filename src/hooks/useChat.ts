@@ -136,19 +136,49 @@ export const useChat = (receiverId?: number) => {
     };
   }, [socket, isConnected, receiverId]);
 
+  // REST Fullback Polling
+  useEffect(() => {
+    if (!hasHydrated || isConnected || !receiverId) return;
+
+    console.log('🔄 ChatHook: Socket not connected. Starting REST polling fallback...');
+
+    // Initial fetch
+    const fetchHistory = async () => {
+      try {
+        const response = await api.get(`/chats/history/${receiverId}`);
+        setMessages(response.data || []);
+      } catch (error) {
+        console.error('❌ ChatHook: REST fallback fetch failed:', error);
+      }
+    };
+
+    fetchHistory();
+    const interval = setInterval(fetchHistory, 5000); // Poll every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [hasHydrated, isConnected, receiverId]);
+
   const sendMessage = useCallback(
-    (content: string) => {
+    async (content: string) => {
       console.log('🔘 ChatHook: sendMessage Function Triggered', { content, isConnected, receiverId });
 
-      if (!socket) {
-        console.error('❌ ChatHook: Socket instance is null');
+      // try socket first if connected
+      if (socket && isConnected) {
+        console.log('🚀 ChatHook: Emitting via Socket...');
+        socket.emit('sendMessage', { receiverId: Number(receiverId), content });
         return;
       }
 
-      // Even if not "connected" in state, try to emit if socket exists
-      // Socket.io handles buffering if transports are available
-      console.log('🚀 ChatHook: Emitting sendMessage event...');
-      socket.emit('sendMessage', { receiverId: Number(receiverId), content });
+      // REST Fallback
+      console.log('🌐 ChatHook: Socket not available, using REST fallback...');
+      try {
+        const response = await api.post('/chats/send', { receiverId: Number(receiverId), content });
+        console.log('✅ ChatHook: REST send success:', response.data);
+        // Optimistically add to messages if we are successfully sending
+        setMessages((prev) => [...prev, response.data]);
+      } catch (error) {
+        console.error('❌ ChatHook: REST send failed:', error);
+      }
     },
     [socket, isConnected, receiverId]
   );

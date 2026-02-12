@@ -98,7 +98,7 @@ export default function ChatWidget() {
               />
               <button
                 type="submit"
-                disabled={!inputText.trim() || !isConnected}
+                disabled={!inputText.trim()}
                 className="p-3 bg-[var(--primary)] text-white rounded-xl active:scale-95 transition-all disabled:opacity-50 disabled:active:scale-100 hover:bg-[var(--primary-hover)]"
               >
                 <Send className="w-5 h-5" />
