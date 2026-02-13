@@ -20,6 +20,8 @@ export default function Checkout() {
   const [showPolicy, setShowPolicy] = useState(false);
   const [paymentMethods, setPaymentMethods] = useState<any[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [confirmedTotal, setConfirmedTotal] = useState(0);
 
   const [checkoutDetails, setCheckoutDetails] = useState({
     customerName: user?.name || '',
@@ -127,6 +129,7 @@ export default function Checkout() {
         paymentDetails: checkoutDetails.transactionId ? { transactionId: checkoutDetails.transactionId } : null,
         paymentReceipt: checkoutDetails.paymentReceipt,
       });
+      setConfirmedTotal(grandTotal);
       clearCart();
       setIsSuccess(true);
     } catch (err: any) {
@@ -136,7 +139,7 @@ export default function Checkout() {
     }
   };
 
-  const [isSuccess, setIsSuccess] = useState(false);
+
 
   if (isSuccess) {
     return (
@@ -159,13 +162,13 @@ export default function Checkout() {
               <ShieldCheck className="w-12 h-12 text-white" />
             </motion.div>
 
-            <h1 className="text-4xl font-black text-[var(--text-main)] mb-4 tracking-tight uppercase">Masterpiece Secured</h1>
-            <p className="text-[var(--text-muted)] font-medium mb-10 leading-relaxed uppercase tracking-[0.1em] text-[10px]">Your order has been authorized and is now being processed in our vault. You will receive a certification shortly.</p>
+            <h1 className="text-4xl font-black text-[var(--text-main)] mb-4 tracking-tight uppercase">Order Authorized</h1>
+            <p className="text-[var(--text-muted)] font-medium mb-10 leading-relaxed uppercase tracking-[0.1em] text-[10px]">Your jewellery order has been authenticated and is being processed for certification. Your digital invoice is updated.</p>
 
             <div className="bg-[var(--bg-input)]/50 border border-[var(--border)] rounded-3xl p-6 mb-10 space-y-4">
               <div className="flex justify-between items-center px-2">
-                <span className="text-[9px] font-black uppercase tracking-widest opacity-40">Settlement Total</span>
-                <span className="text-xl font-black text-[var(--primary)]">{formatPrice(grandTotal)}</span>
+                <span className="text-[9px] font-black uppercase tracking-widest opacity-40">Final Settlement</span>
+                <span className="text-xl font-black text-[var(--primary)]">{formatPrice(confirmedTotal)}</span>
               </div>
               <div className="h-px bg-[var(--border)] mx-2" />
               <div className="flex justify-between items-center px-2">
@@ -179,7 +182,7 @@ export default function Checkout() {
                 onClick={() => navigate('/user/dashboard?tab=orders')}
                 className="w-full bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-black py-5 rounded-2xl transition-all shadow-xl shadow-[var(--primary)]/20 uppercase tracking-[0.2em] text-xs active:scale-95"
               >
-                View My Vault
+                View Invoice & Orders
               </button>
               <Link
                 to="/user/dashboard?tab=shop"

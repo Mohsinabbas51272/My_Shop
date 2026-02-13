@@ -9,9 +9,9 @@ export default function Policy() {
                 <div className="inline-flex items-center justify-center p-3 bg-[var(--primary)]/10 rounded-2xl mb-2">
                     <ShieldCheck className="w-8 h-8 text-[var(--primary)]" />
                 </div>
-                <h2 className="text-2xl md:text-3xl font-black text-[var(--text-main)] tracking-tight">Our Shop Policies</h2>
+                <h2 className="text-2xl md:text-3xl font-black text-[var(--text-main)] tracking-tight">A.Z Shop Official Policies</h2>
                 <p className="max-w-xl mx-auto text-[var(--text-muted)] font-medium text-sm">
-                    Review our terms regarding returns, weight deductions, and service standards.
+                    Review our terms regarding returns, gold weight deductions, and jewellery standards.
                 </p>
             </div>
 
@@ -140,7 +140,7 @@ export default function Policy() {
             <div className="bg-[var(--bg-input)]/50 rounded-2xl p-4 text-center border border-[var(--border)] flex items-center justify-center gap-2">
                 <Info className="w-4 h-4 text-[var(--primary)]" />
                 <p className="text-xs font-bold text-[var(--text-muted)] italic">
-                    By shopping with us, you agree to these terms. Prices are updated live based on global gold markets.
+                    By choosing A.Z Shop, you agree to these terms. Prices are synchronized live with global gold markets.
                 </p>
             </div>
         </div>

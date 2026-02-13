@@ -22,7 +22,7 @@ const OrderReceipt = ({ order: rawOrder, formatPrice, onClose, onSendToDashboard
     };
 
     const handleShare = async () => {
-        const text = `*My Shop Official Receipt*\n\nOrder ID: #${order.displayId || order.id}\nCustomer: ${order.customerName}\nTotal Amount: ${formatPrice(order.total)}\nStatus: ${order.status}\n\n*Items:*\n${order.items?.map((i: any) => `- ${i.name} (x${i.quantity})`).join('\n')}\n\n*Gold Policy:*\n3 Masha deduction per 1 Tola applies on returns.\n\nThank you for shopping with My Shop!`;
+        const text = `*A.Z SHOP - Official Gold Receipt*\n\nOrder ID: #${order.displayId || order.id}\nCustomer: ${order.customerName}\nTotal Amount: ${formatPrice(order.total)}\nStatus: ${order.status}\n\n*Items:*\n${order.items?.map((i: any) => `- ${i.name} (x${i.quantity})`).join('\n')}\n\n*Gold Policy:*\n3 Masha deduction per 1 Tola applies on returns.\n\nThank you for choosing A.Z Shop!`;
 
         const phone = String(order.customerPhone || '').replace(/\+/g, '').replace(/\s/g, '');
         const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
@@ -42,7 +42,7 @@ const OrderReceipt = ({ order: rawOrder, formatPrice, onClose, onSendToDashboard
                 <div className="p-4 border-b flex justify-between items-center bg-slate-50 no-print">
                     <h3 className="font-bold text-slate-500 uppercase text-xs tracking-widest flex items-center gap-2">
                         <Receipt className="w-4 h-4 text-slate-400" />
-                        Official Shop Receipt
+                        Official Jewellery Invoice
                     </h3>
                     <div className="flex gap-2">
                         {isAdmin && onSendToDashboard && !order.isFinalReceiptSent && (
@@ -73,15 +73,18 @@ const OrderReceipt = ({ order: rawOrder, formatPrice, onClose, onSendToDashboard
                         <div className="absolute top-0 right-0 opacity-10">
                             <ShieldCheck className="w-24 h-24 text-slate-900" />
                         </div>
-                        <h1 className="text-5xl font-black tracking-tighter text-slate-900 uppercase">A.Z Shop</h1>
+                        <div className="flex flex-col items-center gap-2">
+                            <img src="/logo_az.png?v=2" alt="A.Z Shop Logo" className="w-20 h-20 object-cover rounded-full border-2 border-slate-900 shadow-xl mb-2" />
+                            <h1 className="text-5xl font-black tracking-tighter text-slate-900 uppercase">A.Z Shop</h1>
+                        </div>
                         <div className="flex items-center justify-center gap-4">
                             <div className="h-px w-10 bg-slate-300" />
-                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.5em]">Official Certification of Purchase</p>
+                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.5em]">Premium Gold & Diamond Collection</p>
                             <div className="h-px w-10 bg-slate-300" />
                         </div>
                         <div className="text-[11px] text-slate-400 font-bold uppercase tracking-widest leading-relaxed">
-                            Boutique • Phathi Joyianwali, Piplan, Mianwali<br />
-                            Direct: +92 307 8520514 | contact@azshop.com
+                            Phathi Joyianwali, Piplan, Mianwali<br />
+                            Direct: +92 307 8520514 | testmyshop3@gmail.com
                         </div>
                     </div>
 
@@ -115,9 +118,9 @@ const OrderReceipt = ({ order: rawOrder, formatPrice, onClose, onSendToDashboard
                         <table className="w-full text-left text-sm border-collapse">
                             <thead>
                                 <tr className="border-b-2 border-slate-900">
-                                    <th className="py-4 font-black uppercase text-[10px] tracking-[0.2em] text-slate-400">Masterpiece Details</th>
-                                    <th className="py-4 font-black uppercase text-[10px] tracking-[0.2em] text-center text-slate-400">Weight Profile</th>
-                                    <th className="py-4 font-black uppercase text-[10px] tracking-[0.2em] text-right text-slate-400">Valuation</th>
+                                    <th className="py-4 font-black uppercase text-[10px] tracking-[0.2em] text-slate-400">Jewellery Specifications</th>
+                                    <th className="py-4 font-black uppercase text-[10px] tracking-[0.2em] text-center text-slate-400">Gold/Weight Profile</th>
+                                    <th className="py-4 font-black uppercase text-[10px] tracking-[0.2em] text-right text-slate-400">Market Valuation</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
@@ -128,7 +131,7 @@ const OrderReceipt = ({ order: rawOrder, formatPrice, onClose, onSendToDashboard
                                             <div className="flex items-center gap-2">
                                                 <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Qty: {item.quantity}</span>
                                                 <div className="h-1 w-1 rounded-full bg-slate-200" />
-                                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Unit Price: {formatPrice(item.price)}</span>
+                                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Rate: {formatPrice(item.price)}</span>
                                             </div>
                                         </td>
                                         <td className="py-6 text-center">
@@ -152,11 +155,11 @@ const OrderReceipt = ({ order: rawOrder, formatPrice, onClose, onSendToDashboard
                         <div className="flex justify-end">
                             <div className="w-full max-w-[280px] space-y-3">
                                 <div className="flex justify-between text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                    <span>Boutique Service Fee:</span>
+                                    <span>Labour (Making Charges):</span>
                                     <span className="text-slate-600 font-bold">{formatPrice(order.userFee || 0)}</span>
                                 </div>
                                 <div className="flex justify-between text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                    <span>Courier & Insurance:</span>
+                                    <span>Tax & Processing:</span>
                                     <span className="text-slate-600 font-bold">{formatPrice(order.shippingFee || 0)}</span>
                                 </div>
                                 <div className="h-px bg-slate-100 my-2" />
@@ -168,22 +171,28 @@ const OrderReceipt = ({ order: rawOrder, formatPrice, onClose, onSendToDashboard
                         </div>
                     </div>
 
-                    <div className="bg-slate-50 p-8 rounded-xl border border-slate-100 space-y-4">
-                        <div className="flex items-center gap-3">
+                    <div className="bg-slate-50 p-8 rounded-xl border border-slate-100 space-y-6">
+                        <div className="flex items-center gap-3 border-b border-slate-200 pb-3">
                             <ShieldAlert className="w-5 h-5 text-slate-900" />
-                            <p className="font-black text-slate-900 uppercase tracking-[0.2em] text-[10px]">Transmission & Return Protocol:</p>
+                            <p className="font-black text-slate-900 uppercase tracking-[0.2em] text-[10px]">Transmission & Return Protocol</p>
                         </div>
-                        <div className="grid grid-cols-2 gap-8 text-[9px] font-bold text-slate-500 uppercase tracking-tight leading-relaxed">
-                            <p>Upon return, a standard deduction (Kat) of 3 Masha per 1 Tola will be applied based on the prevailing market gold rate at the point of exchange.</p>
-                            <p>Craftsmanship and labor expenses are non-refundable. This official certification must be presented for all post-purchase inquiries or claims.</p>
+                        <div className="space-y-4 text-[11px] font-bold text-slate-600 uppercase tracking-tight leading-relaxed text-justify">
+                            <p>
+                                Upon return, a standard deduction (Kat) of 3 Masha per 1 Tola will be applied based on the
+                                prevailing market gold rate at the point of exchange.
+                            </p>
+                            <p>
+                                Craftsmanship and labor expenses are non-refundable. This official certification must
+                                be presented for all post-purchase inquiries, exchanges, or claims.
+                            </p>
                         </div>
                     </div>
 
                     <div className="pt-16 pb-12 flex justify-between items-end">
                         <div className="space-y-8">
-                            <div className="text-[9px] font-black text-slate-300 uppercase tracking-[0.3em]">Authorized by My Shop</div>
+                            <div className="text-[9px] font-black text-slate-300 uppercase tracking-[0.3em]">Authorized by A.Z Shop</div>
                             <div className="w-48 border-b-2 border-slate-900" />
-                            <div className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Director Signature</div>
+                            <div className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Authorized Signature</div>
                         </div>
                         <div className="text-right space-y-8">
                             <div className="text-[9px] font-black text-slate-300 uppercase tracking-[0.3em]">Client Acceptance</div>
