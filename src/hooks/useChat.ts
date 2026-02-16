@@ -139,7 +139,8 @@ export const useChat = (receiverId?: number) => {
 
   // REST Fullback Polling
   useEffect(() => {
-    if (!hasHydrated || isConnected || !receiverId) return;
+    const effectiveToken = token || sessionStorage.getItem('token') || localStorage.getItem('token');
+    if (!hasHydrated || isConnected || !receiverId || !effectiveToken) return;
 
     console.log('🔄 ChatHook: Socket not connected. Starting REST polling fallback...');
 

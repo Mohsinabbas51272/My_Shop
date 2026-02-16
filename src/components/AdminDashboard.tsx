@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import api, { IMAGE_BASE_URL } from '../lib/api';
-import { calculateDynamicPrice } from '../lib/pricing';
+import { calculateDynamicPrice, convertTolaToGrams } from '../lib/pricing';
 import Navbar from './Navbar';
 import GoldCalculator from './GoldCalculator';
 import OrderReceipt from './OrderReceipt';
@@ -14,7 +14,6 @@ import {
     ShieldAlert,
     AlertOctagon,
     History,
-    Search,
     LayoutDashboard,
     ShoppingBag,
     Users,
@@ -40,10 +39,14 @@ import { toast } from '../store/useToastStore';
 import AdminChat from './AdminChat';
 import { MessageCircle } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
+import { useWeightStore } from '../store/useWeightStore';
+import { useSearchStore } from '../store/useSearchStore';
 
 
 export default function AdminDashboard() {
     const { user } = useAuthStore();
+    const { unit } = useWeightStore();
+    const { q, occasion } = useSearchStore();
     const queryClient = useQueryClient();
     const { currency, formatPrice } = useCurrencyStore();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -62,7 +65,6 @@ export default function AdminDashboard() {
     const [uploading, setUploading] = useState(false);
     const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'users' | 'support' | 'rates' | 'local'>('products');
     const [supportSubTab, setSupportSubTab] = useState<'queries' | 'disputes' | 'chats' | 'reviews' | 'audit'>('queries');
-    const [searchQuery, setSearchQuery] = useState('');
     const [selectedUser, setSelectedUser] = useState<any>(null);
     const [selectedComplaint, setSelectedComplaint] = useState<any>(null);
     const [selectedDispute, setSelectedDispute] = useState<any>(null);
@@ -463,7 +465,10 @@ export default function AdminDashboard() {
                                 ].map((tab) => (
                                     <button
                                         key={tab.id}
-                                        onClick={() => setActiveTab(tab.id as any)}
+                                        onClick={() => {
+                                            setActiveTab(tab.id as any);
+                                            setIsMobileMenuOpen(false);
+                                        }}
                                         className={`w-full flex items-center justify-between px-4 py-3.5 rounded-2xl font-bold text-sm transition-all group ${activeTab === tab.id
                                             ? 'bg-[var(--primary)] text-white shadow-xl shadow-[var(--primary)]/20'
                                             : 'text-[var(--text-muted)] hover:bg-[var(--bg-input)] hover:text-[var(--text-main)]'}`}
@@ -497,11 +502,11 @@ export default function AdminDashboard() {
                                 >
                                     <Menu className="w-5 h-5 text-[var(--text-main)]" />
                                 </button>
-                                <div className="flex items-center gap-6 overflow-x-auto w-full no-scrollbar">
+                                <div className="flex items-center gap-3 sm:gap-6 overflow-x-auto w-full no-scrollbar">
                                     {/* Gold Pill */}
                                     {goldRate && !goldLoading && (
-                                        <div className="flex items-center gap-3 shrink-0 bg-[var(--bg-card)]/50 border border-yellow-500/20 px-4 py-2 rounded-2xl shadow-sm">
-                                            <div className="p-1.5 bg-yellow-500/10 rounded-lg">
+                                        <div className="flex items-center gap-2 sm:gap-3 shrink-0 bg-[var(--bg-card)]/50 border border-yellow-500/20 px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl shadow-sm">
+                                            <div className="hidden sm:block p-1.5 bg-yellow-500/10 rounded-lg">
                                                 <Gavel className="w-4 h-4 text-yellow-500" />
                                             </div>
                                             <div className="flex flex-col">
@@ -512,8 +517,8 @@ export default function AdminDashboard() {
                                     )}
                                     {/* Silver Pill */}
                                     {silverRate && !silverLoading && (
-                                        <div className="flex items-center gap-3 shrink-0 bg-[var(--bg-card)]/50 border border-slate-400/20 px-4 py-2 rounded-2xl shadow-sm">
-                                            <div className="p-1.5 bg-slate-400/10 rounded-lg">
+                                        <div className="flex items-center gap-2 sm:gap-3 shrink-0 bg-[var(--bg-card)]/50 border border-slate-400/20 px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl shadow-sm">
+                                            <div className="hidden sm:block p-1.5 bg-slate-400/10 rounded-lg">
                                                 <Gavel className="w-4 h-4 text-slate-500" />
                                             </div>
                                             <div className="flex flex-col">
@@ -910,7 +915,16 @@ export default function AdminDashboard() {
 
                                                 {/* Weights Grid */}
                                                 <div className="bg-[var(--bg-input)]/30 p-2.5 rounded-lg border border-[var(--border)] space-y-2">
-                                                    <label className="text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)] block text-center">Weight Details</label>
+                                                    <div className="flex justify-between items-center px-1">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)]">Weight Details</label>
+                                                        <span className="text-[10px] font-black text-[var(--primary)] uppercase tracking-tighter">
+                                                            {unit === 'GRAMS' ? `Total: ${convertTolaToGrams(
+                                                                parseFloat(newProduct.weightTola || '0'),
+                                                                parseFloat(newProduct.weightMasha || '0'),
+                                                                parseFloat(newProduct.weightRati || '0')
+                                                            ).toFixed(3)}g` : `Input: T/M/R`}
+                                                        </span>
+                                                    </div>
                                                     <div className="grid grid-cols-3 gap-2.5">
                                                     <div className="space-y-1">
                                                             <label className="text-[8px] font-bold uppercase text-[var(--text-muted)] pl-1">Tola</label>
@@ -1042,10 +1056,12 @@ export default function AdminDashboard() {
 
                                     {/* Inventory Management */}
                                     <section className="lg:col-span-2">
-                                        <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-[var(--text-main)]">
-                                            <Package className="w-5 h-5 text-[var(--primary)]" />
-                                            Inventory Management
-                                        </h2>
+                                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                                            <h2 className="text-xl font-bold flex items-center gap-2 text-[var(--text-main)]">
+                                                <Package className="w-5 h-5 text-[var(--primary)]" />
+                                                Inventory Management
+                                            </h2>
+                                        </div>
 
                                         {/* Desktop View */}
                                         <div className="hidden md:block bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl overflow-x-auto text-sm uppercase font-bold tracking-widest text-[var(--text-muted)] shadow-xl">
@@ -1062,7 +1078,13 @@ export default function AdminDashboard() {
                                                 <tbody className="divide-y divide-[var(--border)]">
                                                     {productsLoading ? (
                                                         <tr><td colSpan={5} className="p-8 text-center uppercase tracking-widest opacity-50">Loading...</td></tr>
-                                                    ) : (products?.items || []).map((p: any) => (
+                                                    ) : (products?.items || [])
+                                                        .filter((p: any) => {
+                                                            const matchesSearch = !q || p.name?.toLowerCase().includes(q.toLowerCase()) || p.category?.toLowerCase().includes(q.toLowerCase());
+                                                            const matchesOccasion = occasion === 'All' || p.occasion === occasion;
+                                                            return matchesSearch && matchesOccasion;
+                                                        })
+                                                        .map((p: any) => (
                                                         <tr key={p.id} className="hover:bg-[var(--bg-input)]/30 transition-colors">
                                                             <td className="p-4">
                                                                 <div className="w-12 h-12 rounded-lg bg-[var(--bg-input)] border border-[var(--border)] overflow-hidden">
@@ -1071,10 +1093,20 @@ export default function AdminDashboard() {
                                                             </td>
                                                             <td className="p-4 text-[var(--text-main)] normal-case tracking-normal font-semibold">{p.name}</td>
                                                             <td className="p-4 text-[var(--text-muted)] text-[10px] whitespace-nowrap">
-                                                                {p.weightTola > 0 && <span>{p.weightTola}T </span>}
-                                                                {p.weightMasha > 0 && <span>{p.weightMasha}M </span>}
-                                                                {p.weightRati > 0 && <span>{p.weightRati}R</span>}
-                                                                {(!p.weightTola && !p.weightMasha && !p.weightRati) && '-'}
+                                                                    <div className="flex flex-col">
+                                                                        {unit === 'GRAMS' ? (
+                                                                            <span className="text-[10px] font-black text-[var(--primary)]">
+                                                                                {convertTolaToGrams(p.weightTola, p.weightMasha, p.weightRati).toFixed(3)}g
+                                                                            </span>
+                                                                        ) : (
+                                                                            <div>
+                                                                                    {p.weightTola > 0 && <span>{p.weightTola}T </span>}
+                                                                                    {p.weightMasha > 0 && <span>{p.weightMasha}M </span>}
+                                                                                    {p.weightRati > 0 && <span>{p.weightRati}R</span>}
+                                                                                    {(!p.weightTola && !p.weightMasha && !p.weightRati) && '-'}
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
                                                             </td>
                                                             <td className="p-4 text-[var(--primary)] font-black">
                                                                 {p.category === 'Silver'
@@ -1135,16 +1167,30 @@ export default function AdminDashboard() {
                                         <div className="md:hidden space-y-4">
                                             {productsLoading ? (
                                                 <div className="p-12 text-center text-[var(--text-muted)] uppercase tracking-widest text-xs">Loading Inventory...</div>
-                                            ) : (products?.items || []).map((p: any) => (
+                                            ) : (products?.items || [])
+                                                .filter((p: any) => {
+                                                    const matchesSearch = !q || p.name?.toLowerCase().includes(q.toLowerCase()) || p.category?.toLowerCase().includes(q.toLowerCase());
+                                                    const matchesOccasion = occasion === 'All' || p.occasion === occasion;
+                                                    return matchesSearch && matchesOccasion;
+                                                })
+                                                .map((p: any) => (
                                                 <div key={p.id} className="bg-[var(--bg-card)] border border-[var(--border)] p-4 rounded-2xl shadow-lg relative h-full">
                                                     <div className="flex gap-4 mb-4">
                                                         <img src={getImageUrl(p.image)} alt="" className="w-20 h-20 rounded-xl object-cover bg-[var(--bg-input)]" />
                                                         <div className="flex-1">
                                                             <h3 className="font-bold text-[var(--text-main)] mb-1">{p.name}</h3>
                                                             <div className="flex flex-wrap gap-2 text-[10px] uppercase font-bold text-[var(--text-muted)]">
-                                                                {p.weightTola > 0 && <span className="px-1.5 py-0.5 bg-[var(--bg-input)] rounded border border-[var(--border)]">{p.weightTola} Tola</span>}
-                                                                {p.weightMasha > 0 && <span className="px-1.5 py-0.5 bg-[var(--bg-input)] rounded border border-[var(--border)]">{p.weightMasha} Masha</span>}
-                                                                {p.weightRati > 0 && <span className="px-1.5 py-0.5 bg-[var(--bg-input)] rounded border border-[var(--border)]">{p.weightRati} Rati</span>}
+                                                                    {unit === 'GRAMS' ? (
+                                                                        <span className="px-1.5 py-0.5 bg-[var(--primary)]/10 text-[var(--primary)] rounded border border-[var(--primary)]/20">
+                                                                            {convertTolaToGrams(p.weightTola, p.weightMasha, p.weightRati).toFixed(3)}g
+                                                                        </span>
+                                                                    ) : (
+                                                                        <>
+                                                                                {p.weightTola > 0 && <span className="px-1.5 py-0.5 bg-[var(--bg-input)] rounded border border-[var(--border)]">{p.weightTola} Tola</span>}
+                                                                                {p.weightMasha > 0 && <span className="px-1.5 py-0.5 bg-[var(--bg-input)] rounded border border-[var(--border)]">{p.weightMasha} Masha</span>}
+                                                                                {p.weightRati > 0 && <span className="px-1.5 py-0.5 bg-[var(--bg-input)] rounded border border-[var(--border)]">{p.weightRati} Rati</span>}
+                                                                        </>
+                                                                    )}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1253,9 +1299,25 @@ export default function AdminDashboard() {
                                                     <tbody className="divide-y divide-[var(--border)]">
                                                         {complaintsLoading ? (
                                                             <tr><td colSpan={5} className="p-8 text-center uppercase tracking-widest opacity-50">Loading...</td></tr>
-                                                        ) : complaints?.length === 0 ? (
+                                                        ) : (complaints || [])
+                                                            .filter((c: any) =>
+                                                                !q ||
+                                                                c.name?.toLowerCase().includes(q.toLowerCase()) ||
+                                                                c.email?.toLowerCase().includes(q.toLowerCase()) ||
+                                                                c.subject?.toLowerCase().includes(q.toLowerCase()) ||
+                                                                c.message?.toLowerCase().includes(q.toLowerCase())
+                                                            )
+                                                            .length === 0 ? (
                                                             <tr><td colSpan={5} className="p-8 text-center text-[var(--text-muted)]">No queries found.</td></tr>
-                                                        ) : complaints?.map((c: any) => (
+                                                            ) : (complaints || [])
+                                                                .filter((c: any) =>
+                                                                    !q ||
+                                                                    c.name?.toLowerCase().includes(q.toLowerCase()) ||
+                                                                    c.email?.toLowerCase().includes(q.toLowerCase()) ||
+                                                                    c.subject?.toLowerCase().includes(q.toLowerCase()) ||
+                                                                    c.message?.toLowerCase().includes(q.toLowerCase())
+                                                                )
+                                                                .map((c: any) => (
                                                             <tr key={c.id} className="hover:bg-[var(--bg-input)]/30 transition-colors">
                                                                 <td className="p-4 text-[var(--text-muted)] whitespace-nowrap">
                                                                     {new Date(c.createdAt).toLocaleDateString()}
@@ -1339,9 +1401,23 @@ export default function AdminDashboard() {
                                                     <tbody className="divide-y divide-[var(--border)]">
                                                         {disputesLoading ? (
                                                             <tr><td colSpan={4} className="p-8 text-center uppercase tracking-widest opacity-50">Loading Disputes...</td></tr>
-                                                        ) : disputes?.length === 0 ? (
+                                                        ) : (disputes || [])
+                                                            .filter((d: any) =>
+                                                                !q ||
+                                                                d.subject?.toLowerCase().includes(q.toLowerCase()) ||
+                                                                d.order?.displayId?.toLowerCase().includes(q.toLowerCase()) ||
+                                                                d.message?.toLowerCase().includes(q.toLowerCase())
+                                                            )
+                                                            .length === 0 ? (
                                                             <tr><td colSpan={4} className="p-8 text-center text-[var(--text-muted)]">No active disputes found.</td></tr>
-                                                        ) : disputes?.map((d: any) => (
+                                                            ) : (disputes || [])
+                                                                .filter((d: any) =>
+                                                                    !q ||
+                                                                    d.subject?.toLowerCase().includes(q.toLowerCase()) ||
+                                                                    d.order?.displayId?.toLowerCase().includes(q.toLowerCase()) ||
+                                                                    d.message?.toLowerCase().includes(q.toLowerCase())
+                                                                )
+                                                                .map((d: any) => (
                                                             <tr key={d.id} className="hover:bg-[var(--bg-input)]/30 transition-colors">
                                                                 <td className="p-4">
                                                                     <div className="flex flex-col">
@@ -1427,9 +1503,23 @@ export default function AdminDashboard() {
                                                     <tbody className="divide-y divide-[var(--border)]">
                                                         {reviewsLoading ? (
                                                             <tr><td colSpan={6} className="p-8 text-center uppercase tracking-widest opacity-50">Loading Reviews...</td></tr>
-                                                        ) : adminReviews?.length === 0 ? (
+                                                        ) : (adminReviews || [])
+                                                            .filter((r: any) =>
+                                                                !q ||
+                                                                r.user?.name?.toLowerCase().includes(q.toLowerCase()) ||
+                                                                r.product?.name?.toLowerCase().includes(q.toLowerCase()) ||
+                                                                r.comment?.toLowerCase().includes(q.toLowerCase())
+                                                            )
+                                                            .length === 0 ? (
                                                             <tr><td colSpan={6} className="p-8 text-center text-[var(--text-muted)]">No reviews found.</td></tr>
-                                                        ) : adminReviews?.map((r: any) => (
+                                                            ) : (adminReviews || [])
+                                                                .filter((r: any) =>
+                                                                    !q ||
+                                                                    r.user?.name?.toLowerCase().includes(q.toLowerCase()) ||
+                                                                    r.product?.name?.toLowerCase().includes(q.toLowerCase()) ||
+                                                                    r.comment?.toLowerCase().includes(q.toLowerCase())
+                                                                )
+                                                                .map((r: any) => (
                                                             <tr key={r.id} className="hover:bg-[var(--bg-input)]/30 transition-colors">
                                                                 <td className="p-4">
                                                                     <p className="font-bold text-[var(--text-main)]">{r.user?.name}</p>
@@ -1511,9 +1601,23 @@ export default function AdminDashboard() {
                                                     <tbody className="divide-y divide-[var(--border)]">
                                                         {logsLoading ? (
                                                             <tr><td colSpan={5} className="p-8 text-center uppercase tracking-widest opacity-50">Loading Logs...</td></tr>
-                                                        ) : logs?.length === 0 ? (
+                                                        ) : (logs || [])
+                                                            .filter((log: any) =>
+                                                                !q ||
+                                                                log.action?.toLowerCase().includes(q.toLowerCase()) ||
+                                                                log.user?.name?.toLowerCase().includes(q.toLowerCase()) ||
+                                                                log.metadata?.details?.toLowerCase().includes(q.toLowerCase())
+                                                            )
+                                                            .length === 0 ? (
                                                             <tr><td colSpan={5} className="p-8 text-center text-[var(--text-muted)]">No system events logged.</td></tr>
-                                                        ) : logs?.map((log: any) => (
+                                                            ) : (logs || [])
+                                                                .filter((log: any) =>
+                                                                    !q ||
+                                                                    log.action?.toLowerCase().includes(q.toLowerCase()) ||
+                                                                    log.user?.name?.toLowerCase().includes(q.toLowerCase()) ||
+                                                                    log.metadata?.details?.toLowerCase().includes(q.toLowerCase())
+                                                                )
+                                                                .map((log: any) => (
                                                             <tr key={log.id} className="hover:bg-[var(--bg-input)]/30 transition-colors">
                                                                 <td className="p-4 text-[var(--text-muted)] whitespace-nowrap">
                                                                     {new Date(log.createdAt).toLocaleString()}
@@ -1586,15 +1690,17 @@ export default function AdminDashboard() {
                         {
                             activeTab === 'orders' && (
                                 <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                    <div className="flex items-center justify-between">
+                                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                         <h2 className="text-2xl font-black flex items-center gap-3 text-[var(--text-main)]">
                                             <div className="p-3 bg-[var(--primary)]/10 rounded-2xl">
                                                 <ShoppingBag className="w-6 h-6 text-[var(--primary)]" />
                                             </div>
-                                        Order Management
-                                    </h2>
-                                        <div className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] bg-[var(--bg-card)] px-3 py-1.5 rounded-full border border-[var(--border)] shadow-sm">
-                                            {orders?.length || 0} Total Orders
+                                            Order Management
+                                        </h2>
+                                        <div className="flex flex-col md:flex-row items-center gap-4">
+                                            <div className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] bg-[var(--bg-card)] px-3 py-1.5 rounded-full border border-[var(--border)] shadow-sm whitespace-nowrap">
+                                                {orders?.length || 0} Total Orders
+                                            </div>
                                         </div>
                                     </div>
 
@@ -1614,7 +1720,14 @@ export default function AdminDashboard() {
                                             <tbody className="divide-y divide-[var(--border)]/50">
                                                 {ordersLoading ? (
                                                     <tr><td colSpan={6} className="p-12 text-center uppercase tracking-widest opacity-50 font-bold">Loading Orders...</td></tr>
-                                                ) : orders?.map((o: any) => (
+                                                ) : (orders || [])
+                                                    .filter((o: any) =>
+                                                        !q ||
+                                                        o.displayId?.toLowerCase().includes(q.toLowerCase()) ||
+                                                        o.user?.name?.toLowerCase().includes(q.toLowerCase()) ||
+                                                        o.phone?.includes(q)
+                                                    )
+                                                    .map((o: any) => (
                                                     <tr key={o.id} className="hover:bg-[var(--bg-input)]/30 transition-colors group">
                                                         <td className="p-6 align-top">
                                                             <div className="space-y-1">
@@ -1776,7 +1889,17 @@ export default function AdminDashboard() {
                                     <div className="md:hidden space-y-4">
                                         {ordersLoading ? (
                                             <div className="p-8 text-center uppercase tracking-widest text-xs font-bold opacity-60">Loading Orders...</div>
-                                        ) : orders?.map((o: any) => (
+                                        ) : (orders || [])
+                                            .filter((o: any) =>
+                                                !q ||
+                                                o.displayId?.toLowerCase().includes(q.toLowerCase()) ||
+                                                o.id?.toString().includes(q) ||
+                                                o.customerName?.toLowerCase().includes(q.toLowerCase()) ||
+                                                o.user?.name?.toLowerCase().includes(q.toLowerCase()) ||
+                                                o.customerPhone?.includes(q) ||
+                                                o.user?.phone?.includes(q)
+                                            )
+                                            .map((o: any) => (
                                             <div key={o.id} className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-5 shadow-lg space-y-4 relative overflow-hidden">
                                                 {/* Header Stripe */}
                                                 <div className={`absolute top-0 left-0 w-1 h-full ${o.status === 'Delivered' ? 'bg-green-500' : o.paymentStatus === 'Paid' ? 'bg-[var(--primary)]' : 'bg-yellow-500'}`} />
@@ -1896,15 +2019,6 @@ export default function AdminDashboard() {
                                             <Users className="w-5 h-5 text-[var(--primary)]" />
                                             User Registry
                                         </h2>
-                                        <div className="relative w-full md:w-72">
-                                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
-                                            <input
-                                                placeholder="Search by name, email or cnic..."
-                                                className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-xl py-2 pl-9 pr-4 text-sm outline-none focus:ring-2 focus:ring-[var(--primary)]/30"
-                                                value={searchQuery}
-                                                onChange={(e) => setSearchQuery(e.target.value)}
-                                            />
-                                        </div>
                                     </div>
                                     <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl overflow-x-auto shadow-xl">
                                         <table className="w-full text-left text-sm min-w-[600px]">
@@ -1922,10 +2036,11 @@ export default function AdminDashboard() {
                                                     <tr><td colSpan={5} className="p-8 text-center uppercase tracking-widest opacity-50">Loading...</td></tr>
                                                 ) : (users || [])
                                                     .filter((u: any) =>
-                                                        !searchQuery ||
-                                                        u.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                                        u.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                                        u.cnic?.includes(searchQuery)
+                                                        !q ||
+                                                        u.name?.toLowerCase().includes(q.toLowerCase()) ||
+                                                        u.email?.toLowerCase().includes(q.toLowerCase()) ||
+                                                        (u.cnic && u.cnic.includes(q)) ||
+                                                        (u.phone && u.phone.includes(q))
                                                     )
                                                     .map((u: any) => (
                                                         <tr key={u.id} className="hover:bg-[var(--bg-input)]/30 transition-colors">
@@ -2056,8 +2171,8 @@ export default function AdminDashboard() {
                                                 <Gavel className="w-5 h-5" />
                                                 Gold Sources (24K / Tola)
                                             </h3>
-                                            <div className="bg-[var(--bg-card)] border border-yellow-500/20 rounded-2xl overflow-hidden shadow-xl">
-                                                <table className="w-full text-left text-xs uppercase font-bold tracking-widest">
+                                            <div className="bg-[var(--bg-card)] border border-yellow-500/20 rounded-2xl overflow-x-auto shadow-xl">
+                                                <table className="w-full text-left text-xs uppercase font-bold tracking-widest min-w-[500px]">
                                                     <thead className="bg-[var(--bg-input)] text-[var(--text-muted)]">
                                                         <tr>
                                                             <th className="p-4">Source</th>
@@ -2094,7 +2209,7 @@ export default function AdminDashboard() {
                                                                             <td className="p-4 text-yellow-700 font-black text-lg">{formatPrice(highestGold.price24k || highestGold.price)}</td>
                                                                             <td className="p-4 text-yellow-700 font-bold opacity-70 text-[10px]">Peak Source</td>
                                                                             <td className="p-4 text-right">
-                                                                                <span className="px-2 py-0.5 rounded-full text-[8px] bg-yellow-500 text-white font-black">TOP RATE</span>
+                                                                                <span className="px-2 py-0.5 rounded-full text-[8px] bg-yellow-500 text-white font-black whitespace-nowrap">TOP RATE</span>
                                                                             </td>
                                                                         </tr>
                                                                     );
@@ -2112,8 +2227,8 @@ export default function AdminDashboard() {
                                                 <Gavel className="w-5 h-5" />
                                                 Silver Sources (Chandi / Tola)
                                             </h3>
-                                            <div className="bg-[var(--bg-card)] border border-slate-400/20 rounded-2xl overflow-hidden shadow-xl">
-                                                <table className="w-full text-left text-xs uppercase font-bold tracking-widest">
+                                            <div className="bg-[var(--bg-card)] border border-slate-400/20 rounded-2xl overflow-x-auto shadow-xl">
+                                                <table className="w-full text-left text-xs uppercase font-bold tracking-widest min-w-[500px]">
                                                     <thead className="bg-[var(--bg-input)] text-[var(--text-muted)]">
                                                         <tr>
                                                             <th className="p-4">Source</th>
@@ -2150,7 +2265,7 @@ export default function AdminDashboard() {
                                                                             <td className="p-4 text-slate-700 font-black text-lg">{formatPrice(highestSilver.price)}</td>
                                                                             <td className="p-4 text-slate-700 font-bold opacity-70 text-[10px]">Peak Source</td>
                                                                             <td className="p-4 text-right">
-                                                                                <span className="px-2 py-0.5 rounded-full text-[8px] bg-slate-500 text-white font-black">TOP RATE</span>
+                                                                                <span className="px-2 py-0.5 rounded-full text-[8px] bg-slate-500 text-white font-black whitespace-nowrap">TOP RATE</span>
                                                                             </td>
                                                                         </tr>
                                                                     );

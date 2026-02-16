@@ -36,17 +36,25 @@ export default function AdminChat() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-180px)] bg-[var(--bg-card)] rounded-[2rem] border border-[var(--border)] overflow-hidden shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="flex h-[calc(100vh-140px)] bg-[var(--bg-main)] rounded-3xl border border-[var(--border)] overflow-hidden shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-700 relative">
       {/* Sidebar - Chat List */}
-      <div className="w-80 border-r border-[var(--border)] flex flex-col bg-[var(--bg-input)]/30">
-        <div className="p-6 border-b border-[var(--border)]">
-          <h2 className="text-xl font-black text-[var(--text-main)] uppercase tracking-tighter mb-4">Live Support</h2>
+      <div className={`w-full md:w-96 border-r border-[var(--border)] flex flex-col bg-[var(--bg-card)]/50 ${selectedChat ? 'hidden md:flex' : 'flex'}`}>
+        <div className="p-4 bg-[var(--bg-card)] border-b border-[var(--border)]">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-10 h-10 rounded-full bg-[var(--bg-input)] flex items-center justify-center overflow-hidden border border-[var(--border)]">
+              <User className="w-6 h-6 text-[var(--text-muted)]" />
+            </div>
+            <h2 className="text-lg font-black text-[var(--text-main)] uppercase tracking-tighter">Chats</h2>
+            <div className="flex gap-2">
+              <button className="p-2 hover:bg-[var(--primary)]/10 rounded-full text-[var(--text-muted)]"><MessageSquare className="w-5 h-5" /></button>
+            </div>
+          </div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
             <input
               type="text"
-              placeholder="Search conversations..."
-              className="w-full pl-10 pr-4 py-2 bg-[var(--bg-main)] border border-[var(--border)] rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-[var(--primary)]/30 transition-all text-[var(--text-main)]"
+              placeholder="Search or start new chat"
+              className="w-full pl-10 pr-4 py-2 bg-[var(--bg-main)] border border-[var(--border)] rounded-lg text-xs font-medium outline-none focus:ring-1 focus:ring-[var(--primary)] transition-all text-[var(--text-main)] placeholder:text-[var(--text-muted)]"
             />
           </div>
         </div>
@@ -56,33 +64,35 @@ export default function AdminChat() {
             <div className="p-8 flex justify-center"><Loader2 className="w-6 h-6 animate-spin text-[var(--text-muted)]" /></div>
           ) : chatList?.length === 0 ? (
             <div className="p-8 text-center space-y-2 opacity-40">
-              <MessageSquare className="w-8 h-8 mx-auto text-[var(--text-muted)]" />
-              <p className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">No active chats</p>
+                <MessageSquare className="w-8 h-8 mx-auto text-[var(--text-muted)]" />
+                <p className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">No active chats</p>
             </div>
           ) : (
             chatList?.map((chat: any) => (
               <button
                 key={chat.user.id}
                 onClick={() => handleSelectChat(chat)}
-                className={`w-full p-4 flex items-center gap-4 transition-all border-b border-[var(--border)]/30 ${selectedChat?.user.id === chat.user.id ? 'bg-[var(--bg-main)] shadow-sm ring-1 ring-[var(--primary)]/20' : 'hover:bg-[var(--bg-main)]/50'}`}
+                className={`w-full p-3.5 flex items-center gap-4 transition-all border-b border-[var(--border)]/30 ${selectedChat?.user.id === chat.user.id ? 'bg-[var(--bg-input)]' : 'hover:bg-[var(--bg-input)]/50'}`}
               >
-                <div className="relative">
-                  <div className="w-12 h-12 rounded-full bg-[var(--bg-input)] flex items-center justify-center overflow-hidden border-2 border-[var(--border)] shadow-sm">
+                <div className="relative shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-[var(--bg-input)] flex items-center justify-center overflow-hidden border border-[var(--border)] shadow-sm">
                     {chat.user.image ? <img src={chat.user.image} className="w-full h-full object-cover" /> : <User className="w-6 h-6 text-[var(--text-muted)]" />}
                   </div>
-                  {chat.unreadCount > 0 && (
-                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-[var(--bg-card)] shadow-lg animate-bounce">
-                      {chat.unreadCount}
-                    </div>
-                  )}
-                  <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-[var(--bg-card)] rounded-full shadow-sm" />
+                  <div className="absolute bottom-0.5 right-0.5 w-3 h-3 bg-green-500 border-2 border-[var(--bg-card)] rounded-full" />
                 </div>
                 <div className="flex-1 text-left min-w-0">
-                  <div className="flex justify-between items-start mb-0.5">
-                    <h4 className="text-sm font-black text-[var(--text-main)] truncate uppercase tracking-tight">{chat.user.name}</h4>
-                    <span className="text-[8px] font-bold text-[var(--text-muted)] uppercase">{new Date(chat.lastMessageTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                  <div className="flex justify-between items-center mb-0.5">
+                    <h4 className="text-[15px] font-semibold text-[var(--text-main)] truncate">{chat.user.name}</h4>
+                    <span className="text-[11px] font-medium text-[var(--text-muted)]">{new Date(chat.lastMessageTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
-                  <p className="text-[11px] font-medium text-[var(--text-muted)] truncate">{chat.lastMessage}</p>
+                  <div className="flex justify-between items-center">
+                    <p className="text-sm text-[var(--text-muted)] truncate flex-1 pr-2">{chat.lastMessage}</p>
+                    {chat.unreadCount > 0 && (
+                      <div className="shrink-0 w-5 h-5 bg-[var(--primary)] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                        {chat.unreadCount}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </button>
             ))
@@ -91,35 +101,55 @@ export default function AdminChat() {
       </div>
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col bg-[var(--bg-main)]">
+      <div className={`flex-1 flex flex-col h-full ${!selectedChat ? 'hidden md:flex' : 'flex'}`}>
         {selectedChat ? (
           <>
             {/* Chat Header */}
-            <div className="p-6 border-b border-[var(--border)] flex items-center justify-between">
-              <div className="flex items-center gap-4">
+            <div className="p-3 bg-[var(--bg-card)] border-l border-[var(--border)] flex items-center justify-between shadow-sm z-10">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setSelectedChat(null)}
+                  className="md:hidden p-2 hover:bg-[var(--primary)]/10 rounded-full text-[var(--text-main)] mr-1"
+                >
+                  <Send className="w-5 h-5 rotate-180" />
+                </button>
                 <div className="w-10 h-10 rounded-full bg-[var(--bg-input)] flex items-center justify-center border border-[var(--border)] shadow-sm overflow-hidden">
                   {selectedChat.user.image ? <img src={selectedChat.user.image} className="w-full h-full object-cover" /> : <User className="w-5 h-5 text-[var(--text-muted)]" />}
                 </div>
                 <div>
-                  <h3 className="text-sm font-black text-[var(--text-main)] uppercase tracking-widest leading-none mb-1">{selectedChat.user.name}</h3>
-                  <div className="flex items-center gap-1.5">
-                    <Circle className="w-1.5 h-1.5 fill-green-500 text-green-500 animate-pulse" />
-                    <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-tighter">Active Now</span>
-                  </div>
+                  <h3 className="text-[15px] font-semibold text-[var(--text-main)] leading-none mb-1">{selectedChat.user.name}</h3>
+                  <p className="text-[11px] text-green-500 font-medium">online</p>
                 </div>
+              </div>
+              <div className="flex gap-2 text-[var(--text-muted)]">
+                <button className="p-2 hover:bg-[var(--primary)]/10 rounded-full"><Search className="w-5 h-5" /></button>
+                <button className="p-2 hover:bg-[var(--primary)]/10 rounded-full"><MessageSquare className="w-5 h-5" /></button>
               </div>
             </div>
 
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-8 bg-[var(--bg-input)]/20 space-y-6 custom-scrollbar">
+            {/* Messages - Themed Wallpaper Overlay */}
+            <div
+              className="flex-1 overflow-y-auto p-4 md:p-8 space-y-3 custom-scrollbar relative"
+              style={{
+                backgroundImage: `url('https://w0.peakpx.com/wallpaper/580/550/HD-wallpaper-whatsapp-background-original-whatsapp-background-whatsapp-theme-whatsapp-walpaper.jpg')`,
+                backgroundSize: '400px',
+                backgroundBlendMode: 'soft-light',
+                backgroundColor: 'var(--bg-main)'
+              }}
+            >
               {messages.map((msg, idx) => (
-                <div key={msg.id || idx} className={`flex ${msg.senderId !== selectedChat.user.id ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[70%] space-y-1`}>
-                    <div className={`p-4 rounded-2xl text-[13px] font-medium leading-relaxed shadow-sm ${msg.senderId !== selectedChat.user.id ? 'bg-[var(--primary)] text-white rounded-tr-none' : 'bg-[var(--bg-card)] text-[var(--text-main)] border border-[var(--border)] rounded-tl-none'}`}>
-                      {msg.content}
-                    </div>
-                    <div className={`text-[8px] font-bold text-[var(--text-muted)] uppercase tracking-widest ${msg.senderId !== selectedChat.user.id ? 'text-right' : 'text-left'}`}>
-                      {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                <div key={msg.id || idx} className={`flex ${msg.senderId !== selectedChat.user.id ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
+                  <div className={`max-w-[85%] md:max-w-[70%] px-3 py-1.5 rounded-xl text-[14px] shadow-sm relative ${msg.senderId !== selectedChat.user.id ? 'bg-[var(--primary)] text-white rounded-tr-none' : 'bg-[var(--bg-card)] text-[var(--text-main)] border border-[var(--border)] rounded-tl-none'}`}>
+                    <p className="leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                    <div className="flex items-center justify-end gap-1 mt-0.5">
+                      <span className={`text-[9px] font-medium ${msg.senderId !== selectedChat.user.id ? 'opacity-70' : 'opacity-40'}`}>
+                        {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
+                      </span>
+                      {msg.senderId !== selectedChat.user.id && (
+                        <div className="flex -space-x-1">
+                          <span className="text-white/80 text-[10px] font-bold">✓✓</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -127,33 +157,45 @@ export default function AdminChat() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Input */}
-            <form onSubmit={handleSend} className="p-6 bg-[var(--bg-card)] border-t border-[var(--border)] flex gap-4">
-              <input
-                type="text"
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                placeholder="Type your response..."
-                className="flex-1 px-6 py-4 bg-[var(--bg-main)] border border-[var(--border)] rounded-2xl text-sm font-medium outline-none focus:ring-2 focus:ring-[var(--primary)]/30 transition-all text-[var(--text-main)] placeholder:text-[var(--text-muted)]"
-              />
+            {/* Input Bar */}
+            <form onSubmit={handleSend} className="p-3 bg-[var(--bg-card)] border-t border-[var(--border)] flex items-center gap-3">
+              <div className="flex items-center gap-2 text-[var(--text-muted)] px-2">
+                <button type="button" className="p-2 hover:bg-[var(--primary)]/10 rounded-full transition-colors"><MessageSquare className="w-6 h-6" /></button>
+              </div>
+              <div className="flex-1">
+                <input
+                  type="text"
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  placeholder="Type a message"
+                  className="w-full px-4 py-2.5 bg-[var(--bg-main)] border border-[var(--border)] rounded-lg text-[15px] font-medium outline-none text-[var(--text-main)] placeholder:text-[var(--text-muted)]"
+                />
+              </div>
               <button
                 type="submit"
                 disabled={!inputText.trim()}
-                className="px-8 bg-[var(--primary)] text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl hover:bg-[var(--primary-hover)] active:scale-95 transition-all flex items-center gap-2 disabled:opacity-50"
+                className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${inputText.trim()
+                  ? 'bg-[var(--primary)] text-white shadow-lg active:scale-95 hover:bg-[var(--primary)]/90'
+                  : 'bg-[var(--primary)] text-white opacity-40 cursor-not-allowed'
+                  }`}
               >
-                <Send className="w-4 h-4" />
-                Reply
+                <Send className="w-5 h-5 ml-0.5" />
               </button>
             </form>
           </>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-center p-12 space-y-4 opacity-30">
-            <div className="w-20 h-20 bg-[var(--bg-input)] rounded-full flex items-center justify-center">
-              <MessageSquare className="w-10 h-10 text-[var(--text-muted)]" />
+            <div className="flex-1 flex flex-col items-center justify-center text-center p-12 bg-[var(--bg-main)] border-l border-[var(--border)]">
+              <div className="w-64 h-64 rounded-full overflow-hidden mb-8 opacity-10">
+                <img src="https://w0.peakpx.com/wallpaper/580/550/HD-wallpaper-whatsapp-background-original-whatsapp-background-whatsapp-theme-whatsapp-walpaper.jpg" className="w-full h-full object-cover" />
             </div>
-            <div>
-              <h3 className="text-sm font-black uppercase tracking-[0.2em] text-[var(--text-main)]">Select a Conversation</h3>
-              <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mt-2">Choose a user from the left to start chatting</p>
+              <h3 className="text-3xl font-light text-[var(--text-main)] mb-4">Support Center for Admin</h3>
+              <p className="text-sm text-[var(--text-muted)] max-w-md leading-relaxed">
+                Managing customer queries in real-time.<br />
+                The interface adapts to your selected application theme.
+              </p>
+              <div className="mt-12 flex items-center gap-2 text-[var(--text-muted)] opacity-60">
+                <Circle className="w-3 h-3 fill-[var(--text-muted)]" />
+                <span className="text-[12px] font-medium uppercase tracking-widest">End-to-end encrypted</span>
             </div>
           </div>
         )}
