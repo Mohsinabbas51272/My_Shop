@@ -558,13 +558,13 @@ export default function Navbar() {
 
                                 <div className="flex gap-1.5">
                                     <button
-                                        onClick={() => setMetalCategory('Gold')}
+                                        onClick={() => { setMetalCategory('Gold'); setIsMenuOpen(false); }}
                                         className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all border ${metalCategory === 'Gold' ? 'bg-yellow-600 border-yellow-500 text-white' : 'bg-[var(--bg-input)] border-[var(--border)] text-[var(--text-muted)]'}`}
                                     >
                                         Gold
                                     </button>
                                     <button
-                                        onClick={() => setMetalCategory('Silver')}
+                                        onClick={() => { setMetalCategory('Silver'); setIsMenuOpen(false); }}
                                         className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all border ${metalCategory === 'Silver' ? 'bg-slate-500 border-slate-400 text-white' : 'bg-[var(--bg-input)] border-[var(--border)] text-[var(--text-muted)]'}`}
                                     >
                                         Silver
@@ -625,7 +625,7 @@ export default function Navbar() {
                                         ].map((occ) => (
                                             <button
                                                 key={occ.id}
-                                                onClick={() => setOccasion(occ.id)}
+                                                onClick={() => { setOccasion(occ.id); setIsMenuOpen(false); }}
                                                 className={`px-3 py-2 rounded-lg text-[10px] font-bold uppercase transition-all border ${occasion === occ.id
                                                     ? 'bg-[var(--primary)] text-white border-[var(--primary)]'
                                                     : 'bg-[var(--bg-input)] border-[var(--border)] text-[var(--text-muted)]'
