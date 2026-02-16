@@ -38,6 +38,7 @@ export const useChat = (receiverId?: number) => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isConnected, setIsConnected] = useState(false);
+  const [isRestOnline, setIsRestOnline] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Initialize Socket once hydration is complete and we have a token
@@ -149,8 +150,10 @@ export const useChat = (receiverId?: number) => {
       try {
         const response = await api.get(`/chats/history/${receiverId}`);
         setMessages(response.data || []);
+        setIsRestOnline(true);
       } catch (error) {
         console.error('❌ ChatHook: REST fallback fetch failed:', error);
+        setIsRestOnline(false);
       }
     };
 
@@ -198,5 +201,5 @@ export const useChat = (receiverId?: number) => {
     scrollToBottom();
   }, [messages]);
 
-  return { messages, sendMessage, isConnected, messagesEndRef };
+  return { messages, sendMessage, isConnected, isRestOnline, messagesEndRef };
 };

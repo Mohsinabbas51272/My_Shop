@@ -9,7 +9,7 @@ export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [inputText, setInputText] = useState('');
   const [adminId] = useState<number | null>(4); // Updated to active admin ID (4)
-  const { messages, sendMessage, isConnected, messagesEndRef } = useChat(adminId || undefined);
+  const { messages, sendMessage, isConnected, isRestOnline, messagesEndRef } = useChat(adminId || undefined);
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,11 +45,11 @@ export default function ChatWidget() {
                   <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center border border-white/10 overflow-hidden">
                     <User className="w-6 h-6 text-white/70" />
                   </div>
-                  <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-[var(--primary)] ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
+                  <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-[var(--primary)] ${isConnected || isRestOnline ? 'bg-green-500' : 'bg-red-500'}`} />
                 </div>
                 <div>
                   <h3 className="text-sm font-bold">Support Team</h3>
-                  <p className="text-[10px] opacity-80">{isConnected ? 'online' : 'reconnecting...'}</p>
+                  <p className="text-[10px] opacity-80">{isConnected || isRestOnline ? 'online' : 'reconnecting...'}</p>
                 </div>
               </div>
               <div className="flex items-center gap-1">
