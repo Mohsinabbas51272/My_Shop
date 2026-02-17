@@ -9,7 +9,7 @@ import Navbar from './Navbar';
 import ProductDetailsModal from './ProductDetailsModal';
 import Policy from './Policy';
 import { useCartStore } from '../store/useCartStore';
-import { Plus, Loader2, PackageX, ShoppingBag, Receipt, MessageCircle, Gavel, ShieldCheck, File, Heart, ShoppingCart, ShieldAlert, X, Star, Check, FileText, Pencil, XCircle, Trash2, Clock, Minus, Truck } from 'lucide-react';
+import { Plus, Loader2, PackageX, ShoppingBag, Receipt, MessageCircle, Gavel, ShieldCheck, File, Heart, ShoppingCart, ShieldAlert, X, Star, Check, FileText, Pencil, XCircle, Trash2, Minus } from 'lucide-react';
 import OrderReceipt from './OrderReceipt';
 import { useAuthStore } from '../store/useAuthStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
