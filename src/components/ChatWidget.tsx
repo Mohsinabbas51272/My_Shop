@@ -3,10 +3,11 @@ import { MessageCircle, X, Send, Minus, User } from 'lucide-react';
 import { useChat } from '../hooks/useChat';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../store/useAuthStore';
+import { useChatStore } from '../store/useChatStore';
 
 export default function ChatWidget() {
   const { user } = useAuthStore();
-  const [isOpen, setIsOpen] = useState(false);
+  const { isOpen, setIsOpen } = useChatStore();
   const [inputText, setInputText] = useState('');
   const [adminId] = useState<number | null>(4); // Updated to active admin ID (4)
   const { messages, sendMessage, isConnected, isRestOnline, messagesEndRef } = useChat(adminId || undefined);
@@ -135,16 +136,6 @@ export default function ChatWidget() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={() => setIsOpen(!isOpen)}
-        className={`${isOpen ? 'hidden md:flex' : 'flex'} w-14 h-14 bg-[var(--primary)] text-white rounded-full items-center justify-center shadow-2xl relative overflow-hidden group border border-white/10`}
-      >
-        <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-        {isOpen ? <Minus className="w-6 h-6" /> : <MessageCircle className="w-6 h-6" />}
-      </motion.button>
     </div>
   );
 }

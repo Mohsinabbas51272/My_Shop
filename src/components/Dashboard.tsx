@@ -762,18 +762,18 @@ export default function Dashboard() {
                                                         className="luxury-card border border-[var(--border)] rounded-2xl overflow-hidden shadow-xl bg-[var(--bg-card)]/40 backdrop-blur-md group hover:border-[var(--primary)]/30 transition-all duration-500"
                                                     >
                                                         {/* COMPACT HEADER */}
-                                                        <div className="bg-gradient-to-r from-[var(--bg-input)]/80 to-transparent border-b border-[var(--border)] px-4 py-3 flex items-center justify-between gap-5">
-                                                            <div className="flex items-center gap-6">
+                                                        <div className="bg-gradient-to-r from-[var(--bg-input)]/80 to-transparent border-b border-[var(--border)] px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                                            <div className="flex flex-wrap items-center gap-4 sm:gap-6">
                                                                 <div className="flex flex-col">
                                                                     <span className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest opacity-60 leading-none">Registry</span>
                                                                     <span className="text-xs font-mono font-black text-[var(--primary)]">#{order.displayId || order.id}</span>
                                                                 </div>
-                                                                <div className="h-6 w-px bg-[var(--border)]" />
+                                                                <div className="hidden xs:block h-6 w-px bg-[var(--border)]" />
                                                                 <div className="flex flex-col">
                                                                     <span className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest opacity-60 leading-none">Value</span>
                                                                     <span className="text-xs font-black text-[var(--text-main)]">{formatPrice(order.total || 0)}</span>
                                                                 </div>
-                                                                <div className="hidden sm:flex items-center gap-3 ml-2">
+                                                                <div className="flex items-center gap-2 sm:gap-3 sm:ml-2">
                                                                     <div className={`w-2 h-2 rounded-full ${order.paymentStatus === 'Paid' ? 'bg-green-500' : 'bg-red-500 animate-pulse'}`} />
                                                                     <span className={`text-[10px] font-black uppercase tracking-widest ${order.paymentStatus === 'Paid' ? 'text-green-500' : 'text-red-500'}`}>{order.paymentStatus || 'Unpaid'}</span>
                                                                 </div>
@@ -796,18 +796,18 @@ export default function Dashboard() {
                                                                 </div>
                                                             </div>
 
-                                                            <div className="flex items-center gap-4">
-                                                                <span className="text-[11px] font-black text-[var(--text-main)] italic opacity-60">
+                                                            <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+                                                                <span className="text-[10px] sm:text-[11px] font-black text-[var(--text-main)] italic opacity-60">
                                                                     {new Date(order.createdAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}
                                                                 </span>
-                                                                <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${order.status === 'Delivered' ? 'bg-green-500/10 text-green-500' : 'bg-amber-500/10 text-amber-500'}`}>
+                                                                <div className={`px-2 sm:px-3 py-1 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-widest ${order.status === 'Delivered' ? 'bg-green-500/10 text-green-500' : 'bg-amber-500/10 text-amber-500'}`}>
                                                                     {order.status === 'Ready to Deliver' ? 'Shipped' : order.status}
                                                                 </div>
                                                             </div>
                                                         </div>
 
                                                         {/* COMPACT BODY */}
-                                                        <div className="px-4 py-4 flex items-center gap-6">
+                                                        <div className="px-4 py-4 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
                                                             {/* Items compact list */}
                                                             <div className="flex -space-x-6 overflow-hidden py-1 shrink-0">
                                                                 {orderItems.slice(0, 4).map((item: any, idx: number) => (
@@ -834,63 +834,67 @@ export default function Dashboard() {
                                                             </div>
 
                                                             {/* Actions Row */}
-                                                            <div className="flex items-center gap-2">
-                                                                {order.paymentReceipt && (
-                                                                    <a href={getImageUrl(order.paymentReceipt)} target="_blank" rel="noreferrer" title="Payment Proof"
-                                                                        className="p-2 bg-[var(--bg-input)] rounded-xl text-[var(--text-muted)] hover:text-[var(--primary)] transition-all border border-[var(--border)] shadow-sm">
-                                                                        <Receipt className="w-4.5 h-4.5" />
-                                                                    </a>
-                                                                )}
-                                                                {order.isFinalReceiptSent && (
-                                                                    <button onClick={() => setViewingReceipt(order)} title="Certificate"
-                                                                        className="p-2 bg-[var(--primary)]/5 rounded-xl text-[var(--primary)] transition-all border border-[var(--primary)]/20 shadow-sm">
-                                                                        <FileText className="w-4.5 h-4.5" />
-                                                                    </button>
-                                                                )}
-
-                                                                <div className="h-6 w-px bg-[var(--border)] mx-2" />
-
-                                                                {(order.status === 'Pending' && order.paymentStatus !== 'Paid') && (
-                                                                    <>
-                                                                        <button onClick={() => {
-                                                                            const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items;
-                                                                            setEditingOrderId(order.id);
-                                                                            setEditFormData({ customerName: order.customerName, customerAddress: order.customerAddress, customerPhone: order.customerPhone, items: items || [] });
-                                                                        }} className="px-4 py-2 bg-[var(--bg-input)] hover:bg-[var(--primary)] text-[var(--text-main)] hover:text-white text-[10px] font-black uppercase tracking-widest transition-all rounded-xl border border-[var(--border)] flex items-center gap-2 shadow-sm">
-                                                                            <Pencil className="w-4 h-4" /> Edit
+                                                            <div className="flex flex-wrap items-center gap-2 mt-2 sm:mt-0">
+                                                                <div className="flex items-center gap-2">
+                                                                    {order.paymentReceipt && (
+                                                                        <a href={getImageUrl(order.paymentReceipt)} target="_blank" rel="noreferrer" title="Payment Proof"
+                                                                            className="p-2 bg-[var(--bg-input)] rounded-xl text-[var(--text-muted)] hover:text-[var(--primary)] transition-all border border-[var(--border)] shadow-sm">
+                                                                            <Receipt className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+                                                                        </a>
+                                                                    )}
+                                                                    {order.isFinalReceiptSent && (
+                                                                        <button onClick={() => setViewingReceipt(order)} title="Certificate"
+                                                                            className="p-2 bg-[var(--primary)]/5 rounded-xl text-[var(--primary)] transition-all border border-[var(--primary)]/20 shadow-sm">
+                                                                            <FileText className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
                                                                         </button>
-                                                                        <button onClick={() => confirm('Abort this order?') && deleteOrderMutation.mutate(order.id)}
-                                                                            className="p-2 text-red-500 hover:bg-red-500 hover:text-white rounded-xl transition-all border border-red-500/20 shadow-sm" title="Cancel">
-                                                                            <XCircle className="w-4.5 h-4.5" />
+                                                                    )}
+                                                                </div>
+
+                                                                <div className="hidden xs:block h-6 w-px bg-[var(--border)] mx-1" />
+
+                                                                <div className="flex items-center gap-2">
+                                                                    {(order.status === 'Pending' && order.paymentStatus !== 'Paid') && (
+                                                                        <>
+                                                                            <button onClick={() => {
+                                                                                const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items;
+                                                                                setEditingOrderId(order.id);
+                                                                                setEditFormData({ customerName: order.customerName, customerAddress: order.customerAddress, customerPhone: order.customerPhone, items: items || [] });
+                                                                            }} className="px-3 sm:px-4 py-2 bg-[var(--bg-input)] hover:bg-[var(--primary)] text-[var(--text-main)] hover:text-white text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all rounded-xl border border-[var(--border)] flex items-center gap-1.5 sm:gap-2 shadow-sm">
+                                                                                <Pencil className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Edit
+                                                                            </button>
+                                                                            <button onClick={() => confirm('Abort this order?') && deleteOrderMutation.mutate(order.id)}
+                                                                                className="p-2 text-red-500 hover:bg-red-500 hover:text-white rounded-xl transition-all border border-red-500/20 shadow-sm" title="Cancel">
+                                                                                <XCircle className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+                                                                            </button>
+                                                                        </>
+                                                                    )}
+
+                                                                    {order.status === 'Delivered' && (
+                                                                        <button
+                                                                            onClick={() => {
+                                                                                const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items;
+                                                                                if (items?.length) setReviewingProduct(items[0]);
+                                                                            }}
+                                                                            className="px-4 pr-5 py-2 bg-[var(--primary)] text-white text-[9px] sm:text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-md shadow-[var(--primary)]/20 hover:scale-105 active:scale-95"
+                                                                        >
+                                                                            Review
                                                                         </button>
-                                                                    </>
-                                                                )}
+                                                                    )}
 
-                                                                {order.status === 'Delivered' && (
-                                                                    <button
-                                                                        onClick={() => {
-                                                                            const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items;
-                                                                            if (items?.length) setReviewingProduct(items[0]);
-                                                                        }}
-                                                                        className="px-5 py-2 bg-[var(--primary)] text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-md shadow-[var(--primary)]/20 hover:scale-105 active:scale-95"
-                                                                    >
-                                                                        Review
+                                                                    <button onClick={() => {
+                                                                        setDisputingOrder(order);
+                                                                        setDisputeData({ subject: `Dispute Case #${order.displayId || order.id}`, message: '', evidence: '' });
+                                                                    }} className="p-2 text-[var(--text-muted)] hover:text-yellow-600 rounded-xl transition-all border border-[var(--border)] shadow-sm" title="Dispute">
+                                                                        <Gavel className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
                                                                     </button>
-                                                                )}
 
-                                                                <button onClick={() => {
-                                                                    setDisputingOrder(order);
-                                                                    setDisputeData({ subject: `Dispute Case #${order.displayId || order.id}`, message: '', evidence: '' });
-                                                                }} className="p-2 text-[var(--text-muted)] hover:text-yellow-600 rounded-xl transition-all border border-[var(--border)] shadow-sm" title="Dispute">
-                                                                    <Gavel className="w-4.5 h-4.5" />
-                                                                </button>
-
-                                                                {order.status === 'Delivered' && (
-                                                                    <button onClick={() => confirm('Remove from history?') && deleteOrderMutation.mutate(order.id)}
-                                                                        className="p-2 text-[var(--text-muted)] hover:text-red-500 rounded-xl transition-all border border-[var(--border)] shadow-sm" title="Remove">
-                                                                        <Trash2 className="w-4.5 h-4.5" />
-                                                                    </button>
-                                                                )}
+                                                                    {order.status === 'Delivered' && (
+                                                                        <button onClick={() => confirm('Remove from history?') && deleteOrderMutation.mutate(order.id)}
+                                                                            className="p-2 text-[var(--text-muted)] hover:text-red-500 rounded-xl transition-all border border-[var(--border)] shadow-sm" title="Remove">
+                                                                            <Trash2 className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+                                                                        </button>
+                                                                    )}
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </motion.div>

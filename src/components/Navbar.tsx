@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../store/useAuthStore';
 import { useCartStore } from '../store/useCartStore';
-import { User, Palette, Menu, X, ShoppingCart, LogOut, Banknote, Calculator, Scale } from 'lucide-react';
+import { User, Palette, Menu, X, ShoppingCart, LogOut, Banknote, Calculator, Scale, MessageCircle } from 'lucide-react';
 import GoldCalculator from './GoldCalculator';
 import { useThemeStore } from '../store/useThemeStore';
 import type { ThemeType } from '../store/useThemeStore';
@@ -12,6 +12,7 @@ import { useSearchStore } from '../store/useSearchStore';
 import { useWishlistStore } from '../store/useWishlistStore';
 import { useWeightStore } from '../store/useWeightStore';
 import { Search, SlidersHorizontal, ChevronDown, Heart } from 'lucide-react';
+import { useChatStore } from '../store/useChatStore';
 
 export default function Navbar() {
     const { user, logout } = useAuthStore();
@@ -27,6 +28,7 @@ export default function Navbar() {
     const [showFilters, setShowFilters] = useState(false);
     const [showThemes, setShowThemes] = useState(false);
     const { unit, toggleUnit } = useWeightStore();
+    const { toggleChat } = useChatStore();
 
     // Destructure search store
     const {
@@ -313,6 +315,22 @@ export default function Navbar() {
                                     </div>
                                 )}
                             </div>
+
+                            {/* Live Chat Icon - Mobile Only */}
+                            {user?.role !== 'ADMIN' && (
+                                <button
+                                    onClick={() => {
+                                        toggleChat();
+                                        setShowSearch(false);
+                                        setShowFilters(false);
+                                        setShowThemes(false);
+                                    }}
+                                    className="p-1.5 sm:p-2 text-[var(--text-muted)] hover:text-[var(--primary)] hover:bg-[var(--bg-input)] rounded-full transition-all md:hidden"
+                                    title="Live Chat"
+                                >
+                                    <MessageCircle className="w-4 h-4 sm:w-5 h-5" />
+                                </button>
+                            )}
 
                             {/* Search Popover - Mobile & Tablet Friendly Trigger */}
                             <div className="relative">
