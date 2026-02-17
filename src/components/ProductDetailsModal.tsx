@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { X, Plus, QrCode, Star, MapPin, Lock } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { X, QrCode, Star, Lock, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import api, { IMAGE_BASE_URL } from '../lib/api';
@@ -7,8 +7,8 @@ import { useCartStore } from '../store/useCartStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
 import { toast } from '../store/useToastStore';
 import { getPriceBreakdown, convertTolaToGrams } from '../lib/pricing';
-import { useWeightStore } from '../store/useWeightStore';
-import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion';
+
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface ProductDetailsModalProps {
     product: any;
@@ -25,28 +25,26 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
     const addItem = useCartStore((state) => state.addItem);
     const navigate = useNavigate();
     const { formatPrice } = useCurrencyStore();
-    const { unit } = useWeightStore();
+
     const [quantity, setQuantity] = useState(1);
     const [isExpanded, setIsExpanded] = useState(false);
-    const [showCertificate, setShowCertificate] = useState(false);
 
-    // 3D Tilt Logic
-    const mouseX = useMotionValue(0);
-    const mouseY = useMotionValue(0);
-    const rotateX = useTransform(mouseY, [0, typeof window !== 'undefined' ? window.innerHeight : 1000], [25, -25]);
-    const rotateY = useTransform(mouseX, [0, typeof window !== 'undefined' ? window.innerWidth : 1000], [-25, 25]);
+    // Magnifier State
+    const activeImage = getImageUrl(product.image);
+    const [showMagnifier, setShowMagnifier] = useState(false);
+    const imgRef = useRef<HTMLImageElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
 
-    const springConfig = { damping: 25, stiffness: 100 };
-    const rotateXSpring = useSpring(rotateX, springConfig);
-    const rotateYSpring = useSpring(rotateY, springConfig);
+    const [lensProps, setLensProps] = useState({ x: 0, y: 0, show: false });
+    const [zoomProps, setZoomProps] = useState({ x: 0, y: 0 });
 
-    const handleMouseMove = (e: any) => {
-        mouseX.set(e.clientX);
-        mouseY.set(e.clientY);
-    };
+    // Config: Compact Modal = Better View
+    const ZOOM_LEVEL = 1.3;
 
-    // Amazon-style: Track selected image/thumbnail
-    const [activeImage] = useState(getImageUrl(product.image));
+    // We'll use state to store the exact dimensions of the image container to match the pane size
+    const [paneDimensions, setPaneDimensions] = useState({ width: 0, height: 0 });
+
+    // Remove any traces of thumbnails logic (const thumbnails = ... is gone)
 
     const { data: rates, isLoading: ratesLoading } = useQuery({
         queryKey: ['product-details-rates'],
@@ -77,6 +75,41 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
     const breakdown = getPriceBreakdown(product, activeRate || null);
     const isLoading = ratesLoading || !activeRate;
 
+    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (!containerRef.current || !imgRef.current) return;
+
+        const rect = containerRef.current.getBoundingClientRect();
+        const { left, top, width, height } = rect;
+
+        // update pane dimensions on move (or could do on enter) to ensure sync
+        if (width !== paneDimensions.width || height !== paneDimensions.height) {
+            setPaneDimensions({ width, height });
+        }
+
+        let x = e.pageX - left - window.scrollX;
+        let y = e.pageY - top - window.scrollY;
+
+        // Lens Dimensions - matches the pane size / zoom level
+        // Since pane size now equals image container size (width/height), the lens size is container / zoom
+        const lensWidth = width / ZOOM_LEVEL;
+        const lensHeight = height / ZOOM_LEVEL;
+
+        let lensX = x - lensWidth / 2;
+        let lensY = y - lensHeight / 2;
+
+        if (lensX < 0) lensX = 0;
+        if (lensY < 0) lensY = 0;
+        if (lensX > width - lensWidth) lensX = width - lensWidth;
+        if (lensY > height - lensHeight) lensY = height - lensHeight;
+
+        setLensProps({ x: lensX, y: lensY, show: true });
+
+        const bgX = -lensX * ZOOM_LEVEL;
+        const bgY = -lensY * ZOOM_LEVEL;
+
+        setZoomProps({ x: bgX, y: bgY });
+    };
+
     const handleAddToCart = () => {
         addItem({ ...product, price: breakdown.total, quantity });
         toast.success(`${quantity} item(s) added to cart`);
@@ -92,207 +125,243 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
         return () => { document.body.style.overflow = 'unset'; };
     }, []);
 
+    const discountPercentage = 9;
+
     return (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/60 backdrop-blur-sm p-2 md:p-4 overflow-hidden">
+        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/70 backdrop-blur-md p-4 overflow-hidden">
             <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="bg-[var(--bg-main)] w-full max-w-[1000px] max-h-[90vh] md:rounded-xl shadow-2xl overflow-hidden flex flex-col relative border border-[var(--border)]"
+                initial={{ opacity: 0, scale: 0.98, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.98, y: 10 }}
+                // Reduced max-w from 5xl to 4xl for even more compact modal
+                className="bg-[var(--bg-main)] w-full max-w-4xl max-h-[90vh] rounded-xl shadow-2xl overflow-hidden flex flex-col relative border border-[var(--border)]"
             >
                 {/* Close Button */}
-                <button onClick={onClose} className="absolute top-3 right-3 z-50 p-1.5 hover:bg-[var(--bg-input)] rounded-full transition-all text-[var(--text-muted)]">
+                <button onClick={onClose} className="absolute top-4 right-4 z-50 p-2 bg-[var(--text-main)]/10 hover:bg-[var(--text-main)]/20 rounded-full transition-all text-[var(--text-main)] hover:text-red-400 backdrop-blur-md border border-[var(--border)]">
                     <X className="w-5 h-5" />
                 </button>
 
                 <div className="flex-1 overflow-y-auto custom-scrollbar">
-                    {/* Compact Layout: Left (Gallery), Center (Details), Right (Buy Box) */}
-                    <div className="flex flex-col lg:flex-row px-5 pb-5 pt-12 gap-6">
+                    <div className="flex flex-col lg:flex-row h-full">
 
-                        {/* 1. LEFT COLUMN: Main Image Area */}
-                        <div className="w-full lg:w-[40%] flex flex-col gap-3">
-                            <div className="flex-1 relative group bg-[var(--bg-card)] border border-[var(--border)]/50 rounded-lg overflow-hidden flex items-center justify-center min-h-[300px] h-[350px]">
+                        {/* 1. LEFT COLUMN: Main Image Box - Full Width/Height Logic */}
+                        <div className="w-full lg:w-[50%] bg-[var(--bg-input)]/20 relative flex items-start justify-center">
+
+                            <div
+                                ref={containerRef}
+                                className="relative w-full h-full min-h-[500px] flex items-center justify-center group cursor-zoom-in select-none bg-[var(--bg-card)] overflow-hidden border-r border-[var(--border)]"
+                                onMouseEnter={() => setShowMagnifier(true)}
+                                onMouseLeave={() => { setShowMagnifier(false); setLensProps(p => ({ ...p, show: false })); }}
+                                onMouseMove={handleMouseMove}
+                                onClick={() => setIsExpanded(true)}
+                            >
+                                {/* Discount Badge Removed */}
+
                                 <img 
+                                    ref={imgRef}
                                     src={activeImage}
-                                    className="max-w-full max-h-full object-contain p-4 transition-transform duration-300 group-hover:scale-110 cursor-zoom-in"
-                                    onClick={() => setIsExpanded(true)}
+                                    // Use object-cover to stretch to corners as requested
+                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                    alt={product.name}
                                 />
-                                <div className="absolute bottom-3 left-3 text-[9px] text-[var(--text-muted)] font-medium">Roll over to zoom</div>
+
+                                {/* LENS Tracker */}
+                                {showMagnifier && lensProps.show && (
+                                    <div
+                                        className="absolute border border-[var(--primary)] bg-[var(--primary)]/5 pointer-events-none hidden lg:block rounded-sm"
+                                        style={{
+                                            left: lensProps.x,
+                                            top: lensProps.y,
+                                            width: `${paneDimensions.width / ZOOM_LEVEL}px`,
+                                            height: `${paneDimensions.height / ZOOM_LEVEL}px`,
+                                            boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.05)', // Creates a dimming effect outside lens
+                                            zIndex: 20
+                                        }}
+                                    />
+                                )}
+
+                                {/* MOBILE INDICATOR */}
+                                <div className="absolute bottom-4 right-4 lg:hidden bg-[var(--bg-main)]/80 p-2 rounded-full shadow-lg border border-[var(--border)]">
+                                    <QrCode className="w-5 h-5 text-[var(--primary)]" />
+                                </div>
+
+                                {/* ZOOM PANE (Magnifier) - Fixed Position to escape overflow */}
+                                <AnimatePresence>
+                                    {showMagnifier && (
+                                        <motion.div
+                                            initial={{ opacity: 0, x: -10, scale: 0.95 }}
+                                            animate={{ opacity: 1, x: 0, scale: 1 }}
+                                            exit={{ opacity: 0, x: -10, scale: 0.95 }}
+                                            className="hidden lg:block fixed z-[9999] bg-[var(--bg-main)] border border-[var(--border)] shadow-2xl rounded-xl overflow-hidden pointer-events-none"
+                                            style={{
+                                                width: `${paneDimensions.width}px`,
+                                                height: `${paneDimensions.height}px`,
+                                                // Calculate position dynamically to sit right next to the image
+                                                left: containerRef.current ? containerRef.current.getBoundingClientRect().right + 10 : 0,
+                                                top: containerRef.current ? containerRef.current.getBoundingClientRect().top : 0,
+
+                                                backgroundImage: `url(${activeImage})`,
+                                                backgroundRepeat: 'no-repeat',
+                                                backgroundSize: `${paneDimensions.width * ZOOM_LEVEL}px ${paneDimensions.height * ZOOM_LEVEL}px`,
+                                                backgroundPosition: `${zoomProps.x}px ${zoomProps.y}px`
+                                            }}
+                                        >
+                                            <div className="absolute top-2 right-2 text-[10px] font-black text-white bg-[var(--primary)] px-2 py-0.5 rounded shadow border border-white/20">
+                                                {ZOOM_LEVEL}X
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
                             </div>
                         </div>
 
-                        {/* 2. CENTER COLUMN: Product Title & Essential Info */}
-                        <div className="flex-1 space-y-3">
+                        {/* 2. RIGHT COLUMN: Information - Compact Layout */}
+                        <div className="w-full lg:w-[50%] p-3 lg:p-4 flex flex-col gap-3">
+
                             <div>
-                                <h1 className="text-xl font-bold text-[var(--text-main)] leading-tight mb-1">
+                                <h1 className="text-xl lg:text-2xl font-black text-[var(--text-main)] mb-1 leading-tight font-serif tracking-tight">
                                     {product.name}
                                 </h1>
-                                {reviews.length > 0 && (
-                                    <div className="flex items-center gap-2 text-xs">
-                                        <div className="flex items-center text-[var(--primary)]">
-                                            {[...Array(5)].map((_, i) => {
-                                                const avgRating = reviews.reduce((acc: any, r: any) => acc + r.rating, 0) / reviews.length;
-                                                return <Star key={i} className={`w-3.5 h-3.5 ${i < Math.round(avgRating) ? 'fill-current' : 'opacity-30'}`} />;
-                                            })}
-                                        </div>
-                                        <span className="text-[var(--primary)] hover:opacity-80 cursor-pointer">{reviews.length} ratings</span>
+                                <div className="flex items-center gap-3">
+                                    <div className="flex text-amber-500">
+                                        {[1, 2, 3, 4, 5].map(i => <Star key={i} className={`w-4 h-4 ${i <= 4 ? 'fill-current' : 'opacity-20'}`} />)}
                                     </div>
-                                )}
+                                    <span className="text-[var(--text-muted)] text-xs font-bold hover:text-[var(--primary)] cursor-pointer transition-colors border-l border-[var(--border)] pl-3">
+                                        {reviews.length} VERIFIED REVIEWS
+                                    </span>
+                                </div>
                             </div>
 
-                            <hr className="border-[var(--border)]" />
+                            <div className="h-px bg-gradient-to-r from-[var(--border)] to-transparent w-full opacity-50" />
 
-                            {/* Price Section */}
-                            <div className="space-y-0.5">
-                                <div className="flex items-baseline gap-2">
-                                    <span className="text-xl font-light text-red-500">-35%</span>
-                                    <div className="flex items-start">
-                                        <span className="text-2xl font-bold tracking-tight text-[var(--text-main)]">
-                                            {isLoading ? '...' : Math.floor(breakdown.total).toLocaleString()}
+                            {/* PRICE BLOCK - Scaled Down */}
+                            <div className="space-y-1">
+                                <div className="text-[10px] text-[var(--text-muted)] font-black uppercase tracking-[0.2em]">Investment Value</div>
+                                <div className="flex items-end gap-2">
+                                    <span className="text-3xl font-black text-[var(--primary)] tracking-tighter leading-none">
+                                        {isLoading ? '...' : formatPrice(breakdown.total)}
+                                    </span>
+                                    {!isLoading && (
+                                        <span className="text-lg text-[var(--text-muted)] line-through opacity-40 font-bold mb-1">
+                                            {formatPrice(breakdown.total / (1 - discountPercentage / 100))}
                                         </span>
-                                    </div>
+                                    )}
                                 </div>
-                                <div className="text-[10px] text-[var(--text-muted)]">
-                                    List Price: <span className="line-through">{formatPrice(breakdown.total * 1.5)}</span>
+                                <div className="flex items-center gap-2 pt-1">
+                                    <span className="text-[10px] text-green-600 font-black bg-green-50 px-2 py-0.5 rounded border border-green-100 flex items-center gap-1 uppercase shadow-sm">
+                                        <Lock className="w-3 h-3" /> Secure Insured Pricing
+                                    </span>
                                 </div>
                             </div>
 
-                            {/* Highlights */}
-                            <div className="space-y-2">
-                                <h3 className="font-bold text-xs text-[var(--text-main)] uppercase tracking-wider">Highlights</h3>
-                                <ul className="list-disc pl-4 space-y-1 text-xs text-[var(--text-main)] opacity-90">
-                                    <li><strong>Authenticity:</strong> 100% Genuine {product.category}.</li>
-                                    <li><strong>Weight:</strong>
-                                        {unit === 'TMR' ?
-                                            ` ${product.weightTola} Tola, ${product.weightMasha} Masha, ${product.weightRati} Rati` :
-                                            ` ${convertTolaToGrams(product.weightTola, product.weightMasha, product.weightRati).toFixed(3)} Grams`
-                                        }
-                                    </li>
-                                    <li><strong>Certified:</strong> Includes Digital Certificate.</li>
-                                    <li><strong>Gifting:</strong> Premium packaging included.</li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        {/* 3. RIGHT COLUMN: Buy Box */}
-                        <div className="w-full lg:w-[220px] shrink-0">
-                            <div className="border border-[var(--border)] rounded-lg p-3 space-y-3 bg-[var(--bg-card)] md:sticky md:top-0 shadow-sm">
-                                <div className="text-lg font-bold text-[var(--text-main)]">
-                                    {isLoading ? '...' : formatPrice(breakdown.total)}
+                            {/* SPECIFICATIONS GRID - Compact */}
+                            <div className="grid grid-cols-2 gap-2">
+                                <div className="group p-2 bg-[var(--bg-input)]/40 rounded-xl border border-[var(--border)] transition-all hover:bg-[var(--bg-card)] hover:shadow-md">
+                                    <div className="text-[10px] text-[var(--text-muted)] uppercase font-black mb-0.5 opacity-60">Net Weight</div>
+                                    <div className="text-sm font-black text-[var(--text-main)]">
+                                        {convertTolaToGrams(product.weightTola, product.weightMasha, product.weightRati).toFixed(3)}<span className="text-[10px] ml-1 opacity-50">G</span>
+                                    </div>
                                 </div>
+                                <div className="group p-2 bg-[var(--bg-input)]/40 rounded-xl border border-[var(--border)] transition-all hover:bg-[var(--bg-card)] hover:shadow-md">
+                                    <div className="text-[10px] text-[var(--text-muted)] uppercase font-black mb-0.5 opacity-60">Purity Scale</div>
+                                    <div className="text-sm font-black text-[var(--text-main)]">24 KARAT</div>
+                                </div>
+                            </div>
 
-                                <div className="text-xs space-y-1">
-                                    <div className="text-green-600 font-bold">In Stock</div>
-                                    <div className="flex items-center gap-1">
-                                        <MapPin className="w-3 h-3 text-[var(--text-muted)]" />
-                                        <span className="text-[10px] text-[var(--primary)]">Deliver to location</span>
+                            {/* SERVICES - Compact List */}
+                            <div className="space-y-1">
+                                <div className="flex items-center gap-2 p-1">
+                                    <div className="w-6 h-6 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center shrink-0 border border-[var(--primary)]/20 shadow-sm">
+                                        <QrCode className="w-3 h-3 text-[var(--primary)]" />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-[9px] font-black text-[var(--text-main)] uppercase tracking-wide">Authenticity Verified</h4>
+                                        <p className="text-[9px] text-[var(--text-muted)] font-medium">100% Genuine Hallmarked Jewelry</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2 p-1">
+                                    <div className="w-6 h-6 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center shrink-0 border border-[var(--primary)]/20 shadow-sm">
+                                        <MapPin className="w-3 h-3 text-[var(--primary)]" />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-[9px] font-black text-[var(--text-main)] uppercase tracking-wide">Nationwide Delivery</h4>
+                                        <p className="text-[9px] text-[var(--text-muted)] font-medium">Fully Insured Doorstep Shipping</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* QUANTITY & ACTION - Moved Up */}
+                            <div className="mt-auto pt-6 border-t border-[var(--border)] space-y-4">
+                                <div className="flex items-center justify-between bg-[var(--bg-input)]/50 p-1.5 rounded-xl border border-[var(--border)] shadow-inner">
+                                    <div className="flex items-center gap-1 p-0.5 bg-[var(--bg-main)] rounded-lg shadow-sm border border-[var(--border)]">
+                                        <button
+                                            onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                                            className="w-8 h-8 flex items-center justify-center hover:bg-[var(--bg-input)] rounded transition-all text-[var(--text-main)] font-black text-lg"
+                                        >-</button>
+                                        <span className="w-10 text-center text-xs font-black text-[var(--text-main)]">{quantity}</span>
+                                        <button
+                                            onClick={() => setQuantity(quantity + 1)}
+                                            className="w-8 h-8 flex items-center justify-center hover:bg-[var(--bg-input)] rounded transition-all text-[var(--text-main)] font-black text-lg"
+                                        >+</button>
+                                    </div>
+                                    <div className="text-right pr-3">
+                                        <div className="flex items-center gap-1.5 justify-end">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                                            <span className="text-[10px] font-black text-green-600 uppercase tracking-tighter">Ready to Ship</span>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div className="space-y-1">
-                                    <label className="text-[10px] font-bold text-[var(--text-main)]">Quantity:</label>
-                                    <select
-                                        value={quantity}
-                                        onChange={(e) => setQuantity(Number(e.target.value))}
-                                        className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded px-2 py-1 text-xs shadow-sm focus:border-[var(--primary)] outline-none text-[var(--text-main)]"
-                                    >
-                                        {[1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{n}</option>)}
-                                    </select>
-                                </div>
-
-                                <div className="space-y-2 pt-1">
+                                <div className="flex gap-2">
                                     <button 
                                         onClick={handleAddToCart}
-                                        className="w-full bg-[var(--primary)] hover:opacity-90 text-white py-1.5 rounded-full text-xs font-bold shadow-sm transition-all active:scale-95"
+                                        className="flex-1 bg-[var(--bg-main)] border-2 border-[var(--primary)] text-[var(--primary)] font-black py-2.5 rounded-xl hover:bg-[var(--bg-input)] transition-all uppercase text-[10px] tracking-widest active:scale-95"
                                     >
                                         Add to Cart
                                     </button>
                                     <button 
                                         onClick={handleBuyNow}
-                                        className="w-full bg-[var(--text-main)] text-[var(--bg-main)] hover:opacity-90 py-1.5 rounded-full text-xs font-bold shadow-sm transition-all active:scale-95 border border-[var(--border)]"
+                                        className="flex-1 bg-[var(--text-main)] text-[var(--bg-main)] font-black py-2.5 rounded-xl hover:opacity-90 transition-all uppercase text-[10px] tracking-widest shadow-xl active:scale-95"
                                     >
                                         Buy Now
                                     </button>
                                 </div>
-
-                                <div className="pt-2 space-y-2 border-t border-[var(--border)]/50 mt-1">
-                                    <div className="flex items-center gap-2 text-[10px] text-[var(--text-muted)]">
-                                        <Lock className="w-3 h-3" />
-                                        <span>Secure transaction</span>
-                                    </div>
-                                    <button
-                                        onClick={() => setShowCertificate(true)}
-                                        className="w-full mt-1 py-1.5 border border-[var(--border)] rounded-md text-[10px] font-bold text-[var(--text-main)] hover:bg-[var(--bg-input)] transition-colors"
-                                    >
-                                        View Certificate
-                                    </button>
-                                </div>
                             </div>
-                        </div>
 
+                        </div>
                     </div>
 
-                    <ProductReviewsSection reviews={reviews} isLoading={reviewsLoading} />
+                    {/* DETAILS FOOTER - Compact */}
+                    <div className="mt-8 border-t border-[var(--border)]">
+                        {/* Collection Story & Features Removed as requested */}
+                        <ProductReviewsSection reviews={reviews} isLoading={reviewsLoading} />
+                    </div>
+
                 </div>
             </motion.div>
 
-            {/* Full Screen 3D Tilt Image Modal */}
+            {/* LIGHTBOX */}
             <AnimatePresence>
                 {isExpanded && (
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[200] bg-black/95 flex items-center justify-center p-8 cursor-zoom-out"
+                        className="fixed inset-0 z-[300] bg-[var(--bg-main)] flex items-center justify-center p-4 lg:p-12 cursor-zoom-out"
                         onClick={() => setIsExpanded(false)}
-                        onMouseMove={handleMouseMove}
-                        style={{ perspective: 1200 }}
                     >
-                        <button className="absolute top-6 right-6 text-white/50 hover:text-white transition-colors z-[210]">
+                        <button className="absolute top-8 right-8 text-[var(--text-main)] hover:opacity-50 transition-all z-[310] p-3 bg-[var(--bg-input)] rounded-full shadow-xl">
                             <X className="w-8 h-8" />
                         </button>
-                        <motion.div
-                            style={{
-                                rotateX: rotateXSpring,
-                                rotateY: rotateYSpring,
-                                z: 0
-                            }}
-                            className="relative w-full h-full flex items-center justify-center pointer-events-none"
-                        >
-                            <motion.img
-                                src={activeImage}
-                                className="max-w-[90%] max-h-[90%] object-contain drop-shadow-2xl"
-                                initial={{ scale: 0.5, opacity: 0, y: 50 }}
-                                animate={{ scale: 1, opacity: 1, y: 0 }}
-                                exit={{ scale: 0.5, opacity: 0, y: 50 }}
-                                transition={{ type: "spring", stiffness: 200, damping: 25 }}
-                            />
-                        </motion.div>
+                        <motion.img
+                            src={activeImage}
+                            className="max-w-full max-h-full object-contain"
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.8, opacity: 0 }}
+                            transition={{ type: "spring", damping: 30, stiffness: 200 }}
+                        />
                     </motion.div>
-                )}
-            </AnimatePresence>
-
-            {/* Certificate Modal Overlay */}
-            <AnimatePresence>
-                {showCertificate && (
-                    <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md" onClick={() => setShowCertificate(false)}>
-                        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-[var(--bg-main)] p-6 rounded-lg max-w-sm w-full shadow-2xl relative border border-[var(--border)]" onClick={e => e.stopPropagation()}>
-                            <button onClick={() => setShowCertificate(false)} className="absolute top-3 right-3 text-[var(--text-muted)] hover:text-[var(--text-main)]"><X className="w-5 h-5" /></button>
-                            <div className="text-center space-y-3">
-                                <div className="w-14 h-14 bg-[var(--primary)]/10 text-[var(--primary)] rounded-full mx-auto flex items-center justify-center border-4 border-[var(--primary)]/20">
-                                    <Plus className="w-8 h-8" />
-                                </div>
-                                <h2 className="text-lg font-bold uppercase tracking-wide text-[var(--text-main)]">Purity Certified</h2>
-                                <div className="bg-[var(--bg-input)] p-3 rounded-md space-y-1.5 text-xs text-left font-mono text-[var(--text-main)]">
-                                    <div className="flex justify-between border-b border-[var(--border)] pb-1"><span>Asset</span><span>{product.name}</span></div>
-                                    <div className="flex justify-between border-b border-[var(--border)] pb-1"><span>Metal</span><span>{product.category}</span></div>
-                                    <div className="flex justify-between border-b border-[var(--border)] pb-1"><span>Weight</span><span>{convertTolaToGrams(product.weightTola, product.weightMasha, product.weightRati).toFixed(3)}g</span></div>
-                                    <div className="flex justify-between"><span>Registry</span><span>#AZ-{product.id}</span></div>
-                                </div>
-                                <QrCode className="w-24 h-24 mx-auto mt-3 text-[var(--text-main)] opacity-80" />
-                                <p className="text-[9px] text-[var(--text-muted)] uppercase tracking-widest">Verified by AZ Collection Audits</p>
-                            </div>
-                        </motion.div>
-                    </div>
                 )}
             </AnimatePresence>
         </div>
@@ -300,67 +369,28 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
 }
 
 function ProductReviewsSection({ reviews, isLoading }: { reviews: any[], isLoading: boolean }) {
-    if (isLoading) return null;
-    if (!reviews || reviews.length === 0) return null;
+    if (isLoading || !reviews || reviews.length === 0) return null;
 
     return (
-        <div className="p-4 bg-[var(--bg-card)]/30 border-t border-[var(--border)]">
-            <div className="max-w-[1000px] mx-auto">
-                <section>
-                    <div className="flex flex-col md:flex-row gap-6">
-                        {/* Ratings Summary */}
-                        <div className="w-full md:w-[200px] space-y-2">
-                            <h3 className="text-sm font-bold text-[var(--text-main)]">Customer Reviews</h3>
-                            <div className="flex items-center gap-1.5">
-                                <div className="flex text-[var(--primary)]">
-                                    {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
+        <div className="px-6 lg:px-10 py-8 border-t border-[var(--border)] bg-[var(--bg-input)]/30 backdrop-blur-xl">
+            <h3 className="text-lg font-black text-[var(--text-main)] font-serif italic mb-6">Client Experiences</h3>
+            <div className="grid gap-6 md:grid-cols-2">
+                {reviews.map((review: any) => (
+                    <div key={review.id} className="p-5 bg-[var(--bg-main)]/70 rounded-2xl border border-[var(--border)] shadow-xl shadow-black/5 hover:shadow-black/10 transition-all">
+                        <div className="flex items-center gap-3 mb-3">
+                            <div className="w-8 h-8 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center font-black text-[var(--primary)] text-xs border border-[var(--primary)]/10 shadow-inner">
+                                {review.user?.name?.[0]?.toUpperCase() || 'U'}
+                            </div>
+                            <div>
+                                <div className="text-xs font-black text-[var(--text-main)] leading-tight">{review.user?.name || 'Verified Customer'}</div>
+                                <div className="flex text-amber-500 gap-0.5 mt-0.5">
+                                    {[...Array(5)].map((_, i) => <Star key={i} className={`w-2.5 h-2.5 ${i < review.rating ? 'fill-current' : 'opacity-20'}`} />)}
                                 </div>
-                                <span className="font-bold text-sm text-[var(--text-main)]">4.8 out of 5</span>
-                            </div>
-                            <span className="text-xs text-[var(--text-muted)] block">{reviews.length} global ratings</span>
-                            <div className="space-y-1 pt-1">
-                                {[5, 4, 3, 2, 1].map(n => (
-                                    <div key={n} className="flex items-center gap-2 group cursor-pointer">
-                                        <span className="text-[10px] text-[var(--primary)] w-6 hover:underline">{n} star</span>
-                                        <div className="flex-1 h-3 bg-[var(--bg-input)] rounded-sm border border-[var(--border)] overflow-hidden">
-                                            <div className="h-full bg-[var(--primary)]" style={{ width: `${n === 5 ? 85 : n === 4 ? 10 : 2}%` }} />
-                                        </div>
-                                        <span className="text-[10px] text-[var(--primary)] w-6 hover:underline text-right">{n === 5 ? '85' : n === 4 ? '10' : '2'}%</span>
-                                    </div>
-                                ))}
                             </div>
                         </div>
-
-                        {/* Review Feed */}
-                        <div className="flex-1 space-y-4">
-                            <h4 className="font-bold text-xs text-[var(--text-main)] uppercase tracking-wide">Top reviews</h4>
-                            <div className="space-y-4">
-                                {reviews.map((review: any) => (
-                                    <div key={review.id} className="space-y-1">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-6 h-6 rounded-full bg-[var(--bg-input)] border border-[var(--border)] flex items-center justify-center text-[var(--text-muted)] text-[10px] font-bold uppercase">
-                                                {review.user?.name?.[0]}
-                                            </div>
-                                            <span className="text-xs font-medium text-[var(--text-main)]">{review.user?.name}</span>
-                                        </div>
-                                        <div className="flex items-center gap-1.5">
-                                            <div className="flex text-[var(--primary)]">
-                                                {[...Array(5)].map((_, i) => <Star key={i} className={`w-3 h-3 ${i < review.rating ? 'fill-current' : 'text-[var(--border)]'}`} />)}
-                                            </div>
-                                            <span className="text-[10px] font-bold text-[var(--primary)]">Verified Purchase</span>
-                                        </div>
-                                        <div className="text-[10px] text-[var(--text-muted)]">Reviewed on {new Date(review.createdAt).toLocaleDateString()}</div>
-                                        <p className="text-xs text-[var(--text-main)] leading-relaxed opacity-90">{review.comment}</p>
-                                        <div className="flex items-center gap-3 text-[10px] pt-0.5">
-                                            <span className="text-[var(--text-muted)] hover:text-[var(--primary)] cursor-pointer border px-2 py-0.5 rounded">Helpful</span>
-                                            <span className="text-[var(--text-muted)] hover:text-red-500 cursor-pointer">Report</span>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
+                        <p className="text-[10px] text-[var(--text-muted)] italic font-medium leading-relaxed">"{review.comment}"</p>
                     </div>
-                </section>
+                ))}
             </div>
         </div>
     );
