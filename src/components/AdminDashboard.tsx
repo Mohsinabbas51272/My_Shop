@@ -1,5 +1,5 @@
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import api, { IMAGE_BASE_URL } from '../lib/api';
