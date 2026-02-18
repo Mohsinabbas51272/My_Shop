@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import api, { IMAGE_BASE_URL } from '../lib/api';
@@ -63,8 +64,18 @@ export default function AdminDashboard() {
     });
     const [editingProduct, setEditingProduct] = useState<any>(null);
     const [uploading, setUploading] = useState(false);
-    const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'users' | 'support' | 'rates' | 'local'>('products');
-    const [supportSubTab, setSupportSubTab] = useState<'queries' | 'disputes' | 'chats' | 'reviews' | 'audit'>('queries');
+    const [searchParams, setSearchParams] = useSearchParams();
+    const activeTab = (searchParams.get('tab') as 'products' | 'orders' | 'users' | 'support' | 'rates' | 'local') || 'products';
+    const supportSubTab = (searchParams.get('sub') as 'queries' | 'disputes' | 'chats' | 'reviews' | 'audit') || 'queries';
+
+    const setActiveTab = (tab: string) => {
+        setSearchParams({ tab });
+    };
+
+    const setSupportSubTab = (sub: string) => {
+        setSearchParams({ tab: 'support', sub });
+    };
+
     const [selectedUser, setSelectedUser] = useState<any>(null);
     const [selectedComplaint, setSelectedComplaint] = useState<any>(null);
     const [selectedDispute, setSelectedDispute] = useState<any>(null);
@@ -585,8 +596,8 @@ export default function AdminDashboard() {
                                         <div className="flex items-center gap-2 shrink-0 sm:ml-4">
                                             <button
                                                 onClick={() => {
-                                                    setActiveTab('support');
-                                                    setSupportSubTab('audit');
+                                            setActiveTab('support');
+                                            setSupportSubTab('audit');
                                                 }}
                                                 className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl text-[10px] uppercase tracking-widest transition-all active:scale-95 shadow-sm shadow-amber-600/20 flex items-center gap-1.5"
                                             >

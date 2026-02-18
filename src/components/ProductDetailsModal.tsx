@@ -122,8 +122,26 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
 
     useEffect(() => {
         document.body.style.overflow = 'hidden';
-        return () => { document.body.style.overflow = 'unset'; };
-    }, []);
+
+        // Handle Back button for lightbox
+        const handlePopState = () => {
+            if (isExpanded) {
+                setIsExpanded(false);
+            }
+        };
+
+        window.addEventListener('popstate', handlePopState);
+        return () => {
+            document.body.style.overflow = 'unset';
+            window.removeEventListener('popstate', handlePopState);
+        };
+    }, [isExpanded]);
+
+    useEffect(() => {
+        if (isExpanded) {
+            window.history.pushState({ lightbox: true }, '');
+        }
+    }, [isExpanded]);
 
     const discountPercentage = 9;
 
