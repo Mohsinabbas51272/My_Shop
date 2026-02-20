@@ -1,5 +1,5 @@
 import React from 'react';
-import { History, Trash2, ShieldCheck, User, ShoppingBag, Terminal } from 'lucide-react';
+import { History, Trash2, User, ShoppingBag, Terminal } from 'lucide-react';
 
 interface AuditLogsSubTabProps {
     logs: any[];

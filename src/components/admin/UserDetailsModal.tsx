@@ -26,8 +26,8 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
     setSelectedUser,
     blockUser,
     formatPrice,
-    getImageUrl,
-    formatDate = (date) => new Date(date).toLocaleDateString(),
+    getImageUrl: _getImageUrl,
+    formatDate: _formatDate = (date) => new Date(date).toLocaleDateString(),
 }) => {
     if (!selectedUser) return null;
     const user = selectedUser;

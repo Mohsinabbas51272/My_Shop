@@ -17,8 +17,8 @@ const ComplaintsTab: React.FC<ComplaintsTabProps> = ({
     complaints,
     disputesUserLoading,
     disputes,
-    setDisputingOrder,
-    setDisputeData
+    setDisputingOrder: _setDisputingOrder,
+    setDisputeData: _setDisputeData
 }) => {
     return (
         <motion.div

@@ -35,9 +35,9 @@ const OrdersTab: React.FC<OrdersTabProps> = ({
     confirmPayment,
     updateOrderStatusMutation,
     deleteOrderMutation,
-    sendReceiptMutation,
+    sendReceiptMutation: _sendReceiptMutation,
     setViewingReceipt,
-    disputes,
+    disputes: _disputes,
 }) => {
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">

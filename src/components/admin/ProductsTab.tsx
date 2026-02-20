@@ -228,11 +228,6 @@ const ProductsTab: React.FC<ProductsTabProps> = ({
 
                         <button
                             onClick={() => {
-                                let priceVal = parseFloat(newProduct.price);
-                                if (currency === 'USD') {
-                                    // This logic should ideally be passed in or handled via store
-                                    // For now, keeping it consistent with original
-                                }
                                 
                                 const productData = {
                                     ...newProduct,

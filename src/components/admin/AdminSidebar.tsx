@@ -7,7 +7,6 @@ import {
     ExternalLink,
     ChevronLeft,
     ChevronRight,
-    Menu
 } from 'lucide-react';
 
 interface AdminSidebarProps {

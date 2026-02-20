@@ -4,9 +4,7 @@ import {
     ShieldAlert, 
     Trash2, 
     Eye, 
-    ExternalLink, 
-    History, 
-    Search 
+    History,
 } from 'lucide-react';
 
 interface UsersTabProps {
@@ -26,13 +24,13 @@ const UsersTab: React.FC<UsersTabProps> = ({
     users,
     usersLoading,
     q,
-    verifyUser,
-    freezeUser,
-    blockUser,
+    verifyUser: _verifyUser,
+    freezeUser: _freezeUser,
+    blockUser: _blockUser,
     deleteUser,
     setSelectedUser,
     setFirModalUser,
-    setFirData,
+    setFirData: _setFirData,
 }) => {
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
