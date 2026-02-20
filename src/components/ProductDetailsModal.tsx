@@ -120,12 +120,26 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
         navigate('/checkout');
     };
 
+    // Ref to track if we have a pushed lightbox history entry
+    const lightboxHistoryPushed = useRef(false);
+
     useEffect(() => {
         document.body.style.overflow = 'hidden';
+
+        if (isExpanded) {
+            // Push history state when lightbox opens
+            window.history.pushState({ lightbox: true }, '');
+            lightboxHistoryPushed.current = true;
+        } else if (lightboxHistoryPushed.current) {
+            // Lightbox closed via click (not back button) — pop the orphaned state
+            lightboxHistoryPushed.current = false;
+            window.history.back();
+        }
 
         // Handle Back button for lightbox
         const handlePopState = () => {
             if (isExpanded) {
+                lightboxHistoryPushed.current = false; // Mark as consumed by back button
                 setIsExpanded(false);
             }
         };
@@ -135,12 +149,6 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
             document.body.style.overflow = 'unset';
             window.removeEventListener('popstate', handlePopState);
         };
-    }, [isExpanded]);
-
-    useEffect(() => {
-        if (isExpanded) {
-            window.history.pushState({ lightbox: true }, '');
-        }
     }, [isExpanded]);
 
     const discountPercentage = 9;
