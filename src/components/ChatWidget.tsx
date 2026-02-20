@@ -20,8 +20,8 @@ export default function ChatWidget() {
     }
   };
 
-  // Only show if user is logged in and NOT an admin
-  if (!user || user.role === 'ADMIN') return null;
+  // Only show if user is logged in
+  if (!user) return null;
 
   return (
     <div className={`fixed z-[200] transition-all duration-300 ${isOpen ? 'inset-0 md:inset-auto md:bottom-6 md:right-6' : 'bottom-6 right-6'}`}>

@@ -316,8 +316,8 @@ export default function Navbar() {
                                 )}
                             </div>
 
-                            {/* Live Chat Icon - Mobile Only */}
-                            {user?.role !== 'ADMIN' && (
+                            {/* Live Chat Icon - Always Visible */}
+                            {user && (
                                 <button
                                     onClick={() => {
                                         toggleChat();
@@ -325,7 +325,7 @@ export default function Navbar() {
                                         setShowFilters(false);
                                         setShowThemes(false);
                                     }}
-                                    className="p-1.5 sm:p-2 text-[var(--text-muted)] hover:text-[var(--primary)] hover:bg-[var(--bg-input)] rounded-full transition-all md:hidden"
+                                    className="p-1.5 sm:p-2 text-[var(--text-muted)] hover:text-[var(--primary)] hover:bg-[var(--bg-input)] rounded-full transition-all"
                                     title="Live Chat"
                                 >
                                     <MessageCircle className="w-4 h-4 sm:w-5 h-5" />

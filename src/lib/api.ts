@@ -18,4 +18,10 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
     return config;
 });
 
+export const getImageUrl = (url: string) => {
+    if (!url) return 'https://via.placeholder.com/400';
+    if (url.startsWith('http')) return url;
+    return `${IMAGE_BASE_URL}${url}`;
+};
+
 export default api;
