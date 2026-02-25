@@ -154,13 +154,24 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
     const discountPercentage = 9;
 
     return (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/70 backdrop-blur-md p-4 overflow-hidden">
+        <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[150] flex items-center justify-center bg-black/60 backdrop-blur-md p-4 overflow-hidden"
+        >
             <motion.div
-                initial={{ opacity: 0, scale: 0.98, y: 10 }}
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.98, y: 10 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                transition={{
+                    type: "spring",
+                    damping: 25,
+                    stiffness: 300,
+                    mass: 0.8
+                }}
                 // Reduced max-w from 5xl to 4xl for even more compact modal
-                className="bg-[var(--bg-main)] w-full max-w-4xl max-h-[90vh] rounded-xl shadow-2xl overflow-hidden flex flex-col relative border border-[var(--border)]"
+                className="bg-[var(--bg-main)] w-full max-w-4xl max-h-[90vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col relative border border-[var(--border)]"
             >
                 {/* Close Button */}
                 <button onClick={onClose} className="absolute top-4 right-4 z-50 p-2 bg-[var(--text-main)]/10 hover:bg-[var(--text-main)]/20 rounded-full transition-all text-[var(--text-main)] hover:text-red-400 backdrop-blur-md border border-[var(--border)]">
@@ -390,7 +401,7 @@ export default function ProductDetailsModal({ product, onClose }: ProductDetails
                     </motion.div>
                 )}
             </AnimatePresence>
-        </div>
+        </motion.div>
     );
 }
 

@@ -33,14 +33,14 @@ const FirDetailModal: React.FC<FirDetailModalProps> = ({
                     initial={{ scale: 0.9, opacity: 0, y: 30 }}
                     animate={{ scale: 1, opacity: 1, y: 0 }}
                     exit={{ scale: 0.9, opacity: 0, y: 30 }}
-                    className="relative w-full max-w-xl bg-white rounded-[3rem] shadow-2xl overflow-hidden"
+                    className="relative w-full max-w-xl bg-white rounded-3xl sm:rounded-[3rem] shadow-2xl overflow-hidden max-h-[95vh] flex flex-col"
                 >
                     <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none">
                         <Gavel className="w-64 h-64 -rotate-12" />
                     </div>
 
-                    <div className="p-10 relative">
-                        <div className="flex justify-between items-start mb-10">
+                    <div className="p-6 sm:p-10 relative overflow-y-auto flex-1 custom-scrollbar">
+                        <div className="flex justify-between items-start mb-6 sm:mb-10">
                             <div>
                                 <div className="flex items-center gap-3 mb-2">
                                     <div className="p-2 bg-red-500 rounded-lg">
@@ -59,7 +59,7 @@ const FirDetailModal: React.FC<FirDetailModalProps> = ({
                         </div>
 
                         <div className="space-y-8">
-                            <div className="grid grid-cols-2 gap-8">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8">
                                 <div className="space-y-1">
                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Case ID</p>
                                     <p className="font-mono font-bold text-slate-900">#FIR-{firLog.id}</p>

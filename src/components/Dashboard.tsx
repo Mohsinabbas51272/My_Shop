@@ -142,32 +142,37 @@ export default function Dashboard() {
 
 
 
-    const { data: orders, isLoading: ordersLoading } = useQuery({
+    const { data: ordersData, isLoading: ordersLoading } = useQuery({
         queryKey: ['orders-me', user?.id],
         queryFn: async () => (await api.get(`/orders?userId=${user?.id}`)).data,
-        enabled: !!user?.id,
-        refetchInterval: 10000, // Real-time updates
+        enabled: !!user?.id && activeTab === 'orders',
+        staleTime: 15000,
+        refetchInterval: 30000,
     });
+    const orders = ordersData?.items || [];
 
     const { data: complaints, isLoading: complaintsLoading } = useQuery({
         queryKey: ['complaints-me', user?.id],
         queryFn: async () => (await api.get(`/complaints?userId=${user?.id}`)).data,
-        enabled: !!user?.id,
-        refetchInterval: 10000,
+        enabled: !!user?.id && activeTab === 'complaints',
+        staleTime: 30000,
+        refetchInterval: 60000,
     });
 
     const { data: disputes, isLoading: disputesUserLoading } = useQuery({
         queryKey: ['disputes-me', user?.id],
         queryFn: async () => (await api.get('/disputes')).data,
-        enabled: !!user?.id,
-        refetchInterval: 10000,
+        enabled: !!user?.id && activeTab === 'complaints',
+        staleTime: 30000,
+        refetchInterval: 60000,
     });
 
     const { data: notices, isLoading: noticesLoading } = useQuery({
         queryKey: ['notices-me', user?.id],
         queryFn: async () => (await api.get('/users/my-notices')).data,
         enabled: !!user?.id,
-        refetchInterval: 10000,
+        staleTime: 60000,
+        refetchInterval: 120000,
     });
 
     const { data: rates, isLoading: ratesLoading } = useQuery({
@@ -193,8 +198,8 @@ export default function Dashboard() {
                 return { gold: 0, silver: 0, goldRaw: { price: 0 }, silverRaw: { price: 0 } };
             }
         },
-        refetchInterval: 60000, // 1 minute
-        staleTime: 30000,
+        refetchInterval: 15000, // 15 seconds - fast rate updates
+        staleTime: 10000,
         retry: 3,
     });
 
@@ -432,15 +437,14 @@ export default function Dashboard() {
                         onClose={() => setViewingFir(null)}
                     />
                 )}
+                {viewingReceipt && (
+                    <OrderReceipt
+                        order={viewingReceipt}
+                        formatPrice={formatPrice}
+                        onClose={() => setViewingReceipt(null)}
+                    />
+                )}
             </AnimatePresence>
-
-            {viewingReceipt && (
-                <OrderReceipt
-                    order={viewingReceipt}
-                    formatPrice={formatPrice}
-                    onClose={() => setViewingReceipt(null)}
-                />
-            )}
         </div>
     );
 }

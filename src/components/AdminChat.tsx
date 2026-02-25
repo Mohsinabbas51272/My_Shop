@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../lib/api';
 import { useChat } from '../hooks/useChat';
-import { MessageSquare, User, Send, Search, Loader2, Circle } from 'lucide-react';
+import { MessageSquare, User, Send, Search, Loader2, Circle, Trash2 } from 'lucide-react';
 
 export default function AdminChat() {
   const [selectedChat, setSelectedChat] = useState<any>(null);
   const [inputText, setInputText] = useState('');
+  const queryClient = useQueryClient();
 
   const { data: chatList, isLoading: listLoading } = useQuery({
     queryKey: ['chat-list'],
@@ -32,6 +33,21 @@ export default function AdminChat() {
     if (inputText.trim() && selectedChat) {
       sendMessage(inputText);
       setInputText('');
+    }
+  };
+
+  const deleteChatMutation = useMutation({
+    mutationFn: (otherId: number) => api.delete(`/chats/history/${otherId}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['chat-list'] });
+      if (selectedChat) setSelectedChat(null);
+    },
+  });
+
+  const handleDeleteChat = (e: React.MouseEvent, userId: number) => {
+    e.stopPropagation();
+    if (confirm('Delete this entire chat conversation? This cannot be undone.')) {
+      deleteChatMutation.mutate(userId);
     }
   };
 
@@ -72,7 +88,7 @@ export default function AdminChat() {
               <button
                 key={chat.user.id}
                 onClick={() => handleSelectChat(chat)}
-                className={`w-full p-3.5 flex items-center gap-4 transition-all border-b border-[var(--border)]/30 ${selectedChat?.user.id === chat.user.id ? 'bg-[var(--bg-input)]' : 'hover:bg-[var(--bg-input)]/50'}`}
+                className={`w-full p-3.5 flex items-center gap-4 transition-all border-b border-[var(--border)]/30 group/chat ${selectedChat?.user.id === chat.user.id ? 'bg-[var(--bg-input)]' : 'hover:bg-[var(--bg-input)]/50'}`}
               >
                 <div className="relative shrink-0">
                   <div className="w-12 h-12 rounded-full bg-[var(--bg-input)] flex items-center justify-center overflow-hidden border border-[var(--border)] shadow-sm">
@@ -83,7 +99,16 @@ export default function AdminChat() {
                 <div className="flex-1 text-left min-w-0">
                   <div className="flex justify-between items-center mb-0.5">
                     <h4 className="text-[15px] font-semibold text-[var(--text-main)] truncate">{chat.user.name}</h4>
-                    <span className="text-[11px] font-medium text-[var(--text-muted)]">{new Date(chat.lastMessageTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    <div className="flex items-center gap-1">
+                      <span className="text-[11px] font-medium text-[var(--text-muted)]">{new Date(chat.lastMessageTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      <button
+                        onClick={(e) => handleDeleteChat(e, chat.user.id)}
+                        className="p-1 rounded-full hover:bg-red-500/10 text-[var(--text-muted)] hover:text-red-500 transition-all opacity-0 group-hover/chat:opacity-100"
+                        title="Delete chat"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
                   <div className="flex justify-between items-center">
                     <p className="text-sm text-[var(--text-muted)] truncate flex-1 pr-2">{chat.lastMessage}</p>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Gavel, Loader2, Check, Plus, X } from 'lucide-react';
 import { IMAGE_BASE_URL } from '../../lib/api';
+import { motion } from 'framer-motion';
 
 interface DisputeModalProps {
     disputingOrder: any;
@@ -28,8 +29,19 @@ const DisputeModal: React.FC<DisputeModalProps> = ({
     onClose
 }) => {
     return (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-[var(--bg-main)]/80 backdrop-blur-sm">
-            <div className="bg-[var(--bg-card)] border border-[var(--border)] w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-[var(--bg-main)]/80 backdrop-blur-sm"
+        >
+            <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                transition={{ type: "spring", damping: 25, stiffness: 300, mass: 0.8 }}
+                className="bg-[var(--bg-card)] border border-[var(--border)] w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden"
+            >
                 <div className="p-6 border-b border-[var(--border)] bg-[var(--bg-input)]/50">
                     <h3 className="text-xl font-bold flex items-center gap-2">
                         <Gavel className="w-5 h-5 text-yellow-500" />
@@ -115,8 +127,8 @@ const DisputeModal: React.FC<DisputeModalProps> = ({
                         </button>
                     </div>
                 </div>
-            </div>
-        </div>
+            </motion.div>
+        </motion.div>
     );
 };
 

@@ -26,7 +26,7 @@ const DisputeRespondModal: React.FC<DisputeRespondModalProps> = ({
 
     return (
         <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-[var(--bg-main)]/80 backdrop-blur-sm">
-            <div className="bg-[var(--bg-card)] border border-[var(--border)] w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="bg-[var(--bg-card)] border border-[var(--border)] w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 max-h-[95vh] flex flex-col">
                 <div className="p-6 border-b border-[var(--border)] bg-[var(--bg-input)]/50">
                     <h3 className="text-xl font-bold text-[var(--text-main)] flex items-center gap-2">
                         <Gavel className="w-5 h-5 text-[var(--primary)]" />
@@ -36,7 +36,7 @@ const DisputeRespondModal: React.FC<DisputeRespondModalProps> = ({
                         Case #{dispute.id} • Order #{dispute.orderId || dispute.order?.displayId || 'N/A'}
                     </p>
                 </div>
-                <div className="p-6 space-y-4">
+                <div className="p-6 space-y-4 overflow-y-auto flex-1 custom-scrollbar">
                     <div>
                         <label className="block text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] mb-2">Dispute Case</label>
                         <div className="bg-[var(--bg-input)]/50 border border-[var(--border)] rounded-lg p-4 space-y-2">
@@ -75,7 +75,7 @@ const DisputeRespondModal: React.FC<DisputeRespondModalProps> = ({
                             className="w-full bg-[var(--bg-input)] border border-[var(--border)] rounded-lg p-3 text-sm focus:ring-2 focus:ring-[var(--primary)]/50 outline-none h-32 resize-none font-medium placeholder:opacity-40"
                         />
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2 mt-2">
                         <button
                             onClick={() => {
                                 if (!respondText.trim()) {
@@ -88,14 +88,14 @@ const DisputeRespondModal: React.FC<DisputeRespondModalProps> = ({
                                 });
                             }}
                             disabled={isPending}
-                            className="flex-1 px-4 py-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-bold rounded-lg transition-all flex items-center justify-center gap-2"
+                            className="w-full sm:flex-1 px-4 py-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 order-1 sm:order-2"
                         >
                             {isPending && <Loader2 className="w-4 h-4 animate-spin" />}
                             Resolve Dispute
                         </button>
                         <button
                             onClick={onClose}
-                            className="flex-1 px-4 py-2 bg-[var(--bg-input)] border border-[var(--border)] text-[var(--text-muted)] font-bold rounded-lg transition-all"
+                            className="w-full sm:flex-1 px-4 py-3 bg-[var(--bg-input)] border border-[var(--border)] text-[var(--text-muted)] font-bold rounded-xl transition-all order-2 sm:order-1"
                         >
                             Cancel
                         </button>

@@ -18,11 +18,13 @@ export default function Contact() {
         orderId: null as number | null
     });
 
-    const { data: orders } = useQuery({
+    const { data: ordersData } = useQuery({
         queryKey: ['orders-for-complaint', user?.id],
         queryFn: async () => (await api.get(`/orders?userId=${user?.id}`)).data,
         enabled: !!user?.id,
+        staleTime: 30000,
     });
+    const orders = ordersData?.items || ordersData || [];
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

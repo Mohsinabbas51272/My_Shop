@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Receipt, Printer, Send, X, ShieldCheck, ShieldAlert } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface OrderReceiptProps {
     order: any;
@@ -37,8 +38,19 @@ const OrderReceipt = ({ order: rawOrder, formatPrice, onClose, onSendToDashboard
     }, []);
 
     return (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
-            <div className="bg-white text-slate-900 w-full max-w-2xl rounded-sm shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
+        >
+            <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                transition={{ type: "spring", damping: 25, stiffness: 300, mass: 0.8 }}
+                className="bg-white text-slate-900 w-full max-w-2xl rounded-sm shadow-2xl flex flex-col max-h-[90vh] overflow-hidden"
+            >
                 <div className="p-4 border-b flex justify-between items-center bg-slate-50 no-print">
                     <h3 className="font-bold text-slate-500 uppercase text-xs tracking-widest flex items-center gap-2">
                         <Receipt className="w-4 h-4 text-slate-400" />
@@ -67,15 +79,15 @@ const OrderReceipt = ({ order: rawOrder, formatPrice, onClose, onSendToDashboard
                     </div>
                 </div>
 
-                <div id="printable-receipt" className="p-12 overflow-y-auto space-y-10 print:p-0">
+                <div id="printable-receipt" className="p-4 sm:p-12 overflow-y-auto space-y-6 sm:space-y-10 print:p-0 custom-scrollbar">
                     {/* CERTIFICATE HEADER */}
                     <div className="text-center space-y-4 pb-10 border-b-2 border-slate-900 relative">
                         <div className="absolute top-0 right-0 opacity-10">
                             <ShieldCheck className="w-24 h-24 text-slate-900" />
                         </div>
                         <div className="flex flex-col items-center gap-2">
-                            <img src="/logo_az.png?v=2" alt="A.Z Shop Logo" className="w-20 h-20 object-cover rounded-full border-2 border-slate-900 shadow-xl mb-2" />
-                            <h1 className="text-5xl font-black tracking-tighter text-slate-900 uppercase">A.Z Shop</h1>
+                            <img src="/logo_az.png?v=2" alt="A.Z Shop Logo" className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-full border-2 border-slate-900 shadow-xl mb-2" />
+                            <h1 className="text-3xl sm:text-5xl font-black tracking-tighter text-slate-900 uppercase">A.Z Shop</h1>
                         </div>
                         <div className="flex items-center justify-center gap-4">
                             <div className="h-px w-10 bg-slate-300" />
@@ -88,7 +100,7 @@ const OrderReceipt = ({ order: rawOrder, formatPrice, onClose, onSendToDashboard
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-12 text-sm pt-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-12 text-sm pt-4">
                         <div className="space-y-6">
                             <div>
                                 <h4 className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Authenticated Recipient:</h4>
@@ -99,13 +111,13 @@ const OrderReceipt = ({ order: rawOrder, formatPrice, onClose, onSendToDashboard
                                 </div>
                             </div>
                         </div>
-                        <div className="space-y-6 text-right">
+                        <div className="space-y-6 text-left sm:text-right">
                             <div>
                                 <h4 className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Vault Reference:</h4>
                                 <div className="space-y-1">
                                     <p className="text-sm font-black text-slate-900 uppercase tracking-tighter italic">Case ID: #{order.displayId || order.id}</p>
                                     <p className="text-slate-500 text-[11px] font-bold uppercase tracking-widest">Date: {new Date(order.createdAt).toLocaleDateString(undefined, { day: '2-digit', month: 'long', year: 'numeric' })}</p>
-                                    <div className="flex justify-end gap-2 mt-2">
+                                    <div className="flex justify-start sm:justify-end gap-2 mt-2">
                                         <span className="px-2 py-0.5 bg-slate-100 text-[9px] font-black uppercase text-slate-500 border border-slate-200">{order.paymentMethod}</span>
                                         <span className={`px-2 py-0.5 text-[9px] font-black uppercase border ${order.paymentStatus === 'Paid' ? 'bg-green-50 text-green-600 border-green-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>{order.paymentStatus}</span>
                                     </div>
@@ -171,7 +183,7 @@ const OrderReceipt = ({ order: rawOrder, formatPrice, onClose, onSendToDashboard
                         </div>
                     </div>
 
-                    <div className="bg-slate-50 p-8 rounded-xl border border-slate-100 space-y-6">
+                    <div className="bg-slate-50 p-4 sm:p-8 rounded-xl border border-slate-100 space-y-6">
                         <div className="flex items-center gap-3 border-b border-slate-200 pb-3">
                             <ShieldAlert className="w-5 h-5 text-slate-900" />
                             <p className="font-black text-slate-900 uppercase tracking-[0.2em] text-[10px]">Transmission & Return Protocol</p>
@@ -188,20 +200,20 @@ const OrderReceipt = ({ order: rawOrder, formatPrice, onClose, onSendToDashboard
                         </div>
                     </div>
 
-                    <div className="pt-16 pb-12 flex justify-between items-end">
+                    <div className="pt-10 sm:pt-16 pb-12 flex flex-col sm:flex-row justify-between items-center sm:items-end gap-10">
                         <div className="space-y-8">
                             <div className="text-[9px] font-black text-slate-300 uppercase tracking-[0.3em]">Authorized by A.Z Shop</div>
                             <div className="w-48 border-b-2 border-slate-900" />
                             <div className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Authorized Signature</div>
                         </div>
-                        <div className="text-right space-y-8">
+                        <div className="text-center sm:text-right space-y-8">
                             <div className="text-[9px] font-black text-slate-300 uppercase tracking-[0.3em]">Client Acceptance</div>
-                            <div className="w-48 border-b-2 border-slate-900 ml-auto" />
+                            <div className="w-48 border-b-2 border-slate-900 mx-auto sm:ml-auto" />
                             <div className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Consignee Acknowledgment</div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </motion.div>
 
             <style>{`
                 @media print {
@@ -215,7 +227,7 @@ const OrderReceipt = ({ order: rawOrder, formatPrice, onClose, onSendToDashboard
                     .text-left { text-align: left !important; }
                 }
             `}</style>
-        </div>
+        </motion.div>
     );
 };
 

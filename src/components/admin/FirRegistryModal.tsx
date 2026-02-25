@@ -28,8 +28,8 @@ const FirRegistryModal: React.FC<FirRegistryModalProps> = ({
                 className="absolute inset-0 bg-black/80 backdrop-blur-sm"
                 onClick={onClose}
             />
-            <div className="relative w-full max-w-lg bg-[var(--bg-card)] border border-[var(--border)] rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-                <div className="p-8 border-b border-[var(--border)] bg-red-500/5">
+            <div className="relative w-full max-w-lg bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl sm:rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 max-h-[95vh] flex flex-col">
+                <div className="p-6 sm:p-8 border-b border-[var(--border)] bg-red-500/5 shrink-0">
                     <div className="flex items-center justify-between mb-4">
                         <div className="p-3 bg-red-500/10 rounded-2xl border border-red-500/20">
                             <ShieldAlert className="w-6 h-6 text-red-500" />
@@ -44,7 +44,7 @@ const FirRegistryModal: React.FC<FirRegistryModalProps> = ({
                     </p>
                 </div>
 
-                <div className="p-8 space-y-6">
+                <div className="p-6 sm:p-8 space-y-6 overflow-y-auto flex-1 custom-scrollbar">
                     <div className="space-y-2">
                         <label className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] ml-1">Violation Type</label>
                         <input

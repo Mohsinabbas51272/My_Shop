@@ -14,18 +14,17 @@ const FirReceiptModal: React.FC<FirReceiptModalProps> = ({
     onClose
 }) => {
     return (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
+        >
             <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={onClose}
-                className="absolute inset-0 bg-black/90 backdrop-blur-xl"
-            />
-            <motion.div
-                initial={{ opacity: 0, scale: 0.9, y: 50 }}
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: 50 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                transition={{ type: "spring", damping: 25, stiffness: 300, mass: 0.8 }}
                 className="relative w-full max-w-2xl bg-white text-slate-900 rounded-[3rem] shadow-2xl overflow-hidden flex flex-col md:flex-row max-h-[90vh]"
             >
                 <div className="bg-red-600 w-full md:w-32 flex flex-row md:flex-col items-center justify-between p-6 md:py-10 text-white shrink-0">
@@ -93,7 +92,7 @@ const FirReceiptModal: React.FC<FirReceiptModalProps> = ({
                     </div>
                 </div>
             </motion.div>
-        </div>
+        </motion.div>
     );
 };
 

@@ -27,11 +27,17 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
     handleImageUpload
 }) => {
     return (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+        >
             <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                transition={{ type: "spring", damping: 25, stiffness: 300, mass: 0.8 }}
                 className="bg-[var(--bg-card)] border border-[var(--border)] w-full max-w-md rounded-[2.5rem] overflow-hidden shadow-2xl p-8"
             >
                 <div className="flex justify-between items-center mb-6">
@@ -113,7 +119,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
                     </button>
                 </div>
             </motion.div>
-        </div>
+        </motion.div>
     );
 };
 

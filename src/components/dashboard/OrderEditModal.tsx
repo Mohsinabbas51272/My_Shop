@@ -31,11 +31,17 @@ const OrderEditModal: React.FC<OrderEditModalProps> = ({
     onClose
 }) => {
     return (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+        <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+        >
             <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                transition={{ type: "spring", damping: 25, stiffness: 300, mass: 0.8 }}
                 className="bg-[var(--bg-card)] border border-[var(--border)] w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh]"
             >
                 {/* Header */}
@@ -92,24 +98,28 @@ const OrderEditModal: React.FC<OrderEditModalProps> = ({
                         <h4 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest">Order Items ({editFormData.items?.length || 0})</h4>
                         <div className="space-y-3">
                             {editFormData.items?.map((item: any) => (
-                                <div key={item.id} className="flex items-center gap-4 p-3 bg-[var(--bg-input)]/50 border border-[var(--border)] rounded-2xl">
-                                    <div className="w-14 h-14 rounded-xl overflow-hidden bg-[var(--bg-input)] border border-[var(--border)] shrink-0">
-                                        <img src={getImageUrl(item.image)} className="w-full h-full object-cover" />
+                                <div key={item.id} className="flex flex-col sm:flex-row sm:items-center gap-4 p-3 bg-[var(--bg-input)]/50 border border-[var(--border)] rounded-2xl">
+                                    <div className="flex items-center gap-4 flex-1 min-w-0">
+                                        <div className="w-14 h-14 rounded-xl overflow-hidden bg-[var(--bg-input)] border border-[var(--border)] shrink-0">
+                                            <img src={getImageUrl(item.image)} className="w-full h-full object-cover" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <h5 className="text-sm font-bold text-[var(--text-main)] truncate">{item.name}</h5>
+                                            <p className="text-xs text-[var(--primary)] font-medium">{formatPrice(item.price)}</p>
+                                        </div>
                                     </div>
-                                    <div className="flex-1 min-w-0">
-                                        <h5 className="text-sm font-bold text-[var(--text-main)] truncate">{item.name}</h5>
-                                        <p className="text-xs text-[var(--primary)] font-medium">{formatPrice(item.price)}</p>
-                                    </div>
-                                    <div className="flex items-center gap-2 shrink-0">
-                                        <button onClick={() => updateItemQuantity(item.id, -1)}
-                                            className="w-8 h-8 flex items-center justify-center bg-[var(--bg-card)] border border-[var(--border)] hover:border-red-500 hover:text-red-500 rounded-lg transition-all active:scale-90">
-                                            <Minus className="w-3.5 h-3.5" />
-                                        </button>
-                                        <span className="w-8 text-center text-sm font-bold">{item.quantity}</span>
-                                        <button onClick={() => updateItemQuantity(item.id, 1)}
-                                            className="w-8 h-8 flex items-center justify-center bg-[var(--bg-card)] border border-[var(--border)] hover:border-[var(--primary)] hover:text-[var(--primary)] rounded-lg transition-all active:scale-90">
-                                            <Plus className="w-3.5 h-3.5" />
-                                        </button>
+                                    <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0 bg-[var(--bg-card)] sm:bg-transparent p-2 sm:p-0 rounded-xl">
+                                        <div className="flex items-center gap-2">
+                                            <button onClick={() => updateItemQuantity(item.id, -1)}
+                                                className="w-8 h-8 flex items-center justify-center bg-[var(--bg-card)] border border-[var(--border)] hover:border-red-500 hover:text-red-500 rounded-lg transition-all active:scale-90">
+                                                <Minus className="w-3.5 h-3.5" />
+                                            </button>
+                                            <span className="w-8 text-center text-sm font-bold">{item.quantity}</span>
+                                            <button onClick={() => updateItemQuantity(item.id, 1)}
+                                                className="w-8 h-8 flex items-center justify-center bg-[var(--bg-card)] border border-[var(--border)] hover:border-[var(--primary)] hover:text-[var(--primary)] rounded-lg transition-all active:scale-90">
+                                                <Plus className="w-3.5 h-3.5" />
+                                            </button>
+                                        </div>
                                         <button onClick={() => removeItemFromEdit(item.id)}
                                             className="w-8 h-8 flex items-center justify-center text-red-400 hover:bg-red-500 hover:text-white rounded-lg transition-all active:scale-90 ml-1">
                                             <Trash2 className="w-3.5 h-3.5" />
@@ -138,10 +148,10 @@ const OrderEditModal: React.FC<OrderEditModalProps> = ({
                 </div>
 
                 {/* Footer */}
-                <div className="p-6 border-t border-[var(--border)] bg-[var(--bg-input)]/20 flex gap-3 shrink-0">
+                <div className="p-4 sm:p-6 border-t border-[var(--border)] bg-[var(--bg-input)]/20 flex flex-col sm:flex-row gap-3 shrink-0">
                     <button
                         onClick={onClose}
-                        className="flex-1 px-6 py-3 bg-[var(--bg-input)] border border-[var(--border)] text-[var(--text-main)] font-bold rounded-xl text-sm hover:opacity-80 transition-all"
+                        className="w-full sm:flex-1 px-6 py-3 bg-[var(--bg-input)] border border-[var(--border)] text-[var(--text-main)] font-bold rounded-xl text-sm hover:opacity-80 transition-all order-2 sm:order-1"
                     >
                         Cancel
                     </button>
@@ -156,14 +166,14 @@ const OrderEditModal: React.FC<OrderEditModalProps> = ({
                             editOrderMutation.mutate({ orderId: editingOrderId, data: editFormData });
                         }}
                         disabled={editOrderMutation.isPending}
-                        className="flex-1 px-6 py-3 bg-[var(--primary)] text-white font-bold rounded-xl text-sm hover:bg-[var(--primary-hover)] transition-all shadow-lg shadow-[var(--accent-glow)] disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="w-full sm:flex-1 px-6 py-3 bg-[var(--primary)] text-white font-bold rounded-xl text-sm hover:bg-[var(--primary-hover)] transition-all shadow-lg shadow-[var(--accent-glow)] disabled:opacity-50 flex items-center justify-center gap-2 order-1 sm:order-2"
                     >
                         {editOrderMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                         Save Changes
                     </button>
                 </div>
             </motion.div>
-        </div>
+        </motion.div>
     );
 };
 

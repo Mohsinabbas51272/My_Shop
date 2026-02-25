@@ -73,6 +73,9 @@ export default function AdminDashboard() {
     const [viewingFirLog, setViewingFirLog] = useState<any>(null);
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
+    const [orderPage, setOrderPage] = useState(1);
+    const [userPage, setUserPage] = useState(1);
+
     const { data: dashboardCounts } = useQuery({
         queryKey: ['dashboard-counts'],
         queryFn: async () => (await api.get('/complaints/counts')).data,
@@ -84,29 +87,34 @@ export default function AdminDashboard() {
         queryKey: ['complaints'],
         queryFn: async () => (await api.get('/complaints')).data,
         enabled: activeTab === 'support' && supportSubTab === 'queries',
-        refetchInterval: 10000,
+        staleTime: 30000,
+        refetchInterval: 60000,
         refetchOnWindowFocus: true,
     });
 
     const { data: products, isLoading: productsLoading } = useQuery({
         queryKey: ['products'],
         queryFn: async () => (await api.get('/products', { params: { page: 1, limit: 100 } })).data,
-        refetchInterval: 10000,
+        staleTime: 60000,
+        refetchInterval: 120000,
         refetchOnWindowFocus: true,
     });
 
-    const { data: orders, isLoading: ordersLoading } = useQuery({
-        queryKey: ['orders'],
-        queryFn: async () => (await api.get('/orders')).data,
-        refetchInterval: 10000,
+    const { data: ordersData, isLoading: ordersLoading } = useQuery({
+        queryKey: ['orders', orderPage],
+        queryFn: async () => (await api.get('/orders', { params: { page: orderPage, limit: 20 } })).data,
+        staleTime: 60000,
+        refetchInterval: 60000,
         refetchOnWindowFocus: true,
     });
+    const orders = ordersData?.items || [];
 
     const { data: users, isLoading: usersLoading } = useQuery({
-        queryKey: ['users'],
-        queryFn: async () => (await api.get('/users')).data,
+        queryKey: ['users', userPage],
+        queryFn: async () => (await api.get('/users', { params: { page: userPage, limit: 20 } })).data,
         enabled: activeTab === 'users' || (activeTab === 'support' && supportSubTab === 'chats'),
-        refetchInterval: 10000,
+        staleTime: 30000,
+        refetchInterval: 60000,
         refetchOnWindowFocus: true,
     });
 
@@ -114,7 +122,8 @@ export default function AdminDashboard() {
         queryKey: ['disputes'],
         queryFn: async () => (await api.get('/disputes')).data,
         enabled: true, // Always fetch to support badge count
-        refetchInterval: 10000,
+        staleTime: 30000,
+        refetchInterval: 60000,
         refetchOnWindowFocus: true,
     });
 
@@ -122,7 +131,8 @@ export default function AdminDashboard() {
         queryKey: ['audit-logs'],
         queryFn: async () => (await api.get('/audit')).data,
         enabled: activeTab === 'support' && supportSubTab === 'audit',
-        refetchInterval: 10000,
+        staleTime: 60000,
+        refetchInterval: 120000,
         refetchOnWindowFocus: true,
     });
 
@@ -130,14 +140,16 @@ export default function AdminDashboard() {
         queryKey: ['admin-reviews'],
         queryFn: async () => (await api.get('/reviews/admin/all')).data,
         enabled: true, // Always fetch to support badge count
-        refetchInterval: 10000,
+        staleTime: 60000,
+        refetchInterval: 120000,
     });
 
     const { data: notices } = useQuery({
         queryKey: ['notices-me', user?.id],
         queryFn: async () => (await api.get('/users/my-notices')).data,
         enabled: !!user?.id,
-        refetchInterval: 10000,
+        staleTime: 30000,
+        refetchInterval: 60000,
     });
 
     const approveReviewMutation = useMutation({
@@ -399,6 +411,15 @@ export default function AdminDashboard() {
         onError: () => toast.error('Failed to delete logs'),
     });
 
+    const deleteLogMutation = useMutation({
+        mutationFn: (id: number) => api.delete(`/audit/${id}`),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['audit-logs'] });
+            toast.success('Log entry deleted');
+        },
+        onError: () => toast.error('Failed to delete log entry'),
+    });
+
     const getImageUrl = (url: string) => {
         if (!url) return '';
         if (url.startsWith('http')) return url;
@@ -501,6 +522,9 @@ export default function AdminDashboard() {
                         {activeTab === 'orders' && (
                             <OrdersTab
                                 orders={orders}
+                                totalPages={ordersData?.totalPages || 1}
+                                currentPage={orderPage}
+                                setPage={setOrderPage}
                                 ordersLoading={ordersLoading}
                                 updateOrderStatusMutation={updateOrderStatusMutation}
                                 confirmPayment={confirmPayment}
@@ -516,7 +540,10 @@ export default function AdminDashboard() {
 
                         {activeTab === 'users' && (
                             <UsersTab
-                                users={users}
+                                users={users?.items || []}
+                                totalPages={users?.totalPages || 1}
+                                currentPage={userPage}
+                                setPage={setUserPage}
                                 usersLoading={usersLoading}
                                 q={q}
                                 setSelectedUser={setSelectedUser}
@@ -552,6 +579,7 @@ export default function AdminDashboard() {
                                 logs={logs}
                                 logsLoading={logsLoading}
                                 deleteAllLogs={deleteAllLogs}
+                                deleteLogMutation={deleteLogMutation}
                                 setViewingFirLog={setViewingFirLog}
                             />
                         )}
@@ -605,7 +633,7 @@ export default function AdminDashboard() {
                 <FirDetailModal
                     viewingFirLog={viewingFirLog}
                     setViewingFirLog={setViewingFirLog}
-                    users={users}
+                    users={users?.items || users || []}
                 />
 
                 {isCalcOpen && (

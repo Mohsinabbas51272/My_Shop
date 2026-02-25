@@ -122,6 +122,13 @@ export const useChat = (receiverId?: number) => {
     socket.on('messageSent', handleMessageSent);
     socket.on('history', handleHistory);
 
+    // Listen for admin chat deletion
+    const handleChatDeleted = () => {
+      console.log('🗑️ ChatHook: Chat was deleted by admin, clearing messages');
+      setMessages([]);
+    };
+    socket.on('chatDeleted', handleChatDeleted);
+
     // If we just got connected and have a receiverId, fetch history
     const onConnect = () => {
       if (receiverId) {
@@ -134,6 +141,7 @@ export const useChat = (receiverId?: number) => {
       socket.off('newMessage', handleNewMessage);
       socket.off('messageSent', handleMessageSent);
       socket.off('history', handleHistory);
+      socket.off('chatDeleted', handleChatDeleted);
       socket.off('connect', onConnect);
     };
   }, [socket, isConnected, receiverId]);

@@ -14,6 +14,9 @@ import {
 
 interface OrdersTabProps {
     orders: any[];
+    totalPages: number;
+    currentPage: number;
+    setPage: (page: number) => void;
     ordersLoading: boolean;
     q: string;
     formatPrice: (price: number) => string;
@@ -28,6 +31,9 @@ interface OrdersTabProps {
 
 const OrdersTab: React.FC<OrdersTabProps> = ({
     orders,
+    totalPages,
+    currentPage,
+    setPage,
     ordersLoading,
     q,
     formatPrice,
@@ -40,7 +46,7 @@ const OrdersTab: React.FC<OrdersTabProps> = ({
     disputes: _disputes,
 }) => {
     return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <h2 className="text-2xl font-black flex items-center gap-3 text-[var(--text-main)]">
                     <div className="p-3 bg-[var(--primary)]/10 rounded-2xl">
@@ -50,7 +56,7 @@ const OrdersTab: React.FC<OrdersTabProps> = ({
                 </h2>
                 <div className="flex flex-col md:flex-row items-center gap-4">
                     <div className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] bg-[var(--bg-card)] px-3 py-1.5 rounded-full border border-[var(--border)] shadow-sm whitespace-nowrap">
-                        {orders?.length || 0} Total Orders
+                        {orders?.length || 0} Orders on this page
                     </div>
                 </div>
             </div>
@@ -74,9 +80,10 @@ const OrdersTab: React.FC<OrdersTabProps> = ({
                         ) : (orders || [])
                             .filter((o: any) =>
                                 !q ||
-                                o.displayId?.toLowerCase().includes(q.toLowerCase()) ||
+                                o.displayId?.toString().toLowerCase().includes(q.toLowerCase()) ||
+                                o.customerName?.toLowerCase().includes(q.toLowerCase()) ||
                                 o.user?.name?.toLowerCase().includes(q.toLowerCase()) ||
-                                o.phone?.includes(q)
+                                o.customerPhone?.includes(q)
                             )
                             .map((o: any) => (
                                 <tr key={o.id} className="hover:bg-[var(--bg-input)]/30 transition-colors group">
@@ -236,6 +243,40 @@ const OrdersTab: React.FC<OrdersTabProps> = ({
                 </table>
             </div>
 
+            {/* Pagination UI */}
+            {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2 mt-8">
+                    <button
+                        onClick={() => setPage(Math.max(1, currentPage - 1))}
+                        disabled={currentPage === 1}
+                        className="px-4 py-2 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl text-xs font-bold uppercase tracking-widest disabled:opacity-50"
+                    >
+                        Prev
+                    </button>
+                    <div className="flex gap-1">
+                        {[...Array(totalPages)].map((_, i) => (
+                            <button
+                                key={i}
+                                onClick={() => setPage(i + 1)}
+                                className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold transition-all ${currentPage === i + 1
+                                        ? 'bg-[var(--primary)] text-white'
+                                        : 'bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--primary)]'
+                                    }`}
+                            >
+                                {i + 1}
+                            </button>
+                        ))}
+                    </div>
+                    <button
+                        onClick={() => setPage(Math.min(totalPages, currentPage + 1))}
+                        disabled={currentPage === totalPages}
+                        className="px-4 py-2 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl text-xs font-bold uppercase tracking-widest disabled:opacity-50"
+                    >
+                        Next
+                    </button>
+                </div>
+            )}
+
             {/* Mobile Cards View */}
             <div className="md:hidden space-y-4">
                 {ordersLoading ? (
@@ -243,9 +284,10 @@ const OrdersTab: React.FC<OrdersTabProps> = ({
                 ) : (orders || [])
                     .filter((o: any) =>
                         !q ||
-                        o.displayId?.toLowerCase().includes(q.toLowerCase()) ||
+                        o.displayId?.toString().toLowerCase().includes(q.toLowerCase()) ||
+                        o.customerName?.toLowerCase().includes(q.toLowerCase()) ||
                         o.user?.name?.toLowerCase().includes(q.toLowerCase()) ||
-                        o.phone?.includes(q)
+                        o.customerPhone?.includes(q)
                     )
                     .map((o: any) => (
                         <div key={o.id} className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl p-5 shadow-lg space-y-4 relative overflow-hidden">
@@ -354,6 +396,29 @@ const OrdersTab: React.FC<OrdersTabProps> = ({
                             </div>
                         </div>
                     ))}
+
+                {/* Mobile Pagination */}
+                {totalPages > 1 && (
+                    <div className="flex items-center justify-center gap-2 py-6">
+                        <button
+                            onClick={() => setPage(Math.max(1, currentPage - 1))}
+                            disabled={currentPage === 1}
+                            className="p-3 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl text-xs font-bold disabled:opacity-50"
+                        >
+                            Prev
+                        </button>
+                        <span className="text-xs font-black text-[var(--text-muted)]">
+                            {currentPage} / {totalPages}
+                        </span>
+                        <button
+                            onClick={() => setPage(Math.min(totalPages, currentPage + 1))}
+                            disabled={currentPage === totalPages}
+                            className="p-3 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl text-xs font-bold disabled:opacity-50"
+                        >
+                            Next
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );

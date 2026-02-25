@@ -87,7 +87,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                     initial={{ scale: 0.95, opacity: 0, y: 20 }}
                     animate={{ scale: 1, opacity: 1, y: 0 }}
                     exit={{ scale: 0.95, opacity: 0, y: 20 }}
-                    className="relative w-full max-w-2xl bg-[var(--bg-card)] rounded-[2.5rem] overflow-hidden shadow-2xl border border-[var(--border)]"
+                    className="relative w-full max-w-2xl bg-[var(--bg-card)] rounded-3xl sm:rounded-[2.5rem] overflow-hidden shadow-2xl border border-[var(--border)] max-h-[95vh] flex flex-col"
                 >
                     {/* Header with Background Pattern */}
                     <div className="h-32 bg-gradient-to-r from-[var(--primary)] to-[var(--primary-hover)] relative">
@@ -100,7 +100,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                         </button>
                     </div>
 
-                    <div className="px-8 pb-8 -mt-16 relative">
+                    <div className="px-4 sm:px-8 pb-8 -mt-16 relative overflow-y-auto flex-1 custom-scrollbar">
                         {/* Profile Info */}
                         <div className="flex flex-col md:flex-row items-end gap-6 mb-8">
                             <div className="w-32 h-32 rounded-3xl bg-[var(--bg-card)] border-4 border-[var(--bg-card)] shadow-2xl overflow-hidden shrink-0">
@@ -157,7 +157,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
 
                                 <section>
                                     <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)] mb-4">Account Control</h3>
-                                    <div className="grid grid-cols-3 gap-3">
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                         <button
                                             onClick={() => _verifyUser?.mutate && _verifyUser.mutate(user.id)}
                                             disabled={_verifyUser?.isLoading}
