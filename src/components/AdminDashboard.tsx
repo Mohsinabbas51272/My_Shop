@@ -113,7 +113,7 @@ export default function AdminDashboard() {
     const { data: disputes, isLoading: disputesLoading } = useQuery({
         queryKey: ['disputes'],
         queryFn: async () => (await api.get('/disputes')).data,
-        enabled: activeTab === 'support' && supportSubTab === 'disputes' || activeTab === 'orders',
+        enabled: true, // Always fetch to support badge count
         refetchInterval: 10000,
         refetchOnWindowFocus: true,
     });
@@ -129,7 +129,7 @@ export default function AdminDashboard() {
     const { data: adminReviews, isLoading: reviewsLoading } = useQuery({
         queryKey: ['admin-reviews'],
         queryFn: async () => (await api.get('/reviews/admin/all')).data,
-        enabled: activeTab === 'support' && supportSubTab === 'reviews',
+        enabled: true, // Always fetch to support badge count
         refetchInterval: 10000,
     });
 
@@ -310,18 +310,28 @@ export default function AdminDashboard() {
 
     const freezeUser = useMutation({
         mutationFn: (id: number) => api.post(`/users/${id}/freeze`),
-        onSuccess: () => {
+        onSuccess: (res: any) => {
             queryClient.invalidateQueries({ queryKey: ['users'] });
-            toast.success('User account frozen successfully!');
+            const isFrozen = res?.data?.isFrozen;
+            if (typeof isFrozen === 'boolean') {
+                toast.success(isFrozen ? 'User account frozen successfully!' : 'User account restored!');
+            } else {
+                toast.success('User account updated successfully!');
+            }
         },
         onError: () => toast.error('Failed to freeze user'),
     });
 
     const blockUser = useMutation({
         mutationFn: (id: number) => api.post(`/users/${id}/block`),
-        onSuccess: () => {
+        onSuccess: (res: any) => {
             queryClient.invalidateQueries({ queryKey: ['users'] });
-            toast.success('User blocked successfully!');
+            const isBlocked = res?.data?.isBlocked;
+            if (typeof isBlocked === 'boolean') {
+                toast.success(isBlocked ? 'User blocked successfully!' : 'User unblocked successfully!');
+            } else {
+                toast.success('User status updated!');
+            }
         },
         onError: () => toast.error('Failed to block user'),
     });
@@ -542,6 +552,7 @@ export default function AdminDashboard() {
                                 logs={logs}
                                 logsLoading={logsLoading}
                                 deleteAllLogs={deleteAllLogs}
+                                setViewingFirLog={setViewingFirLog}
                             />
                         )}
 
@@ -559,6 +570,8 @@ export default function AdminDashboard() {
                     selectedUser={selectedUser}
                     setSelectedUser={setSelectedUser}
                     blockUser={blockUser}
+                    verifyUser={verifyUser}
+                    freezeUser={freezeUser}
                     formatPrice={formatPrice}
                     getImageUrl={getImageUrl}
                     formatDate={(date: any) => new Date(date).toLocaleString()}
@@ -622,6 +635,7 @@ export default function AdminDashboard() {
                                         order={viewingReceipt}
                                         formatPrice={formatPrice}
                                         onClose={() => setViewingReceipt(null)}
+                                        onSendToDashboard={() => sendReceiptMutation.mutate(viewingReceipt.id)}
                                         isAdmin={true}
                                     />
                                 </div>

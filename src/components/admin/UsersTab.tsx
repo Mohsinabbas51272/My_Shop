@@ -2,6 +2,9 @@ import React from 'react';
 import { 
     Users, 
     ShieldAlert, 
+    ShieldCheck,
+    Lock,
+    Gavel,
     Trash2, 
     Eye, 
     History,
@@ -66,9 +69,18 @@ const UsersTab: React.FC<UsersTabProps> = ({
                                         <td className="p-4 font-bold text-[var(--text-main)]">{u.name}</td>
                                         <td className="p-4 text-[var(--text-muted)] font-mono text-xs">{u.phone}</td>
                                         <td className="p-4">
-                                            <span className={`px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-widest ${u.isBlocked ? 'bg-red-500/10 text-red-500 border border-red-500/20' : 'bg-green-500/10 text-green-500 border border-green-500/20'}`}>
-                                                {u.isBlocked ? 'Blocked' : 'Active'}
-                                            </span>
+                                            {u.isBlocked ? (
+                                                <span className="px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-widest bg-red-500/10 text-red-500 border border-red-500/20">Blocked</span>
+                                            ) : (
+                                                <div className="flex items-center gap-2">
+                                                    <span className="px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-widest bg-green-500/10 text-green-500 border border-green-500/20">Active</span>
+                                                        {u.isFrozen ? (
+                                                            <span className="px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-widest bg-yellow-500/10 text-yellow-500 border border-yellow-500/20">Frozen</span>
+                                                        ) : u.isVerified ? (
+                                                            <span className="px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-widest bg-green-500/10 text-green-500 border border-green-500/20">Verified</span>
+                                                        ) : null}
+                                                </div>
+                                            )}
                                         </td>
                                         <td className="p-4">
                                             <div className="flex items-center gap-2 text-[10px] font-bold text-[var(--text-muted)] uppercase">
@@ -86,11 +98,35 @@ const UsersTab: React.FC<UsersTabProps> = ({
                                                     <Eye className="w-4 h-4" />
                                                 </button>
                                                 <button
+                                                    onClick={() => _verifyUser?.mutate && _verifyUser.mutate(u.id)}
+                                                    disabled={_verifyUser?.isLoading}
+                                                    className="p-1.5 hover:bg-green-500/10 text-green-500 rounded-lg transition-colors"
+                                                    title="Verify User"
+                                                >
+                                                    <ShieldCheck className="w-4 h-4" />
+                                                </button>
+                                                <button
+                                                    onClick={() => confirm('Freeze this user account?') && _freezeUser?.mutate && _freezeUser.mutate(u.id)}
+                                                    disabled={_freezeUser?.isLoading}
+                                                    className="p-1.5 hover:bg-yellow-500/10 text-yellow-500 rounded-lg transition-colors"
+                                                    title="Freeze User"
+                                                >
+                                                    <Lock className="w-4 h-4" />
+                                                </button>
+                                                <button
+                                                    onClick={() => _blockUser?.mutate && _blockUser.mutate(u.id)}
+                                                    disabled={_blockUser?.isLoading}
+                                                    className="p-1.5 hover:bg-amber-500/10 text-amber-500 rounded-lg transition-colors"
+                                                    title="Block/Unblock User"
+                                                >
+                                                    <ShieldAlert className="w-4 h-4" />
+                                                </button>
+                                                <button
                                                     onClick={() => setFirModalUser(u)}
                                                     className="p-1.5 hover:bg-amber-500/10 text-amber-500 rounded-lg transition-colors"
                                                     title="Registry Offence (FIR)"
                                                 >
-                                                    <ShieldAlert className="w-4 h-4" />
+                                                    <Gavel className="w-4 h-4" />
                                                 </button>
                                                 <button
                                                     onClick={() => confirm('Permanently remove citizen from system? This cannot be undone!') && deleteUser.mutate(u.id)}

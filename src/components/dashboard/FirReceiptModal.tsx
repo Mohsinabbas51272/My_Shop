@@ -75,9 +75,9 @@ const FirReceiptModal: React.FC<FirReceiptModalProps> = ({
                         <div className="space-y-4">
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Description of Violation</p>
                             <div className="bg-slate-50 border border-slate-100 p-6 rounded-3xl">
-                                <p className="text-sm text-slate-600 leading-relaxed font-medium italic">
-                                    "{viewingFir.metadata?.details}"
-                                </p>
+                                    <p className="text-sm text-slate-600 leading-relaxed font-medium italic">
+                                    "{typeof viewingFir.metadata?.details === 'string' ? viewingFir.metadata.details : JSON.stringify(viewingFir.metadata?.details)}"
+                                    </p>
                             </div>
                         </div>
 

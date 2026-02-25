@@ -39,9 +39,9 @@ export default function Checkout() {
   const grandTotal = subtotal + userFee + shippingFee;
 
   useEffect(() => {
-    // Backend user route is /user/orders/payment-methods
+    // Use public endpoint for static payment methods
     api
-      .get('/user/orders/payment-methods')
+      .get('/public/orders/payment-methods')
       .then((res) => setPaymentMethods(res.data))
       .catch(() => toast.error('Failed to load payment methods'));
   }, []);

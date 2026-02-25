@@ -9,13 +9,16 @@ import {
     Clock, 
     ShoppingBag, 
     ShieldAlert, 
-    ShieldCheck 
+    ShieldCheck,
+    Lock
 } from 'lucide-react';
 
 interface UserDetailsModalProps {
     selectedUser: any;
     setSelectedUser: (user: any) => void;
     blockUser: any;
+    verifyUser?: any;
+    freezeUser?: any;
     formatPrice: (price: number) => string;
     getImageUrl: (url: string) => string;
     formatDate?: (date: any) => string;
@@ -25,6 +28,8 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
     selectedUser,
     setSelectedUser,
     blockUser,
+    verifyUser: _verifyUser,
+    freezeUser: _freezeUser,
     formatPrice,
     getImageUrl: _getImageUrl,
     formatDate: _formatDate = (date) => new Date(date).toLocaleDateString(),
@@ -32,6 +37,41 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
     if (!selectedUser) return null;
     const user = selectedUser;
     const onClose = () => setSelectedUser(null);
+
+    // Defensive: sometimes an API error object (e.g. { message, error, statusCode })
+    // may be passed here by mistake. Avoid rendering raw objects as React children.
+    if (user && typeof user === 'object' && (user.message || user.statusCode || user.error)) {
+        const errMsg = typeof user.message === 'string' ? user.message : JSON.stringify(user);
+        return (
+            <AnimatePresence>
+                <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={onClose}
+                        className="absolute inset-0 bg-black/60 backdrop-blur-md"
+                    />
+                    <motion.div
+                        initial={{ scale: 0.95, opacity: 0, y: 20 }}
+                        animate={{ scale: 1, opacity: 1, y: 0 }}
+                        exit={{ scale: 0.95, opacity: 0, y: 20 }}
+                        className="relative w-full max-w-md bg-[var(--bg-card)] rounded-[2.5rem] overflow-hidden shadow-2xl border border-[var(--border)] p-8"
+                    >
+                        <div className="flex justify-between items-start mb-4">
+                            <h3 className="text-lg font-black">Unable to load user</h3>
+                            <button onClick={onClose} className="p-2 rounded-lg hover:bg-[var(--bg-input)]">
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+                        <div className="p-4 bg-[var(--bg-input)] rounded-xl border border-[var(--border)]">
+                            <pre className="whitespace-pre-wrap text-sm text-[var(--text-muted)]">{errMsg}</pre>
+                        </div>
+                    </motion.div>
+                </div>
+            </AnimatePresence>
+        );
+    }
 
     return (
         <AnimatePresence>
@@ -71,9 +111,18 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                             <div className="flex-1 pb-2">
                                 <div className="flex items-center gap-3 mb-1">
                                     <h2 className="text-3xl font-black text-[var(--text-main)] tracking-tight">{user.name}</h2>
-                                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.2em] border ${user.isBlocked ? 'bg-red-500/10 text-red-500 border-red-500/20' : 'bg-green-500/10 text-green-500 border-green-500/20'}`}>
-                                        {user.isBlocked ? 'Blocked' : 'Active'}
-                                    </span>
+                                    {user.isBlocked ? (
+                                        <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.2em] border bg-red-500/10 text-red-500 border-red-500/20">Blocked</span>
+                                    ) : (
+                                        <div className="flex items-center gap-2">
+                                            <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.2em] border bg-green-500/10 text-green-500 border-green-500/20">Active</span>
+                                            {user.isFrozen ? (
+                                                <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.2em] border bg-yellow-500/10 text-yellow-500 border-yellow-500/20">Frozen</span>
+                                            ) : user.isVerified ? (
+                                                <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.2em] border bg-green-500/10 text-green-500 border-green-500/20">Verified</span>
+                                            ) : null}
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="flex flex-wrap gap-4 text-[var(--text-muted)] font-bold text-xs uppercase tracking-widest">
                                     <span className="flex items-center gap-1.5"><Briefcase className="w-4 h-4 text-[var(--primary)]" /> Citizen #{user.id}</span>
@@ -108,16 +157,34 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
 
                                 <section>
                                     <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)] mb-4">Account Control</h3>
-                                    <button
-                                        onClick={() => blockUser.mutate(user.id)}
-                                        disabled={blockUser.isPending}
-                                        className={`w-full py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-3 ${user.isBlocked
-                                            ? 'bg-green-500 hover:bg-green-600 text-white shadow-lg shadow-green-500/20'
-                                            : 'bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/20'}`}
-                                    >
-                                        {user.isBlocked ? <ShieldCheck className="w-4 h-4" /> : <ShieldAlert className="w-4 h-4" />}
-                                        {user.isBlocked ? 'Restore Citizenship' : 'Execute Order 66 (Block)'}
-                                    </button>
+                                    <div className="grid grid-cols-3 gap-3">
+                                        <button
+                                            onClick={() => _verifyUser?.mutate && _verifyUser.mutate(user.id)}
+                                            disabled={_verifyUser?.isLoading}
+                                            className="w-full py-3 rounded-2xl font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 bg-green-500/10 text-green-500 border border-green-500/10 hover:bg-green-500/20"
+                                        >
+                                            <ShieldCheck className="w-4 h-4" />
+                                            Verify
+                                        </button>
+                                        <button
+                                            onClick={() => confirm('Freeze this user account?') && _freezeUser?.mutate && _freezeUser.mutate(user.id)}
+                                            disabled={_freezeUser?.isLoading}
+                                            className="w-full py-3 rounded-2xl font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 bg-yellow-500/10 text-yellow-500 border border-yellow-500/10 hover:bg-yellow-500/20"
+                                        >
+                                            <Lock className="w-4 h-4" />
+                                            Freeze
+                                        </button>
+                                        <button
+                                            onClick={() => blockUser?.mutate && blockUser.mutate(user.id)}
+                                            disabled={blockUser?.isLoading}
+                                            className={`w-full py-3 rounded-2xl font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 ${user.isBlocked
+                                                ? 'bg-green-500 hover:bg-green-600 text-white shadow-lg shadow-green-500/20'
+                                                : 'bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/20'}`}
+                                        >
+                                            {user.isBlocked ? <ShieldCheck className="w-4 h-4" /> : <ShieldAlert className="w-4 h-4" />}
+                                            {user.isBlocked ? 'Restore' : 'Block'}
+                                        </button>
+                                    </div>
                                 </section>
                             </div>
 

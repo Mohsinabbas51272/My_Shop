@@ -27,6 +27,7 @@ interface SupportTabProps {
     logs: any[];
     logsLoading: boolean;
     deleteAllLogs: any;
+    setViewingFirLog?: (log: any) => void;
     deleteComplaint: any;
 }
 
@@ -51,6 +52,7 @@ const SupportTab: React.FC<SupportTabProps> = ({
     logs,
     logsLoading,
     deleteAllLogs,
+    setViewingFirLog,
     deleteComplaint,
 }) => {
     return (
@@ -119,6 +121,7 @@ const SupportTab: React.FC<SupportTabProps> = ({
                     logsLoading={logsLoading}
                     deleteAllLogs={deleteAllLogs}
                     formatDate={(date: any) => new Date(date).toLocaleString()}
+                    setViewingFirLog={setViewingFirLog}
                 />
             )}
 

@@ -87,7 +87,7 @@ const FirDetailModal: React.FC<FirDetailModalProps> = ({
                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Description of Violation</p>
                                 <div className="bg-slate-50 border border-slate-100 p-6 rounded-3xl">
                                     <p className="text-sm text-slate-600 leading-relaxed font-medium italic">
-                                        "{firLog.metadata?.details}"
+                                        "{typeof firLog.metadata?.details === 'string' ? firLog.metadata.details : JSON.stringify(firLog.metadata?.details)}"
                                     </p>
                                 </div>
                             </div>

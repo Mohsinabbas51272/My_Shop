@@ -6,7 +6,7 @@ import {
     TrendingUp, 
     ExternalLink,
     ChevronLeft,
-    ChevronRight,
+    ChevronRight
 } from 'lucide-react';
 
 interface AdminSidebarProps {

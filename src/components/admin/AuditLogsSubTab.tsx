@@ -6,6 +6,7 @@ interface AuditLogsSubTabProps {
     logsLoading: boolean;
     deleteAllLogs: any;
     formatDate: (date: string) => string;
+    setViewingFirLog?: (log: any) => void;
 }
 
 const AuditLogsSubTab: React.FC<AuditLogsSubTabProps> = ({
@@ -13,6 +14,7 @@ const AuditLogsSubTab: React.FC<AuditLogsSubTabProps> = ({
     logsLoading,
     deleteAllLogs,
     formatDate,
+    setViewingFirLog,
 }) => {
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
@@ -46,29 +48,43 @@ const AuditLogsSubTab: React.FC<AuditLogsSubTabProps> = ({
                                 <tr><td colSpan={4} className="p-12 text-center opacity-50 font-bold uppercase tracking-widest italic">Indexing Logs...</td></tr>
                             ) : (logs || []).length === 0 ? (
                                 <tr><td colSpan={4} className="p-12 text-center opacity-30 font-bold uppercase tracking-widest italic">No System Activity Recorded</td></tr>
-                            ) : (logs || []).map((l: any) => (
-                                <tr key={l.id} className="hover:bg-[var(--bg-input)]/30 transition-colors">
-                                    <td className="p-4 font-mono text-[10px] text-[var(--text-muted)] font-bold">
-                                        {formatDate(l.createdAt)}
-                                    </td>
-                                    <td className="p-4">
-                                        <div className="flex items-center gap-2">
-                                            {l.entityType === 'Order' ? (
-                                                <ShoppingBag className="w-3.5 h-3.5 text-blue-500" />
-                                            ) : l.entityType === 'User' ? (
-                                                <User className="w-3.5 h-3.5 text-purple-500" />
-                                            ) : (
-                                                <Terminal className="w-3.5 h-3.5 text-[var(--primary)]" />
-                                            )}
-                                            <span className="font-black text-[10px] uppercase tracking-widest text-[var(--text-main)]">{l.entityType}</span>
-                                        </div>
-                                    </td>
-                                    <td className="p-4 font-bold text-[var(--text-main)] text-xs">{l.action}</td>
-                                    <td className="p-4">
-                                        <span className="text-[10px] font-bold text-[var(--text-muted)] leading-relaxed">{l.details}</span>
-                                    </td>
-                                </tr>
-                            ))}
+                            ) : (logs || []).map((l: any) => {
+                                const entityType = l.entity || l.entityType || 'System';
+                                const details = l.details ?? (
+                                    l.metadata ? (typeof l.metadata === 'string' ? l.metadata : JSON.stringify(l.metadata)) : (
+                                        l.oldValue ? `${l.oldValue} -> ${l.newValue}` : (l.newValue ?? '')
+                                    )
+                                );
+
+                                // Shorten display for very long details
+                                const shortDetails = typeof details === 'string' && details.length > 300 ? details.slice(0, 300) + '…' : details;
+
+                                const isFir = String(l.action || '').toLowerCase().includes('fir') || l.metadata?.violation;
+                                return (
+                                    <tr key={l.id} className={`hover:bg-[var(--bg-input)]/30 transition-colors ${isFir ? 'cursor-pointer' : ''}`} onClick={() => isFir && setViewingFirLog?.(l)}>
+                                        <td className="p-4 font-mono text-[10px] text-[var(--text-muted)] font-bold">
+                                            {formatDate(l.createdAt)}
+                                        </td>
+                                        <td className="p-4">
+                                            <div className="flex items-center gap-2">
+                                                {entityType === 'Order' ? (
+                                                    <ShoppingBag className="w-3.5 h-3.5 text-blue-500" />
+                                                ) : entityType === 'User' ? (
+                                                    <User className="w-3.5 h-3.5 text-purple-500" />
+                                                ) : (
+                                                    <Terminal className="w-3.5 h-3.5 text-[var(--primary)]" />
+                                                )}
+                                                <span className="font-black text-[10px] uppercase tracking-widest text-[var(--text-main)]">{entityType}</span>
+                                            </div>
+                                        </td>
+                                        <td className="p-4 font-bold text-[var(--text-main)] text-xs">{l.action}</td>
+                                        <td className="p-4">
+                                            <span className="text-[10px] font-bold text-[var(--text-muted)] leading-relaxed">{shortDetails}</span>
+                                        </td>
+                                    </tr>
+                                );
+                            })
+                        }
                         </tbody>
                     </table>
                 </div>

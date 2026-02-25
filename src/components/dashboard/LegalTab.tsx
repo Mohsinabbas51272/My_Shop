@@ -62,7 +62,7 @@ const LegalTab: React.FC<LegalTabProps> = ({
                                     </div>
                                 </div>
                                 <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-8 opacity-80 line-clamp-3">
-                                    {n.metadata?.details}
+                                    {typeof n.metadata?.details === 'string' ? n.metadata.details : JSON.stringify(n.metadata?.details)}
                                 </p>
 
                                 <button
